@@ -21,6 +21,7 @@ public:
     const DownloadProperties* getDetails(qint64 id);
     qint64 maxId();
     void readDatabase();
+    int restartDownload(qint64 id);
 
 private:
     QMap<int, DownloadProperties*> downloadList;

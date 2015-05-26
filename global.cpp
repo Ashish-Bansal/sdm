@@ -60,3 +60,20 @@ QDebug operator<<(QDebug d, const DownloadProperties prop)
     d << "started" << prop.started;
     return d;
 }
+
+QMultiMap <double, QMultiMap <qint8, QVariant> > SDM::readByteArray(QByteArray b)
+{
+    QDataStream dsOut(&b, QIODevice::ReadOnly);
+    QMultiMap <double, QMultiMap <qint8, QVariant> > savedFilesMeta;
+    dsOut >> savedFilesMeta;
+    return savedFilesMeta;
+}
+
+
+QByteArray SDM::writeToByteArray(QMultiMap<double, QMultiMap<qint8, QVariant> > m)
+{
+    QByteArray b;
+    QDataStream dsIn(&b, QIODevice::WriteOnly);
+    dsIn << m;
+    return b;
+}

@@ -1,6 +1,8 @@
 #include "memorydatabase.h"
 #include "enum.h"
+#include "global.h"
 #include "singletonfactory.h"
+#include "startdownload.h"
 
 #include <QTimer>
 #include <QHash>
@@ -88,6 +90,27 @@ void MemoryDatabase::removeDownload(qint64 id)
 
     QtConcurrent::run(mDbManager, &DatabaseManager::removeDownload, id);
     emit downloadRemoved(id);
+}
+
+int MemoryDatabase::restartDownload(qint64 id)
+{
+    DownloadProperties *prop = downloadList.value(id, nullptr);
+    if (prop == nullptr) {
+        qDebug() << "No Id found";
+        return SDM::Failed;
+    }
+
+    StartDownload download(id);
+    download.cleanUp();
+
+    prop->bytesDownloaded = 0;
+    prop->started = false;
+    prop->transferRate = QString();
+    prop->tempFileNames;
+    QtConcurrent::run(mDbManager, &DatabaseManager::updateDetails,
+                      DownloadProperties(getDetails(id)));
+    emit updateGUI(id);
+    return SDM::Successful;
 }
 
 void MemoryDatabase::writeToDatabase()

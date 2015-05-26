@@ -34,6 +34,7 @@ public:
     StartDownload(int id);
     void cleanUp();
     void updateDatabase(QHash<int, QVariant> details);
+    void startDownload();
     void stopDownload();
 
     QList <Download *> dwldip;

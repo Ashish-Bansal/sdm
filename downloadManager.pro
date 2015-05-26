@@ -47,6 +47,6 @@ HEADERS  += mainwindow.h \
 FORMS    += adddialog.ui \
 	downloadinfodialog.ui
 
-CONFIG += c++11
+CONFIG += c++14
 RESOURCES += icons.qrc
 LIBS += -lcurl

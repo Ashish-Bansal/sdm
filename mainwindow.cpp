@@ -223,7 +223,7 @@ void MainWindow::onActionResumeTriggered(qint64 id)
     } else {
         QString message = "This download cannot be resumed\n"
                           "Would you like to restart this download?";
-        //onActionRestartTriggered(id, message);
+        onActionRestartTriggered(id, message);
     }
 }
 
@@ -245,7 +245,14 @@ void MainWindow::onActionRestartTriggered(qint64 id, QString message)
     if (ans == QMessageBox::No) {
         return;
     }
-    //ToDo: Simply restart download with given id
+    if (mMemoryDatabase->restartDownload(id) == SDM::Failed) {
+        QMessageBox::critical(this, "Failed", "Unable to Restart Download");
+        return;
+    }
+
+    StartDownload *newDownload = new StartDownload(id);
+    downloads.insert(id, newDownload);
+    newDownload->startDownload();
 }
 
 void MainWindow::onActionStopTriggered(qint64 id)
@@ -306,11 +313,13 @@ void MainWindow::showDownloadDialog(QString url)
             qint64 id = mMemoryDatabase->insertDownload(fh->properties);
             StartDownload *newDownload = new StartDownload(id);
             downloads.insert(id, newDownload);
+            newDownload->startDownload();
         } else {
             connect(fh, &FetchHeaders::headersFetched, [=](){
                 qint64 id = mMemoryDatabase->insertDownload(fh->properties);
                 StartDownload *newDownload = new StartDownload(id);
                 downloads.insert(id, newDownload);
+                newDownload->startDownload();
             });
         }
     });
@@ -322,6 +331,9 @@ void MainWindow::downloadAdded(qint64 id)
 {
     qDebug() << "database ID : " << id;
     qDebug() << "row id : " << maxId + 1;
+    if (getTreeItem(id) != nullptr) {
+        qDebug() << "Item already available in tree";
+    }
     QTreeWidgetItem *item = new QTreeWidgetItem(downloadView);
     item->setText(TableView::RowId, QString::number(++maxId));
     item->setText(TableView::DatabaseId, QString::number(id));

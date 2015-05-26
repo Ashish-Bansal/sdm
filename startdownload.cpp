@@ -20,6 +20,7 @@
 
 
 #include "enum.h"
+#include "global.h"
 #include "startdownload.h"
 #include "singletonfactory.h"
 #include "downloadproperties.h"
@@ -39,17 +40,18 @@ StartDownload::StartDownload(int id) : id(id)
     isAlreadyStarted = properties.started;
     counter = 0;
     totalBytesDownloaded = 0;
+}
 
+void StartDownload::startDownload()
+{
     if (isAlreadyStarted) {
-        QByteArray baOut = properties.tempFileNames;
-        QDataStream dsOut(&baOut, QIODevice::ReadOnly);
-        QMultiMap <double, QMultiMap <qint8, QVariant> > savedFilesMeta;
-        QMultiMap <double, QMultiMap <qint8, QVariant> > newFilesMeta;
-        dsOut >> savedFilesMeta;
-
+        QByteArray b = properties.tempFileNames;
+        auto savedFilesMeta = SDM::readByteArray(b);
+        auto newFilesMeta =  savedFilesMeta;
+        newFilesMeta.clear();
         //operation on savedFilesMeta
-        QMultiMap <double, QMultiMap <qint8, QVariant>>::iterator i;
-        for (i = savedFilesMeta.begin(); i != savedFilesMeta.end(); ++i) {
+        auto i = savedFilesMeta.begin();
+        for (; i != savedFilesMeta.end(); ++i) {
             qint64 start  = i.value().value(0).toLongLong();
             qint64 done = i.value().value(1).toLongLong();
             qint64 end = i.value().value(2).toLongLong();
@@ -84,10 +86,8 @@ StartDownload::StartDownload(int id) : id(id)
             connect(download, &Download::downloadComplete, this, &StartDownload::writeToFileInParts);
             connect(download, &Download::updateGui, this, &StartDownload::updateDatabase);
         }
-        QByteArray baIn;
-        QDataStream dsIn(&baIn, QIODevice::WriteOnly);
-        dsIn << savedFilesMeta + newFilesMeta;
-        properties.tempFileNames = baIn;
+        b = SDM::writeToByteArray(savedFilesMeta + newFilesMeta);
+        properties.tempFileNames = b;
         mMemoryDatabase->updateDetails(properties);
     } else {
         if (resumeSupported) {
@@ -112,10 +112,8 @@ StartDownload::StartDownload(int id) : id(id)
                 tempFilesMeta.insert(counter, newDownloadMeta);
             }
 
-            QByteArray baIn;
-            QDataStream dsIn(&baIn, QIODevice::WriteOnly);
-            dsIn << tempFilesMeta;
-            properties.tempFileNames = baIn;
+            QByteArray b = SDM::writeToByteArray(tempFilesMeta);
+            properties.tempFileNames = b;
             mMemoryDatabase->updateDetails(properties);
         } else {
             qDebug() << "Downloading In parts *NOT* supported";
@@ -126,6 +124,8 @@ StartDownload::StartDownload(int id) : id(id)
         properties.started = true;
         mMemoryDatabase->updateDetails(properties);
     }
+    properties.status = "Downloading";
+    mMemoryDatabase->updateDetails(properties);
 }
 
 void StartDownload::updateDatabase(QHash<int, QVariant> details)
@@ -148,16 +148,14 @@ bool StartDownload::compareList(QPair<double, QPair<qint64, QString>> i, QPair<d
 void StartDownload::writeToFileInParts()
 {
     fetchProperties();
-    QByteArray baOut = properties.tempFileNames;
-    QDataStream dsOut(&baOut, QIODevice::ReadOnly);
-    QMultiMap <double, QMultiMap <qint8, QVariant> > tempFilesMeta;
-    dsOut >> tempFilesMeta;
-    qDebug() << tempFilesMeta;
-    QMultiMap<double, QMultiMap <qint8, QVariant> >::iterator i;
-    if (i == tempFilesMeta.end()) {
+    QByteArray b = properties.tempFileNames;
+    auto tempFilesMeta = SDM::readByteArray(b);
+
+    if (tempFilesMeta.empty()) {
         return;
     }
-    for (i = tempFilesMeta.begin(); i != tempFilesMeta.end(); ++i) {
+
+    for (auto i = tempFilesMeta.begin(); i != tempFilesMeta.end(); ++i) {
         if (i.value().value(0).toLongLong() + i.value().value(1).toLongLong() < i.value().value(2).toLongLong()) {
             return;
         }
@@ -181,14 +179,13 @@ void StartDownload::writeToFileInParts()
     }
 
     QList< QPair< double, QPair<qint64, QString> > > p;
-    for (i = tempFilesMeta.begin(); i != tempFilesMeta.end(); ++i) {
+    for (auto i = tempFilesMeta.begin(); i != tempFilesMeta.end(); ++i) {
         QString filename = i.value().value(3).toString();
         double d = i.key();
         p << QPair< double, QPair<qint64, QString> > (d, QPair<qint64, QString>(i.value().value(1).toLongLong(), filename));
     }
     std::sort(p.begin(), p.end(), compareList);
-    QList< QPair< double, QPair<qint64, QString> > >::iterator listIt;
-    for (listIt = p.begin(); listIt != p.end(); listIt++) {
+    for (auto listIt = p.begin(); listIt != p.end(); listIt++) {
         QString filename = (*listIt).second.second;
         QFile tempFile(filename);
         if (!tempFile.open(QIODevice::ReadOnly)) {
@@ -207,11 +204,9 @@ void StartDownload::writeToFileInParts()
 
     properties.status = "Completed";
     mMemoryDatabase->updateDetails(properties);
-    baOut = properties.tempFileNames;
-    QDataStream sOut(&baOut, QIODevice::ReadOnly);
-    QMultiMap <double, QMultiMap <qint8, QVariant> > savedFilesMeta;
-    sOut >> savedFilesMeta;
-    qDebug() << savedFilesMeta;
+
+    b = properties.tempFileNames;
+    qDebug() << SDM::readByteArray(b);
 
     this->deleteLater();
 }
@@ -245,10 +240,14 @@ void StartDownload::writeToFileAsWhole()
 void StartDownload::cleanUp()
 {
     if (resumeSupported == true) {
-        QList <Download*>::iterator i;
-        for (i = dwldip.begin(); i != dwldip.end(); i++) {
-            (*i)->tempFile->remove();
-            (*i)->deleteLater();
+        auto m = SDM::readByteArray(properties.tempFileNames);
+        for (auto it = m.begin(); it != m.end(); it++) {
+            QString filename = it.value().value(3).toString();
+            QFile tempFile(filename);
+            tempFile.remove();
+        }
+        for (auto it = dwldip.begin(); it != dwldip.end(); it++) {
+            (*it)->deleteLater();
         }
     } else {
         dwldaw->tempFile->remove();
