@@ -136,6 +136,9 @@ void MemoryDatabase::readDatabase()
         for(int i = 0; i < DownloadAttributes::END; i++){
             dld->setValue(i, it->value(i));
         }
+        dld->setValue(DownloadAttributes::TransferRate, 0);
+        dld->setValue(DownloadAttributes::Status,
+                      dld->status == Status::Downloading ? Status::Idle : dld->status);
         downloadList.insert(dld->id, dld);
         emit downloadLoaded(it->value(0).toLongLong());
     }

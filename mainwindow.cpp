@@ -297,7 +297,7 @@ void MainWindow::clearTreeItem(qint64 id)
         return;
     }
     item->setText(TableView::TransferRate, "");
-    item->setText(TableView::Status, "IDLE");
+    item->setText(TableView::Status, "Idle");
     item->setText(TableView::TimeRemaining, "");
 }
 
@@ -361,7 +361,7 @@ void MainWindow::downloadAdded(qint64 id)
     item->setText(TableView::FileSize, tr("--"));
     item->setText(TableView::DownloadProgress, "--");
     item->setText(TableView::TransferRate, "--");
-    item->setText(TableView::Status, "IDLE");
+    item->setText(TableView::Status, "Idle");
     item->setText(TableView::TimeRemaining, "Unknown");
     item->setText(TableView::ResumeCapability, "Unknown");
     item->setText(TableView::DateAdded, "Unknown");
@@ -397,7 +397,19 @@ void MainWindow::updateDetails(qint64 id)
     item->setText(TableView::FileSize, QString::number(properties->filesize));
     item->setText(TableView::DownloadProgress, QString::number(properties->bytesDownloaded));
     item->setText(TableView::TransferRate, properties->transferRate);
-    item->setText(TableView::Status, properties->status);
+    QString status;
+    if (properties->status == Status::Downloading) {
+        status = "Downloading";
+    } else if (properties->status == Status::Completed) {
+        status = "Completed";
+    } else if (properties->status == Status::Error) {
+        status = "Error";
+    } else if (properties->status == Status::Idle) {
+        status = "Idle";
+    } else if (properties->status == Status::Merging) {
+        status = "Merging";
+    }
+    item->setText(TableView::Status, status);
     item->setText(TableView::DownloadProgress, QString::number(convertUnits(properties->bytesDownloaded).first));
     //    item->setText(TableView::TimeRemaining, QString(properties->filesize - properties->bytesDownloaded/properties->transferRate));
     if(properties->resumeCapability == SDM::ResumeSupported){

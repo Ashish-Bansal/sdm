@@ -37,7 +37,7 @@ DatabaseManager::DatabaseManager()
     }
 
     QSqlQuery qry(mydb);
-    QString qryStr = "create table if not exists downloadList(id integer primary key autoincrement, filename varchar, filesize varchar, resumeCapability integer, url varchar, bytesDownloaded integer, tempFileNames blob, date varchar, status varchar, transferRate varchar, started integer)";
+    QString qryStr = "create table if not exists downloadList(id integer primary key autoincrement, filename varchar, filesize varchar, resumeCapability integer, url varchar, bytesDownloaded integer, tempFileNames blob, date varchar, status integer, transferRate varchar, started integer)";
 
     if (!qry.exec(qryStr)) {
         qWarning() << "Unable to create table!";
@@ -65,7 +65,7 @@ void DatabaseManager::insertDownload(DownloadProperties prop)
     qry.bindValue(":bytesDownloaded", 0);
     qry.bindValue(":tempFileNames", QByteArray());
     qry.bindValue(":date", QDateTime::currentDateTime().toString());
-    qry.bindValue(":status", "Idle");
+    qry.bindValue(":status", Status::Idle);
     qry.bindValue(":speed", prop.transferRate);
     qry.bindValue(":started", 0);
     if (!qry.exec()) {

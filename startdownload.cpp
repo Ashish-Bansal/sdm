@@ -124,7 +124,7 @@ void StartDownload::startDownload()
         properties.started = true;
         mMemoryDatabase->updateDetails(properties);
     }
-    properties.status = "Downloading";
+    properties.status = Status::Downloading;
     mMemoryDatabase->updateDetails(properties);
 }
 
@@ -168,7 +168,7 @@ void StartDownload::writeToFileInParts()
         (*it)->deleteLater();
     }
 
-    properties.status = "Merging";
+    properties.status = Status::Merging;
     mMemoryDatabase->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
@@ -202,7 +202,7 @@ void StartDownload::writeToFileInParts()
 //     emit downloadComplete(id);
     qDebug() << "Write Complete In Parts";
 
-    properties.status = "Completed";
+    properties.status = Status::Completed;
     mMemoryDatabase->updateDetails(properties);
 
     b = properties.tempFileNames;
@@ -214,7 +214,7 @@ void StartDownload::writeToFileInParts()
 void StartDownload::writeToFileAsWhole()
 {
     fetchProperties();
-    properties.status = "Merging";
+    properties.status = Status::Merging;
     mMemoryDatabase->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
@@ -230,7 +230,7 @@ void StartDownload::writeToFileAsWhole()
     cleanUp();
 //     emit downloadComplete(id);
     qDebug() << "Write Complete As Whole";
-    properties.status = "Completed";
+    properties.status = Status::Completed;
     properties.transferRate = "";
     mMemoryDatabase->updateDetails(properties);
     this->deleteLater();

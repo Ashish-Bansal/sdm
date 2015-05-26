@@ -24,7 +24,7 @@ public:
     qint64 bytesDownloaded;
     QByteArray tempFileNames;
     QString dateAdded;
-    QString status;
+    int status;
     QString transferRate;
     bool started;
 

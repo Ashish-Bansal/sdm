@@ -62,7 +62,17 @@ namespace TableView {
     };
 }
 
-namespace DownloadBackend{
+namespace Status {
+    enum Status : int {
+        Idle,
+        Completed,
+        Downloading,
+        Error,
+        Merging
+    };
+}
+
+namespace DownloadBackend {
     enum DownloadBackend : int {
         BytesDownloaded = 0,
         Status,

@@ -64,7 +64,7 @@ void DownloadProperties::setValue(int i, QVariant v)
     } else if (i == DownloadAttributes::Started) {
         started = v.toInt() == 1 ? true : false;
     } else if (i == DownloadAttributes::Status) {
-        status = v.toString();
+        status = v.toInt();
     } else if (i == DownloadAttributes::TransferRate) {
         transferRate = v.toString();
     } else if (i == DownloadAttributes::tempFileNames) {
