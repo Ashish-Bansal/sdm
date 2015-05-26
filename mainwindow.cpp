@@ -245,6 +245,14 @@ void MainWindow::onActionRestartTriggered(qint64 id, QString message)
     if (ans == QMessageBox::No) {
         return;
     }
+
+    auto it = downloads.find(id);
+    if (it != downloads.end()) {
+        it.value()->stopDownload();
+        it.value()->deleteLater();
+        downloads.remove(id);
+    }
+
     if (mMemoryDatabase->restartDownload(id) == SDM::Failed) {
         QMessageBox::critical(this, "Failed", "Unable to Restart Download");
         return;
