@@ -119,9 +119,7 @@ void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
         fileName = contentDispositionHeader.split("filename=\"").at(1).split("\"").at(0);
         qDebug() << "FileName :" << fileName;
     } else {
-        QString stringUrl = QUrl::fromPercentEncoding(url->toString().toLocal8Bit());
-        QStringList splitUrl = stringUrl.split("/");
-        fileName = splitUrl.value(splitUrl.length() - 1);
+        SDM::filenameFromUrl(*url);
         qDebug() << fileName;
     }
 

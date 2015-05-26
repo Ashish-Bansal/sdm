@@ -12,6 +12,8 @@ namespace SDM
     QString convertUnits(qint64 bytes);
     QMultiMap<double, QMultiMap<qint8, QVariant> > readByteArray(QByteArray b);
     QByteArray writeToByteArray(QMultiMap <double, QMultiMap <qint8, QVariant> > m);
+    QString filenameFromUrl(QString url);
+    QString filenameFromUrl(QUrl url);
 }
 
 #endif // GLOBAL_H
