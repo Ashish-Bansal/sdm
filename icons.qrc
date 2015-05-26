@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/download-icon.png</file>
+        <file>icons/remove.png</file>
+        <file>icons/download-2-icon.png</file>
+        <file>icons/stop-2-icon.png</file>
+        <file>icons/reload-icon.png</file>
+        <file>icons/recyclebin-icon.png</file>
+        <file>icons/play-icon.png</file>
+        <file>icons/loading_blue.gif</file>
+    </qresource>
+</RCC>
