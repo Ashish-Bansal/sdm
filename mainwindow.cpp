@@ -141,14 +141,34 @@ MainWindow::MainWindow(QWidget *parent)
     loadDownloads();
 
     connect(addDownload, &QAction::triggered, this, &MainWindow::onActionAddTriggered);
-    connect(startDownload, &QAction::triggered, this, &MainWindow::onActionResumeTriggered);
-    connect(restartDownload, &QAction::triggered, this, [=] {
-       //ToDo: Get id of selected item
-        qint64 id;
-        onActionRestartTriggered(id);
+    connect(startDownload, &QAction::triggered, this, [=] {
+        auto items = downloadView->selectedItems();
+        foreach(auto item, items){
+            qint64 id = item->text(TableView::DatabaseId).toLongLong();
+            onActionResumeTriggered(id);
+        }
     });
-    connect(stopDownload, &QAction::triggered, this, &MainWindow::onActionStopTriggered);
-    connect(removeDownload, &QAction::triggered, this, &MainWindow::onActionRemoveTriggered);
+    connect(restartDownload, &QAction::triggered, this, [=] {
+        auto items = downloadView->selectedItems();
+        foreach(auto item, items){
+            qint64 id = item->text(TableView::DatabaseId).toLongLong();
+            onActionRestartTriggered(id);
+        }
+    });
+    connect(stopDownload, &QAction::triggered, this, [=] {
+        auto items = downloadView->selectedItems();
+        foreach(auto item, items){
+            qint64 id = item->text(TableView::DatabaseId).toLongLong();
+            onActionStopTriggered(id);
+        }
+    });
+    connect(removeDownload, &QAction::triggered, this, [=] {
+        auto items = downloadView->selectedItems();
+        foreach(auto item, items){
+            qint64 id = item->text(TableView::DatabaseId).toLongLong();
+            onActionRemoveTriggered(id);
+        }
+    });
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
 }
 
@@ -197,7 +217,7 @@ void MainWindow::onActionAddTriggered()
 
 void MainWindow::onActionResumeTriggered(qint64 id)
 {
-    StartDownload *sd = new StartDownload(1);
+    StartDownload *sd = new StartDownload(id);
     if (checkResumeSupported(id)) {
         //ToDo: start the download from where we left
     } else {
