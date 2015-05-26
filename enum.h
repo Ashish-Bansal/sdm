@@ -40,7 +40,9 @@ namespace SDM {
     enum Global : int {
         ResumeNotSupported,
         ResumeSupported,
-        DownloadFinished
+        DownloadFinished,
+        Failed,
+        Successful
     };
 }
 
