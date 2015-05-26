@@ -1,10 +1,10 @@
 #ifndef DOWNLOADPROPERTIES_H
 #define DOWNLOADPROPERTIES_H
 
+#include "enum.h"
 
 #include <QObject>
 #include <QString>
-
 
 class DownloadProperties : public QObject
 {
@@ -16,17 +16,17 @@ public:
     DownloadProperties& operator=(const DownloadProperties&);
     void setValue(int i, QVariant v);
 
-    int id;
-    QString filename;
-    qint64 filesize;
-    int resumeCapability;
-    QString url;
-    qint64 bytesDownloaded;
+    int id = 0;
+    QString filename = QString();
+    qint64 filesize = 0;
+    int resumeCapability = SDM::ResumeNotSupported;
+    QString url = QString();
+    qint64 bytesDownloaded = 0;
     QByteArray tempFileNames;
-    QString dateAdded;
-    int status;
-    QString transferRate;
-    bool started;
+    QString dateAdded = QString();
+    int status = Status::Idle;
+    QString transferRate = QString();
+    bool started = false;
 
 };
 
