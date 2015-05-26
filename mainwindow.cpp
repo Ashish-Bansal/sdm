@@ -265,7 +265,6 @@ void MainWindow::onActionRestartTriggered(qint64 id, QString message)
 
 void MainWindow::onActionStopTriggered(qint64 id)
 {
-    id = 1;
     if (checkResumeSupported(id)) {
         stopDownload(id);
         return;
@@ -276,17 +275,30 @@ void MainWindow::onActionStopTriggered(qint64 id)
     QMessageBox::StandardButton ans = QMessageBox::question(this, "Stop Confirmation",
                                                         message, QMessageBox::Yes | QMessageBox::No);
     if (ans == QMessageBox::Yes) {
-        //ToDo: Stop download with given id
         stopDownload(id);
     }
 }
 
 void MainWindow::stopDownload(qint64 id)
 {
-//    QMap<qint64, StartDownload*>::iterator it = downloads.find(id);
-//    if (it != downloads.end()) {
-//        it.value()->stopDownload();
-//    }
+    QMap<qint64, StartDownload*>::iterator it = downloads.find(id);
+    if (it != downloads.end()) {
+        it.value()->stopDownload();
+        it.value()->deleteLater();
+        downloads.remove(id);
+    }
+    clearTreeItem(id);
+}
+
+void MainWindow::clearTreeItem(qint64 id)
+{
+    QTreeWidgetItem *item = getTreeItem(id);
+    if (item == nullptr) {
+        return;
+    }
+    item->setText(TableView::TransferRate, "");
+    item->setText(TableView::Status, "IDLE");
+    item->setText(TableView::TimeRemaining, "");
 }
 
 void MainWindow::onActionRemoveTriggered(qint64 id)

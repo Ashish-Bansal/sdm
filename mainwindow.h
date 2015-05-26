@@ -60,6 +60,7 @@ private:
     QMap<qint64, StartDownload*> downloads;
     QThread workerThread;
     QThread downloadThread;
+    void clearTreeItem(qint64 id);
 
 private slots:
     void exit();
