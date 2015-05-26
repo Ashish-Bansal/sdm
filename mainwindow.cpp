@@ -272,8 +272,9 @@ void MainWindow::onActionStopTriggered(qint64 id)
 
     QString message = "This download cannot be resumed\n"
                       "Would you like to stop this download?";
-    QMessageBox::StandardButton ans = QMessageBox::question(this, "Stop Confirmation",
-                                                        message, QMessageBox::Yes | QMessageBox::No);
+    QMessageBox::StandardButton ans =
+            QMessageBox::question(this, "Stop Confirmation",
+                                  message, QMessageBox::Yes | QMessageBox::No);
     if (ans == QMessageBox::Yes) {
         stopDownload(id);
     }
@@ -303,7 +304,19 @@ void MainWindow::clearTreeItem(qint64 id)
 
 void MainWindow::onActionRemoveTriggered(qint64 id)
 {
+    QString message = "If you remove the download, it would be lost permanently\n"
+                      "Do you want to remove this download?";
+    QMessageBox::StandardButton ans =
+            QMessageBox::question(this, "Remove Confirmation",
+                                  message, QMessageBox::Yes | QMessageBox::No);
+    if (ans == QMessageBox::No) {
+        return;
+    }
 
+    stopDownload(id);
+    QTreeWidgetItem *item = getTreeItem(id);
+    delete item;
+    mMemoryDatabase->removeDownload(id);
 }
 
 void MainWindow::fileAlreadyInList(DownloadProperties properties)

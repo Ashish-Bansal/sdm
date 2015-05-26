@@ -77,17 +77,20 @@ const DownloadProperties* MemoryDatabase::getDetails(qint64 id)
 {
     auto val = downloadList.value(id, nullptr);
     if (val == nullptr) {
-        qDebug() << "not found";
+        qDebug() << "ID not found";
     }
     return val;
 }
 
 void MemoryDatabase::removeDownload(qint64 id)
 {
-    if (downloadList.remove(id) == 0){
-        qDebug() << "Id not stored in database";
+    DownloadProperties *prop = downloadList.value(id, nullptr);
+    if (prop == nullptr) {
+        qDebug() << "ID not found";
     }
 
+    StartDownload download(id);
+    download.cleanUp();
     QtConcurrent::run(mDbManager, &DatabaseManager::removeDownload, id);
     emit downloadRemoved(id);
 }
@@ -96,7 +99,7 @@ int MemoryDatabase::restartDownload(qint64 id)
 {
     DownloadProperties *prop = downloadList.value(id, nullptr);
     if (prop == nullptr) {
-        qDebug() << "No Id found";
+        qDebug() << "ID not found";
         return SDM::Failed;
     }
 

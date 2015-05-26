@@ -100,11 +100,10 @@ void DatabaseManager::updateDetails(DownloadProperties prop)
 
 void DatabaseManager::removeDownload(qint64 id)
 {
-    qDebug() << "Called";
     QSqlQuery qry(mydb);
-    QString qryStr = "delete from downloader where id = :id";
+    QString qryStr = "delete from downloadList where id=:id";
     qry.prepare(qryStr);
-    qry.bindValue(":id", QVariant(id));
+    qry.bindValue(":id", id);
     if(!qry.exec()){
         qWarning() << "Unable to remove row!";
         qWarning() << qry.lastError();
