@@ -101,7 +101,7 @@ void MemoryDatabase::writeToDatabase()
 
 void MemoryDatabase::readDatabase()
 {
-    QString qryStr = "SELECT id from downloadList;";
+    QString qryStr = "SELECT * from downloadList;";
     QSharedPointer<QSqlQuery> it  = mDbManager->getIterator(qryStr);
 
     if (it.isNull()) {
@@ -113,7 +113,6 @@ void MemoryDatabase::readDatabase()
         for(int i = 0; i < DownloadAttributes::END; i++){
             dld->setValue(i, it->value(i));
         }
-        qDebug() << *dld;
         downloadList.insert(dld->id, dld);
         emit downloadLoaded(it->value(0).toLongLong());
     }

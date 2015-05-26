@@ -53,7 +53,6 @@ DownloadProperties& DownloadProperties::operator=(const DownloadProperties& prop
 
 void DownloadProperties::setValue(int i, QVariant v)
 {
-    qDebug() << v;
     if (i == DownloadAttributes::Id) {
         id = v.toLongLong();
     } else if (i == DownloadAttributes::Url) {
