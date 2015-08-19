@@ -26,6 +26,7 @@
 #include <QLocale>
 #include <QDebug>
 #include <QUrl>
+#include <QDataStream>
 
 bool SDM::validateUrl(QString url)
 {
