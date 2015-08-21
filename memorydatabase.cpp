@@ -23,6 +23,11 @@ MemoryDatabase::MemoryDatabase()
     connect(this, &MemoryDatabase::downloadRemoved, this, &MemoryDatabase::writeToDatabase);
 }
 
+MemoryDatabase::~MemoryDatabase()
+{
+    writeToDatabase();
+}
+
 qint64 MemoryDatabase::insertDownload(DownloadProperties properties)
 {
     qint64 id = maxId() + 1;
