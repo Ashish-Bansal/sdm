@@ -15,7 +15,7 @@ class MemoryDatabase : public QObject
     Q_OBJECT
 public:
     MemoryDatabase();
-    ~MemoryDatabase():
+    ~MemoryDatabase();
     qint64 insertDownload(DownloadProperties properties);
     void removeDownload(qint64 id);
     void updateDetails(DownloadProperties properties);
