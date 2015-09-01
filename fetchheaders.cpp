@@ -119,7 +119,7 @@ void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
         fileName = contentDispositionHeader.split("filename=\"").at(1).split("\"").at(0);
         qDebug() << "FileName :" << fileName;
     } else {
-        SDM::filenameFromUrl(*url);
+        fileName = SDM::filenameFromUrl(*url);
         qDebug() << fileName;
     }
 
