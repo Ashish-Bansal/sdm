@@ -45,6 +45,8 @@ public:
     qint64 bytesProcessed;
     qint64 timeInterval = 100;
     void abortDownload();
+    void start();
+
 
 signals:
     void downloadComplete();
@@ -68,7 +70,7 @@ private:
     void updateDetails();
 
 private slots:
-    void downloadFinished(QNetworkReply *pReply);
+    void downloadFinished();
     void errorOccured(QNetworkReply *reply, const QList<QSslError> &errors);
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 

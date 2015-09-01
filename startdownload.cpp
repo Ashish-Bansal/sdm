@@ -55,7 +55,11 @@ void StartDownload::startDownload()
             qint64 start  = i.value().value(0).toLongLong();
             qint64 done = i.value().value(1).toLongLong();
             qint64 end = i.value().value(2).toLongLong();
-            if(start + done >= end) continue;
+            if (properties.filesize == end) {
+                if((start + done) == end) continue;
+            } else {
+                if((start + done) > end) continue;
+            }
             Download *download = new Download(id, url, start + done, end);
             dwldip.append(download);
 
@@ -68,7 +72,7 @@ void StartDownload::startDownload()
             QMultiMap <qint8, QVariant> changedDownloadMeta;
             changedDownloadMeta.insert(0, start);
             changedDownloadMeta.insert(1, done);
-            changedDownloadMeta.insert(2, start+done);
+            changedDownloadMeta.insert(2, start+done-1);
             changedDownloadMeta.insert(3, i.value().value(3).toString());
 
             double x, y;
@@ -81,7 +85,7 @@ void StartDownload::startDownload()
             }
             i--;
             savedFilesMeta.replace(i.key(), changedDownloadMeta);
-            newFilesMeta.insert(x + y, newDownloadMeta);
+            newFilesMeta.insert(y, newDownloadMeta);
 
             connect(download, &Download::downloadComplete, this, &StartDownload::writeToFileInParts);
             connect(download, &Download::updateGui, this, &StartDownload::updateDatabase);
@@ -89,6 +93,9 @@ void StartDownload::startDownload()
         b = SDM::writeToByteArray(savedFilesMeta + newFilesMeta);
         properties.tempFileNames = b;
         mMemoryDatabase->updateDetails(properties);
+        for (auto g = dwldip.begin(); g != dwldip.end(); g++) {
+                (*g)->start();
+        }
     } else {
         if (resumeSupported) {
             qDebug() << "Downloading In parts supported";
@@ -115,6 +122,9 @@ void StartDownload::startDownload()
             QByteArray b = SDM::writeToByteArray(tempFilesMeta);
             properties.tempFileNames = b;
             mMemoryDatabase->updateDetails(properties);
+            for (i = dwldip.begin(); i != dwldip.end(); i++) {
+                (*i)->start();
+            }
         } else {
             qDebug() << "Downloading In parts *NOT* supported";
             dwldaw = new Download(id, url,0, -1);
@@ -132,12 +142,9 @@ void StartDownload::updateDatabase(QHash<int, QVariant> details)
 {
     fetchProperties();
     totalBytesDownloaded += details.value(DownloadBackend::BytesDownloaded).toLongLong();
-//    qDebug() << totalBytesDownloaded;
-//    qDebug() << properties;
     properties.transferRate = details.value(DownloadBackend::TransferRate).toString();
     properties.bytesDownloaded = totalBytesDownloaded;
     mMemoryDatabase->updateDetails(properties);
-//    qDebug() << properties;
 }
 
 bool StartDownload::compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j)
@@ -151,9 +158,7 @@ void StartDownload::writeToFileInParts()
     QByteArray b = properties.tempFileNames;
     auto tempFilesMeta = SDM::readByteArray(b);
 
-    if (tempFilesMeta.empty()) {
-        return;
-    }
+    Q_ASSERT(tempFilesMeta.isEmpty());
 
     for (auto i = tempFilesMeta.begin(); i != tempFilesMeta.end(); ++i) {
         if (i.value().value(0).toLongLong() + i.value().value(1).toLongLong() < i.value().value(2).toLongLong()) {
@@ -194,7 +199,7 @@ void StartDownload::writeToFileInParts()
         }
         tempFile.seek(0);
         file.write(tempFile.read((*listIt).second.first));
-//        tempFile.remove();
+        Q_ASSERT(file.flush());
     }
     file.close();
     dwldip.clear();

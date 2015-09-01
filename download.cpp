@@ -35,29 +35,8 @@
 #include <QTimer>
 #include <QDataStream>
 
-//size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
-//    size_t written = fwrite(ptr, size, nmemb, stream);
-//    return written;
-//}
-
 Download::Download(qint64 id, QString rawURL, qint64 start, qint64 end) : QObject(), downloadId(id)
 {
-//    CURL *curl;
-//    CURLcode res;
-//    curl = curl_easy_init();
-//    char outfilename[FILENAME_MAX] = "page.html";
-//    FILE *fp;
-//    const char *ur = rawURL.toLocal8Bit().constData();
-//    if(curl) {
-//        fp = fopen(outfilename,"wb");
-//        curl_easy_setopt(curl, CURLOPT_URL, ur);
-//        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
-//        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-//        res = curl_easy_perform(curl);
-//        curl_easy_cleanup(curl);
-//        fclose(fp);
-//    }
-
     qnam = new QNetworkAccessManager();
     url = new QUrl(rawURL);
 
@@ -67,6 +46,7 @@ Download::Download(qint64 id, QString rawURL, qint64 start, qint64 end) : QObjec
     properties = DownloadProperties(mMemoryDatabase->getDetails(downloadId));
 
     tempFile = new QTemporaryFile("sdm");
+    tempFile->setAutoRemove(false);
     if (!tempFile->open()) {
         qDebug() << "File Opening Failed";
         return;
@@ -81,21 +61,26 @@ Download::Download(qint64 id, QString rawURL, qint64 start, qint64 end) : QObjec
         rangeString = "bytes=" + QString::number(start) + "-" + QString::number(end);
     }
     req->setRawHeader("Range", rangeString.toLocal8Bit());
+
+}
+
+Download::~Download()
+{
+    qDebug() << "Download Destruction";
+}
+
+void Download::start()
+{
     downloadReply = qnam->get(*req);
 
     connect(downloadReply, &QNetworkReply::downloadProgress, this, &Download::downloadProgress);
-    connect(qnam, &QNetworkAccessManager::finished, this, &Download::downloadFinished);
+    connect(downloadReply, &QNetworkReply::finished, this, &Download::downloadFinished);
 
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout ,this, &Download::updateDetails);
     timer->start(timeInterval);
     bytesProcessed = 0;
     bytesDownloaded = 0;
-}
-
-Download::~Download()
-{
-    qDebug() << "Download Destruction";
 }
 
 void Download::updateDetails()
@@ -110,19 +95,16 @@ void Download::updateDetails()
 
 void Download::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    if(bytesReceived == 0 && bytesTotal == 0){
-        qDebug() << "No bytes recieved";
-        return;
-    }
-    bytesDownloaded = bytesReceived;
     tempFile->write(downloadReply->readAll());
+    Q_ASSERT(tempFile->flush());
+    bytesDownloaded = bytesReceived;
     update();
 }
 
-void Download::downloadFinished(QNetworkReply *reply)
+void Download::downloadFinished()
 {
     qDebug() << "Download Finished";
-    bytesDownloaded += tempFile->write(reply->readAll());
+    Q_ASSERT(tempFile->flush());
     update();
     emit downloadComplete();
 }
@@ -169,6 +151,9 @@ void Download::update()
 
 void Download::abortDownload()
 {
+    disconnect(downloadReply, &QNetworkReply::finished, this, &Download::downloadFinished);
+    disconnect(downloadReply, &QNetworkReply::downloadProgress, this, &Download::downloadProgress);
     downloadReply->abort();
+    tempFile->flush();
     this->deleteLater();
 }
