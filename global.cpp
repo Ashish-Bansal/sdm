@@ -58,7 +58,6 @@ QDebug operator<<(QDebug d, const DownloadProperties prop)
     d << "bytesDownloaded" << prop.bytesDownloaded;
     d << "transferRate" << prop.transferRate;
     d << "status" << prop.status;
-    d << "tempFileNames" << prop.tempFileNames;
     d << "started" << prop.started;
     return d;
 }
