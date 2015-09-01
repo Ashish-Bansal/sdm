@@ -10,21 +10,22 @@ find_package(Qt5Declarative REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
 set (downloadManager_SRCS
-	main.cpp
-	mainwindow.cpp
-	download.cpp
-	fetchheaders.cpp
-	adddialog.cpp
-	downloadinfodialog.cpp
-	databasemanager.cpp
-	localserver.cpp
-	startdownload.cpp
-	singletonfactory.cpp
-	updater.cpp
-    debug.cpp
-    global.cpp
-    downloadproperties.cpp
-    memorydatabase.cpp
+        main.cpp
+        mainwindow.cpp
+        download.cpp
+        fetchheaders.cpp
+        adddialog.cpp
+        downloadinfodialog.cpp
+        databasemanager.cpp
+        localserver.cpp
+        startdownload.cpp
+        singletonfactory.cpp
+        updater.cpp
+        debug.cpp
+        global.cpp
+        downloadproperties.cpp
+        memorydatabase.cpp
+        downloadmodel.cpp
     )
 QT5_WRAP_UI(UIS adddialog.ui downloadinfodialog.ui)
 QT5_ADD_RESOURCES(RSCS icons.qrc)
