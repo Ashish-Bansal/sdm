@@ -220,6 +220,9 @@ void MainWindow::onActionResumeTriggered(qint64 id)
     StartDownload *sd = new StartDownload(id);
     if (checkResumeSupported(id)) {
         //ToDo: start the download from where we left
+        StartDownload *newDownload = new StartDownload(id);
+        downloads.insert(id, newDownload);
+        newDownload->startDownload();
     } else {
         QString message = "This download cannot be resumed\n"
                           "Would you like to restart this download?";
@@ -405,7 +408,6 @@ void MainWindow::updateDetails(qint64 id)
     }
 
     const DownloadProperties *properties = mMemoryDatabase->getDetails(id);
-    qDebug() << *properties;
     item->setText(TableView::FileName, properties->filename);
     item->setText(TableView::FileSize, QString::number(properties->filesize));
     item->setText(TableView::DownloadProgress, QString::number(properties->bytesDownloaded));
