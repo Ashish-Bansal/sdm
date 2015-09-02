@@ -526,5 +526,3 @@ void MainWindow::loadSettings()
 //     settings.endArray();
 //     settings.sync();
 }
-
-#include "mainwindow.moc"
