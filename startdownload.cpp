@@ -24,7 +24,6 @@
 #include "singletonfactory.h"
 #include "downloadattributes.h"
 
-#include <algorithm>
 #include <QDir>
 
 StartDownload::StartDownload(int id) : id(id)
