@@ -49,7 +49,7 @@ public:
     qint64 filesize;
     QString filename;
     bool isAlreadyStarted;
-    DownloadProperties properties;
+    DownloadAttributes properties;
 
 private:
     MemoryDatabase *m_memoryDatabase;

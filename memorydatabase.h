@@ -8,7 +8,7 @@
 #include <QSharedPointer>
 
 #include "databasemanager.h"
-#include "downloadproperties.h"
+#include "downloadattributes.h"
 #include "downloadmodel.h"
 
 class MemoryDatabase : public QObject
@@ -17,17 +17,17 @@ class MemoryDatabase : public QObject
 public:
     MemoryDatabase();
     ~MemoryDatabase();
-    qint64 insertDownload(DownloadProperties properties);
+    qint64 insertDownload(DownloadAttributes properties);
     void removeDownload(qint64 id);
-    void updateDetails(DownloadProperties properties);
-    const DownloadProperties* getDetails(qint64 id);
+    void updateDetails(DownloadAttributes properties);
+    const DownloadAttributes* getDetails(qint64 id);
     qint64 maxId();
     void readDatabase();
     int restartDownload(qint64 id);
     void setModel(QSharedPointer<DownloadModel> model);
 
 private:
-    QMap<int, DownloadProperties*> m_downloadList;
+    QMap<int, DownloadAttributes*> m_downloadList;
     DatabaseManager *m_dbManager;
     QSharedPointer<DownloadModel> m_model;
 

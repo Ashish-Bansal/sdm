@@ -52,7 +52,7 @@ DatabaseManager::~DatabaseManager()
     qDebug() << "SQL Manager Destructor Called";
 }
 
-void DatabaseManager::insertDownload(DownloadProperties prop)
+void DatabaseManager::insertDownload(DownloadAttributes prop)
 {
     QSqlQuery qry(mydb);
     QString qryStr = "insert into downloadList values (:id, :filename, :filesize, :resumeCapability, :url, :bytesDownloaded, :tempFileNames, :date, :status, :speed, :started)";
@@ -65,7 +65,7 @@ void DatabaseManager::insertDownload(DownloadProperties prop)
     qry.bindValue(":bytesDownloaded", 0);
     qry.bindValue(":tempFileNames", QByteArray());
     qry.bindValue(":date", QDateTime::currentDateTime().toString());
-    qry.bindValue(":status", Status::Idle);
+    qry.bindValue(":status", Enum::Status::Idle);
     qry.bindValue(":speed", prop.transferRate);
     qry.bindValue(":started", 0);
     if (!qry.exec()) {
@@ -76,7 +76,7 @@ void DatabaseManager::insertDownload(DownloadProperties prop)
     }
 }
 
-void DatabaseManager::updateDetails(DownloadProperties prop)
+void DatabaseManager::updateDetails(DownloadAttributes prop)
 {
     QSqlQuery qry(mydb);
     QString qryStr = "update downloadList set filename = :filename, filesize = :filesize, resumeCapability = :resumeCapability, url = :url, bytesDownloaded = :bytesDownloaded, transferRate = :speed, status = :status, tempFileNames = :tempFileNames, started = :started where id = :id";
@@ -111,7 +111,7 @@ void DatabaseManager::removeDownload(qint64 id)
     }
 }
 
-DownloadProperties DatabaseManager::getDetails(qint64 id)
+DownloadAttributes DatabaseManager::getDetails(qint64 id)
 {
     QSqlQuery qry(mydb);
     QString qryStr = "select * from downloadList where id=:id";
@@ -122,12 +122,12 @@ DownloadProperties DatabaseManager::getDetails(qint64 id)
         qWarning() << qry.lastError();
     }
     qry.first();
-    DownloadProperties properties;
+    DownloadAttributes properties;
     if (!qry.isValid()) {
         qDebug() << "No sql entry found";
         return properties;
     }
-    for(int i = 0; i < DownloadAttributes::END; i++){
+    for(int i = 0; i < Enum::DownloadAttributes::END; i++){
         properties.setValue(i, qry.value(i));
     }
     return properties;

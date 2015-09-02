@@ -19,65 +19,68 @@
 #ifndef ENUM_H
 #define ENUM_H
 
-namespace DownloadAttributes {
-    enum DownloadAttributes : int {
-        Id = 0,
-        Filename,
-        Filesize,
-        ResumeCapability,
-        Url,
-        BytesDownloaded,
-        tempFileNames,
-        DateAdded,
-        Status,
-        TransferRate,
-        Started,
-        END
-    };
+namespace Enum {
+    namespace DownloadAttributes {
+        enum DownloadAttributes : int {
+            Id = 0,
+            Filename,
+            Filesize,
+            ResumeCapability,
+            Url,
+            BytesDownloaded,
+            tempFileNames,
+            DateAdded,
+            Status,
+            TransferRate,
+            Started,
+            END
+        };
+    }
+
+    namespace SDM {
+        enum Global : int {
+            ResumeNotSupported,
+            ResumeSupported,
+            DownloadFinished,
+            Failed,
+            Successful
+        };
+    }
+
+    namespace TableView {
+        enum TableView : int {
+            RowId = 0,
+            DatabaseId,
+            FileName,
+            FileSize,
+            DownloadProgress,
+            TransferRate,
+            Status,
+            TimeRemaining,
+            ResumeCapability,
+            DateAdded,
+            END
+        };
+    }
+
+    namespace Status {
+        enum Status : int {
+            Idle,
+            Completed,
+            Downloading,
+            Error,
+            Merging
+        };
+    }
+
+    namespace DownloadBackend {
+        enum DownloadBackend : int {
+            BytesDownloaded = 0,
+            Status,
+            TransferRate,
+            END
+        };
+    }
 }
 
-namespace SDM {
-    enum Global : int {
-        ResumeNotSupported,
-        ResumeSupported,
-        DownloadFinished,
-        Failed,
-        Successful
-    };
-}
-
-namespace TableView {
-    enum TableView : int {
-        RowId = 0,
-        DatabaseId,
-        FileName,
-        FileSize,
-        DownloadProgress,
-        TransferRate,
-        Status,
-        TimeRemaining,
-        ResumeCapability,
-        DateAdded,
-        END
-    };
-}
-
-namespace Status {
-    enum Status : int {
-        Idle,
-        Completed,
-        Downloading,
-        Error,
-        Merging
-    };
-}
-
-namespace DownloadBackend {
-    enum DownloadBackend : int {
-        BytesDownloaded = 0,
-        Status,
-        TransferRate,
-        END
-    };
-}
 #endif // ENUM_H

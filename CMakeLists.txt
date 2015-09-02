@@ -23,7 +23,7 @@ set (downloadManager_SRCS
         updater.cpp
         debug.cpp
         global.cpp
-        downloadproperties.cpp
+        downloadattributes.cpp
         memorydatabase.cpp
         downloadmodel.cpp
         downloadview.cpp

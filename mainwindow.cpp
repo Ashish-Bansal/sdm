@@ -222,8 +222,8 @@ void MainWindow::onActionResumeTriggered(qint64 id)
 
 bool MainWindow::checkResumeSupported(qint64 id)
 {
-    const DownloadProperties *properties = m_memoryDatabase->getDetails(id);
-    if (properties->resumeCapability == SDM::ResumeSupported) {
+    const DownloadAttributes *properties = m_memoryDatabase->getDetails(id);
+    if (properties->resumeCapability == Enum::SDM::ResumeSupported) {
         return true;
     }
     return false;
@@ -246,7 +246,7 @@ void MainWindow::onActionRestartTriggered(qint64 id, QString message)
         m_downloads.remove(id);
     }
 
-    if (m_memoryDatabase->restartDownload(id) == SDM::Failed) {
+    if (m_memoryDatabase->restartDownload(id) == Enum::SDM::Failed) {
         QMessageBox::critical(this, "Failed", "Unable to Restart Download");
         return;
     }
@@ -290,9 +290,9 @@ void MainWindow::clearTreeItem(qint64 id)
     if (item == nullptr) {
         return;
     }
-    item->setText(TableView::TransferRate, "");
-    item->setText(TableView::Status, "Idle");
-    item->setText(TableView::TimeRemaining, "");
+    item->setText(Enum::TableView::TransferRate, "");
+    item->setText(Enum::TableView::Status, "Idle");
+    item->setText(Enum::TableView::TimeRemaining, "");
 }
 
 void MainWindow::onActionRemoveTriggered(qint64 id)
@@ -312,7 +312,7 @@ void MainWindow::onActionRemoveTriggered(qint64 id)
     m_memoryDatabase->removeDownload(id);
 }
 
-void MainWindow::fileAlreadyInList(DownloadProperties properties)
+void MainWindow::fileAlreadyInList(DownloadAttributes properties)
 {
     //warn user that file is already present in the download list and ask for restart or resume if possible
 }
@@ -397,7 +397,7 @@ void MainWindow::updateDetails(qint64 id)
 //         return;
 //     }
 // 
-//     const DownloadProperties *properties = m_memoryDatabase->getDetails(id);
+//     const DownloadAttributes *properties = m_memoryDatabase->getDetails(id);
 //     item->setText(TableView::FileName, properties->filename);
 //     item->setText(TableView::FileSize, QString::number(properties->filesize));
 //     item->setText(TableView::DownloadProgress, QString::number(properties->bytesDownloaded));

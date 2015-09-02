@@ -84,9 +84,9 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
     }
 
     if(statusCode == 206 || m_responseContentLength == m_requestedContentLength) {
-        resumeCapability = SDM::ResumeSupported;
+        resumeCapability = Enum::SDM::ResumeSupported;
     } else{
-        resumeCapability = SDM::ResumeNotSupported;
+        resumeCapability = Enum::SDM::ResumeNotSupported;
     }
 
     m_req->setUrl(*url);

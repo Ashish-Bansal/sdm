@@ -20,7 +20,7 @@
 #define FETCHHEADERS_H
 
 #include "enum.h"
-#include "downloadproperties.h"
+#include "downloadattributes.h"
 
 #include <QObject>
 #include <QUrl>
@@ -44,7 +44,7 @@ public:
     QUrl *url;
     QString stringUrl;
     int originalContentLength;
-    DownloadProperties properties;
+    DownloadAttributes properties;
     bool headerFetchComplete;
 
 private:

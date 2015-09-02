@@ -19,7 +19,7 @@
  */
 
 #include "global.h"
-#include "downloadproperties.h"
+#include "downloadattributes.h"
 
 #include <QRegExp>
 #include <QtMath>
@@ -48,7 +48,7 @@ QString SDM::convertUnits(qint64 bytes)
     return fileSize;
 }
 
-QDebug operator<<(QDebug d, const DownloadProperties prop)
+QDebug operator<<(QDebug d, const DownloadAttributes prop)
 {
     d << "id" << prop.id;
     d << "filename" << prop.filename;

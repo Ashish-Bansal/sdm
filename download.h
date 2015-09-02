@@ -21,7 +21,7 @@
 
 #include "enum.h"
 #include "memorydatabase.h"
-#include "downloadproperties.h"
+#include "downloadattributes.h"
 
 #include <QObject>
 #include <QNetworkReply>
@@ -57,7 +57,7 @@ private:
     QNetworkRequest *m_req;
     QNetworkReply *m_downloadReply;
     MemoryDatabase *m_memoryDatabase;
-    DownloadProperties m_properties;
+    DownloadAttributes m_properties;
     QUrl *m_url;
     void update();
     void updateDetails();

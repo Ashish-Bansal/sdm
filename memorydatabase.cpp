@@ -28,19 +28,19 @@ MemoryDatabase::~MemoryDatabase()
     writeToDatabase();
 }
 
-qint64 MemoryDatabase::insertDownload(DownloadProperties properties)
+qint64 MemoryDatabase::insertDownload(DownloadAttributes properties)
 {
     qint64 id = maxId() + 1;
     if (m_downloadList.value(id, nullptr) == nullptr) {
         qDebug() << "ID duplication found, returning.";
     }
-    DownloadProperties *dld = new DownloadProperties(properties);
+    DownloadAttributes *dld = new DownloadAttributes(properties);
     m_downloadList.insert(id, dld);
     dld->id = id;
 
     emit downloadInserted(id);
     QtConcurrent::run(m_dbManager, &DatabaseManager::insertDownload,
-                      DownloadProperties(getDetails(id)));
+                      DownloadAttributes(getDetails(id)));
     emit updateGUI(id);
     return id;
 }
@@ -57,10 +57,10 @@ qint64 MemoryDatabase::maxId()
     return max;
 }
 
-void MemoryDatabase::updateDetails(const DownloadProperties properties)
+void MemoryDatabase::updateDetails(const DownloadAttributes properties)
 {
     qint64 id = properties.id;
-    DownloadProperties *dld = m_downloadList.value(id, nullptr);
+    DownloadAttributes *dld = m_downloadList.value(id, nullptr);
     if (dld == nullptr) {
         return;
     }
@@ -78,7 +78,7 @@ void MemoryDatabase::updateDetails(const DownloadProperties properties)
     emit updateGUI(id);
 }
 
-const DownloadProperties* MemoryDatabase::getDetails(qint64 id)
+const DownloadAttributes* MemoryDatabase::getDetails(qint64 id)
 {
     auto val = m_downloadList.value(id, nullptr);
     if (val == nullptr) {
@@ -89,7 +89,7 @@ const DownloadProperties* MemoryDatabase::getDetails(qint64 id)
 
 void MemoryDatabase::removeDownload(qint64 id)
 {
-    DownloadProperties *prop = m_downloadList.value(id, nullptr);
+    DownloadAttributes *prop = m_downloadList.value(id, nullptr);
     if (prop == nullptr) {
         qDebug() << "ID not found";
     }
@@ -102,10 +102,10 @@ void MemoryDatabase::removeDownload(qint64 id)
 
 int MemoryDatabase::restartDownload(qint64 id)
 {
-    DownloadProperties *prop = m_downloadList.value(id, nullptr);
+    DownloadAttributes *prop = m_downloadList.value(id, nullptr);
     if (prop == nullptr) {
         qDebug() << "ID not found";
-        return SDM::Failed;
+        return Enum::SDM::Failed;
     }
 
     StartDownload download(id);
@@ -115,9 +115,9 @@ int MemoryDatabase::restartDownload(qint64 id)
     prop->started = false;
     prop->transferRate = QString();
     QtConcurrent::run(m_dbManager, &DatabaseManager::updateDetails,
-                      DownloadProperties(getDetails(id)));
+                      DownloadAttributes(getDetails(id)));
     emit updateGUI(id);
-    return SDM::Successful;
+    return Enum::SDM::Successful;
 }
 
 void MemoryDatabase::writeToDatabase()
@@ -125,7 +125,7 @@ void MemoryDatabase::writeToDatabase()
     auto it = m_downloadList.begin();
     for(; it != m_downloadList.end(); it++) {
             QtConcurrent::run(m_dbManager, &DatabaseManager::updateDetails,
-                              DownloadProperties(getDetails(it.key())));
+                              DownloadAttributes(getDetails(it.key())));
     }
 }
 
@@ -139,13 +139,13 @@ void MemoryDatabase::readDatabase()
     }
 
     while (it->next()) {
-        DownloadProperties *dld = new DownloadProperties();
-        for(int i = 0; i < DownloadAttributes::END; i++){
+        DownloadAttributes *dld = new DownloadAttributes();
+        for(int i = 0; i < Enum::DownloadAttributes::END; i++){
             dld->setValue(i, it->value(i));
         }
-        dld->setValue(DownloadAttributes::TransferRate, 0);
-        dld->setValue(DownloadAttributes::Status,
-                      dld->status == Status::Downloading ? Status::Idle : dld->status);
+        dld->setValue(Enum::DownloadAttributes::TransferRate, 0);
+        dld->setValue(Enum::DownloadAttributes::Status,
+                      dld->status == Enum::Status::Downloading ? Enum::Status::Idle : dld->status);
         m_downloadList.insert(dld->id, dld);
         emit downloadLoaded(it->value(0).toLongLong());
     }

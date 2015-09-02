@@ -26,7 +26,7 @@ SOURCES += main.cpp\
     debug.cpp \
     global.cpp \
     memorydatabase.cpp \
-    downloadproperties.cpp \
+    downloadattributes.cpp \
     downloadmodel.cpp \
     downloadview.cpp
 
@@ -44,7 +44,7 @@ HEADERS += mainwindow.h \
     enum.h \
     global.h \
     memorydatabase.h \
-    downloadproperties.h \
+    downloadattributes.h \
     downloadmodel.h \
     downloadview.h
 

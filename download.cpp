@@ -46,7 +46,7 @@ Download::Download(qint64 id, QString rawURL, qint64 start, qint64 end)
     rangeStart = start;
     rangeEnd = end;
     m_memoryDatabase = SingletonFactory::instanceFor< MemoryDatabase >();
-    m_properties = DownloadProperties(m_memoryDatabase->getDetails(downloadId));
+    m_properties = DownloadAttributes(m_memoryDatabase->getDetails(downloadId));
 
     tempFile = new QTemporaryFile("sdm");
     tempFile->setAutoRemove(false);
@@ -92,8 +92,8 @@ void Download::updateDetails()
 {
     qint64 transferRate = (bytesDownloaded - bytesProcessed)/m_timeInterval;
     QHash<int, QVariant> details;
-    details.insert(DownloadBackend::TransferRate, QVariant(transferRate));
-    details.insert(DownloadBackend::BytesDownloaded, QVariant(bytesDownloaded - bytesProcessed));
+    details.insert(Enum::DownloadBackend::TransferRate, QVariant(transferRate));
+    details.insert(Enum::DownloadBackend::BytesDownloaded, QVariant(bytesDownloaded - bytesProcessed));
     emit updateGui(details);
     bytesProcessed = bytesDownloaded;
 }
@@ -122,7 +122,7 @@ void Download::errorOccured(QNetworkReply * reply, const QList<QSslError> & erro
 
 void Download::update()
 {
-    m_properties = DownloadProperties(m_memoryDatabase->getDetails(downloadId));
+    m_properties = DownloadAttributes(m_memoryDatabase->getDetails(downloadId));
     QByteArray baOut = m_properties.tempFileNames;
     QDataStream dsOut(&baOut, QIODevice::ReadOnly);
     QMap <double, QMap <qint8, QVariant> > tempFilesMeta;

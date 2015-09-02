@@ -57,21 +57,21 @@ public:
         QVariant get(int column)
         {
             switch (column) {
-                case TableView::RowId :
+                case Enum::TableView::RowId :
                     return rowId;
-                case TableView::FileName :
+                case Enum::TableView::FileName :
                     return filename;
-                case TableView::FileSize :
+                case Enum::TableView::FileSize :
                     return filesize;
-                case TableView::DownloadProgress :
+                case Enum::TableView::DownloadProgress :
                     return downloadProgress;
-                case TableView::TransferRate :
+                case Enum::TableView::TransferRate :
                     return transferRate;
-                case TableView::Status :
+                case Enum::TableView::Status :
                     return status;
-                case TableView::TimeRemaining :
+                case Enum::TableView::TimeRemaining :
                     return timeRemaining;
-                case TableView::DateAdded :
+                case Enum::TableView::DateAdded :
                     return dateAdded;
                 default :
                     return QVariant();

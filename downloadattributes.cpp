@@ -1,15 +1,15 @@
-#include "downloadproperties.h"
+#include "downloadattributes.h"
 #include "enum.h"
 
 #include <QDebug>
 
-DownloadProperties::DownloadProperties()
+DownloadAttributes::DownloadAttributes()
 {
 
 }
 
-DownloadProperties::DownloadProperties(const DownloadProperties &properties)
-    : DownloadProperties()
+DownloadAttributes::DownloadAttributes(const DownloadAttributes &properties)
+    : DownloadAttributes()
 {
     id = properties.id;
     filename = properties.filename;
@@ -23,12 +23,12 @@ DownloadProperties::DownloadProperties(const DownloadProperties &properties)
     started = properties.started;
 }
 
-DownloadProperties::DownloadProperties(const DownloadProperties *properties)
-    : DownloadProperties(*properties)
+DownloadAttributes::DownloadAttributes(const DownloadAttributes *properties)
+    : DownloadAttributes(*properties)
 {
 }
 
-DownloadProperties& DownloadProperties::operator=(const DownloadProperties& properties)
+DownloadAttributes& DownloadAttributes::operator=(const DownloadAttributes& properties)
 {
     id = properties.id;
     filename = properties.filename;
@@ -42,27 +42,27 @@ DownloadProperties& DownloadProperties::operator=(const DownloadProperties& prop
     started = properties.started;
 }
 
-void DownloadProperties::setValue(int i, QVariant v)
+void DownloadAttributes::setValue(int i, QVariant v)
 {
-    if (i == DownloadAttributes::Id) {
+    if (i == Enum::DownloadAttributes::Id) {
         id = v.toLongLong();
-    } else if (i == DownloadAttributes::Url) {
+    } else if (i == Enum::DownloadAttributes::Url) {
         url = v.toString();
-    } else if (i == DownloadAttributes::BytesDownloaded) {
+    } else if (i == Enum::DownloadAttributes::BytesDownloaded) {
         bytesDownloaded = v.toLongLong();
-    } else if (i == DownloadAttributes::Filename) {
+    } else if (i == Enum::DownloadAttributes::Filename) {
         filename = v.toString();
-    } else if (i == DownloadAttributes::Started) {
+    } else if (i == Enum::DownloadAttributes::Started) {
         started = v.toInt() == 1 ? true : false;
-    } else if (i == DownloadAttributes::Status) {
+    } else if (i == Enum::DownloadAttributes::Status) {
         status = v.toInt();
-    } else if (i == DownloadAttributes::TransferRate) {
+    } else if (i == Enum::DownloadAttributes::TransferRate) {
         transferRate = v.toString();
-    } else if (i == DownloadAttributes::tempFileNames) {
+    } else if (i == Enum::DownloadAttributes::tempFileNames) {
         tempFileNames = v.toByteArray();
-    } else if (i == DownloadAttributes::Filesize) {
+    } else if (i == Enum::DownloadAttributes::Filesize) {
         filesize = v.toLongLong();
-    } else if (i == DownloadAttributes::ResumeCapability) {
+    } else if (i == Enum::DownloadAttributes::ResumeCapability) {
         resumeCapability = v.toInt() == 1 ? true : false;
     }
 }

@@ -23,7 +23,7 @@
 #include "global.h"
 #include "startdownload.h"
 #include "singletonfactory.h"
-#include "downloadproperties.h"
+#include "downloadattributes.h"
 
 #include <algorithm>
 #include <QDir>
@@ -32,7 +32,7 @@ StartDownload::StartDownload(int id) : id(id)
 {
     qDebug() << id;
     m_memoryDatabase = SingletonFactory::instanceFor< MemoryDatabase >();
-    properties = DownloadProperties(m_memoryDatabase->getDetails(id));
+    properties = DownloadAttributes(m_memoryDatabase->getDetails(id));
     filename = properties.filename;
     resumeSupported = properties.resumeCapability;
     filesize = properties.filesize;
@@ -134,15 +134,15 @@ void StartDownload::startDownload()
         properties.started = true;
         m_memoryDatabase->updateDetails(properties);
     }
-    properties.status = Status::Downloading;
+    properties.status = Enum::Status::Downloading;
     m_memoryDatabase->updateDetails(properties);
 }
 
 void StartDownload::updateDatabase(QHash<int, QVariant> details)
 {
     fetchProperties();
-    totalBytesDownloaded += details.value(DownloadBackend::BytesDownloaded).toLongLong();
-    properties.transferRate = details.value(DownloadBackend::TransferRate).toString();
+    totalBytesDownloaded += details.value(Enum::DownloadBackend::BytesDownloaded).toLongLong();
+    properties.transferRate = details.value(Enum::DownloadBackend::TransferRate).toString();
     properties.bytesDownloaded = totalBytesDownloaded;
     m_memoryDatabase->updateDetails(properties);
 }
@@ -173,7 +173,7 @@ void StartDownload::writeToFileInParts()
         (*it)->deleteLater();
     }
 
-    properties.status = Status::Merging;
+    properties.status = Enum::Status::Merging;
     m_memoryDatabase->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
@@ -207,7 +207,7 @@ void StartDownload::writeToFileInParts()
 //     emit downloadComplete(id);
     qDebug() << "Write Complete In Parts";
 
-    properties.status = Status::Completed;
+    properties.status = Enum::Status::Completed;
     m_memoryDatabase->updateDetails(properties);
 
     b = properties.tempFileNames;
@@ -219,7 +219,7 @@ void StartDownload::writeToFileInParts()
 void StartDownload::writeToFileAsWhole()
 {
     fetchProperties();
-    properties.status = Status::Merging;
+    properties.status = Enum::Status::Merging;
     m_memoryDatabase->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
@@ -235,7 +235,7 @@ void StartDownload::writeToFileAsWhole()
     cleanUp();
 //     emit downloadComplete(id);
     qDebug() << "Write Complete As Whole";
-    properties.status = Status::Completed;
+    properties.status = Enum::Status::Completed;
     properties.transferRate = "";
     m_memoryDatabase->updateDetails(properties);
     this->deleteLater();
@@ -262,7 +262,7 @@ void StartDownload::cleanUp()
 
 void StartDownload::fetchProperties()
 {
-    properties = DownloadProperties(m_memoryDatabase->getDetails(id));
+    properties = DownloadAttributes(m_memoryDatabase->getDetails(id));
 }
 
 void StartDownload::stopDownload()

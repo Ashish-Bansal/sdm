@@ -36,7 +36,7 @@ int DownloadModel::rowCount(const QModelIndex &parent) const
 int DownloadModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    return TableView::END;
+    return Enum::TableView::END;
 }
 
 QVariant DownloadModel::data(const QModelIndex &index, int role) const
@@ -65,21 +65,21 @@ QVariant DownloadModel::headerData(int section, Qt::Orientation orientation, int
 
     if (orientation == Qt::Horizontal) {
         switch (section) {
-        case TableView::RowId :
+        case Enum::TableView::RowId :
             return tr("Id");
-        case TableView::FileName :
+        case Enum::TableView::FileName :
             return tr("Filename");
-        case TableView::FileSize :
+        case Enum::TableView::FileSize :
             return tr("Size");
-        case TableView::DownloadProgress :
+        case Enum::TableView::DownloadProgress :
             return tr("Download Progress");
-        case TableView::TransferRate :
+        case Enum::TableView::TransferRate :
             return tr("Transfer Rate");
-        case TableView::Status :
+        case Enum::TableView::Status :
             return tr("Status");
-        case TableView::TimeRemaining :
+        case Enum::TableView::TimeRemaining :
             return tr("Time Remaining");
-        case TableView::DateAdded :
+        case Enum::TableView::DateAdded :
             return tr("Date Added");
         default:
             return QVariant();
@@ -104,28 +104,28 @@ bool DownloadModel::setData(const QModelIndex &index, const QVariant &value, int
         TableItem item = items.value(row);
 
         switch (index.column()) {
-            case TableView::RowId :
+            case Enum::TableView::RowId :
                 item.id = value.toInt();
                 break;
-            case TableView::FileName :
+            case Enum::TableView::FileName :
                 item.filename = value.toString();
                 break;
-            case TableView::FileSize :
+            case Enum::TableView::FileSize :
                 item.filesize = value.toString();
                 break;
-            case TableView::DownloadProgress :
+            case Enum::TableView::DownloadProgress :
                 item.downloadProgress = value.toString();
                 break;
-            case TableView::TransferRate :
+            case Enum::TableView::TransferRate :
                 item.transferRate = value.toString();
                 break;
-            case TableView::Status :
+            case Enum::TableView::Status :
                 item.status = value.toString();
                 break;
-            case TableView::TimeRemaining :
+            case Enum::TableView::TimeRemaining :
                 item.timeRemaining = value.toString();
                 break;
-            case TableView::DateAdded :
+            case Enum::TableView::DateAdded :
                 item.dateAdded = value.toString();
                 break;
             default:

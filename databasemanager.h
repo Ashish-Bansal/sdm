@@ -20,7 +20,7 @@
 #define DATABASEMANAGER_H
 
 #include "enum.h"
-#include "downloadproperties.h"
+#include "downloadattributes.h"
 
 #include <QString>
 #include <QObject>
@@ -40,11 +40,11 @@ public:
     DatabaseManager();
     ~DatabaseManager();
     QSqlDatabase mydb;
-    void insertDownload(DownloadProperties properties);
+    void insertDownload(DownloadAttributes properties);
     void removeDownload(qint64 id);
     int lastInsertRowId();
-    void updateDetails(DownloadProperties properties);
-    DownloadProperties getDetails(qint64 id);
+    void updateDetails(DownloadAttributes properties);
+    DownloadAttributes getDetails(qint64 id);
     QSharedPointer<QSqlQuery> getIterator(QString qryStr);
 
 };
