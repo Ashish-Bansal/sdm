@@ -26,6 +26,7 @@ set (downloadManager_SRCS
         downloadproperties.cpp
         memorydatabase.cpp
         downloadmodel.cpp
+        downloadview.cpp
     )
 QT5_WRAP_UI(UIS adddialog.ui downloadinfodialog.ui)
 QT5_ADD_RESOURCES(RSCS icons.qrc)

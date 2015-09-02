@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     global.cpp \
     memorydatabase.cpp \
     downloadproperties.cpp \
-    downloadmodel.cpp
+    downloadmodel.cpp \
+    downloadview.cpp
 
 HEADERS += mainwindow.h \
     download.h \
@@ -44,7 +45,8 @@ HEADERS += mainwindow.h \
     global.h \
     memorydatabase.h \
     downloadproperties.h \
-    downloadmodel.h
+    downloadmodel.h \
+    downloadview.h
 
 FORMS += adddialog.ui \
     downloadinfodialog.ui
