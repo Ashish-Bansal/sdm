@@ -151,3 +151,8 @@ void MemoryDatabase::readDatabase()
         emit downloadLoaded(it->value(0).toLongLong());
     }
 }
+
+void MemoryDatabase::setModel(QSharedPointer< DownloadModel > model)
+{
+    m_model = model;
+}

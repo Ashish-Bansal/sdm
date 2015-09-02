@@ -5,9 +5,11 @@
 #include <QMap>
 #include <QString>
 #include <QStringList>
+#include <QSharedPointer>
 
 #include "databasemanager.h"
 #include "downloadproperties.h"
+#include "downloadmodel.h"
 
 class MemoryDatabase : public QObject
 {
@@ -22,10 +24,12 @@ public:
     qint64 maxId();
     void readDatabase();
     int restartDownload(qint64 id);
+    void setModel(QSharedPointer< DownloadModel > model);
 
 private:
     QMap<int, DownloadProperties*> downloadList;
     DatabaseManager *mDbManager;
+    QSharedPointer< DownloadModel > m_model;
 
 public slots:
     void writeToDatabase();
