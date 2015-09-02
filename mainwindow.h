@@ -25,43 +25,33 @@
 #include "downloadview.h"
 
 #include <QMainWindow>
-#include <QLabel>
-#include <QSlider>
 #include <QPointer>
 #include <QTreeWidgetItem>
 #include <QThread>
-class DownloadView;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    QAction *upActionTool;
-    QAction *downActionTool;
-    bool saveChanges;
     void saveSettings();
     void loadSettings();
-    struct TableItem{
-        qint64 id;
-        qint64 rowId;
-    };
-    qint64 maxId = -1;
-    QList<TableItem> table;
     QPair<double, QString> convertUnits(qint64 bytes);
     void downloadAdded(qint64 id);
     QTreeWidgetItem* getTreeItem(int id);
     void loadDownloads();
     bool checkResumeSupported(qint64 id);
     void fileAlreadyInList(DownloadProperties properties);
-    DownloadModel *m_model;
 
 private:
+    qint64 m_maxId;
+    DownloadModel *m_model;
     QPointer<DownloadView> m_downloadView;
-    MemoryDatabase *mMemoryDatabase;
-    QMap<qint64, StartDownload*> downloads;
-    QThread workerThread;
-    QThread downloadThread;
+    MemoryDatabase *m_memoryDatabase;
+    QMap<qint64, StartDownload*> m_downloads;
+    QThread m_workerThread;
+    QThread m_downloadThread;
     void clearTreeItem(qint64 id);
 
 private slots:

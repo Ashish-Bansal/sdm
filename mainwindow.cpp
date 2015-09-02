@@ -67,12 +67,12 @@ MainWindow::MainWindow(QWidget *parent)
     }
     qDebug() << QThread::idealThreadCount();
     qDebug() << QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    mMemoryDatabase = SingletonFactory::instanceFor<MemoryDatabase>();
+    m_memoryDatabase = SingletonFactory::instanceFor<MemoryDatabase>();
 //    ToDo: Enable threading here
-//    mMemoryDatabase->moveToThread(&workerThread);
-//    workerThread.start();
-    connect (mMemoryDatabase, &MemoryDatabase::downloadInserted, this, &MainWindow::downloadAdded);
-    connect (mMemoryDatabase, &MemoryDatabase::updateGUI, this, &MainWindow::updateDetails);
+//    m_memoryDatabase->moveToThread(&m_workerThread);
+//    m_workerThread.start();
+    connect (m_memoryDatabase, &MemoryDatabase::downloadInserted, this, &MainWindow::downloadAdded);
+    connect (m_memoryDatabase, &MemoryDatabase::updateGUI, this, &MainWindow::updateDetails);
 
     QStringList headers = {"RowId", "DatabaseId", "Filename", "Size", "Progress", "Transfer Rate",
                            "Status", "Time Remaining", "Resume Capabilitiy", "Date"};
@@ -186,8 +186,8 @@ void MainWindow::exit()
 
 void MainWindow::loadDownloads()
 {
-    connect(mMemoryDatabase, &MemoryDatabase::downloadLoaded, this, &MainWindow::downloadAdded);
-    mMemoryDatabase->readDatabase();
+    connect(m_memoryDatabase, &MemoryDatabase::downloadLoaded, this, &MainWindow::downloadAdded);
+    m_memoryDatabase->readDatabase();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -211,7 +211,7 @@ void MainWindow::onActionResumeTriggered(qint64 id)
     if (checkResumeSupported(id)) {
         //ToDo: start the download from where we left
         StartDownload *newDownload = new StartDownload(id);
-        downloads.insert(id, newDownload);
+        m_downloads.insert(id, newDownload);
         newDownload->startDownload();
     } else {
         QString message = "This download cannot be resumed\n"
@@ -222,7 +222,7 @@ void MainWindow::onActionResumeTriggered(qint64 id)
 
 bool MainWindow::checkResumeSupported(qint64 id)
 {
-    const DownloadProperties *properties = mMemoryDatabase->getDetails(id);
+    const DownloadProperties *properties = m_memoryDatabase->getDetails(id);
     if (properties->resumeCapability == SDM::ResumeSupported) {
         return true;
     }
@@ -239,20 +239,20 @@ void MainWindow::onActionRestartTriggered(qint64 id, QString message)
         return;
     }
 
-    auto it = downloads.find(id);
-    if (it != downloads.end()) {
+    auto it = m_downloads.find(id);
+    if (it != m_downloads.end()) {
         it.value()->stopDownload();
         it.value()->deleteLater();
-        downloads.remove(id);
+        m_downloads.remove(id);
     }
 
-    if (mMemoryDatabase->restartDownload(id) == SDM::Failed) {
+    if (m_memoryDatabase->restartDownload(id) == SDM::Failed) {
         QMessageBox::critical(this, "Failed", "Unable to Restart Download");
         return;
     }
 
     StartDownload *newDownload = new StartDownload(id);
-    downloads.insert(id, newDownload);
+    m_downloads.insert(id, newDownload);
     newDownload->startDownload();
 }
 
@@ -275,11 +275,11 @@ void MainWindow::onActionStopTriggered(qint64 id)
 
 void MainWindow::stopDownload(qint64 id)
 {
-    QMap<qint64, StartDownload*>::iterator it = downloads.find(id);
-    if (it != downloads.end()) {
+    QMap<qint64, StartDownload*>::iterator it = m_downloads.find(id);
+    if (it != m_downloads.end()) {
         it.value()->stopDownload();
         it.value()->deleteLater();
-        downloads.remove(id);
+        m_downloads.remove(id);
     }
     clearTreeItem(id);
 }
@@ -309,7 +309,7 @@ void MainWindow::onActionRemoveTriggered(qint64 id)
     stopDownload(id);
     QTreeWidgetItem *item = getTreeItem(id);
     delete item;
-    mMemoryDatabase->removeDownload(id);
+    m_memoryDatabase->removeDownload(id);
 }
 
 void MainWindow::fileAlreadyInList(DownloadProperties properties)
@@ -336,15 +336,15 @@ void MainWindow::showDownloadDialog(QString url)
     connect(infoDialog->ui->startDownload, &QPushButton::clicked,[=](){
         infoDialog->close();
         if (fh->headerFetchComplete) {
-            qint64 id = mMemoryDatabase->insertDownload(fh->properties);
+            qint64 id = m_memoryDatabase->insertDownload(fh->properties);
             StartDownload *newDownload = new StartDownload(id);
-            downloads.insert(id, newDownload);
+            m_downloads.insert(id, newDownload);
             newDownload->startDownload();
         } else {
             connect(fh, &FetchHeaders::headersFetched, [=](){
-                qint64 id = mMemoryDatabase->insertDownload(fh->properties);
+                qint64 id = m_memoryDatabase->insertDownload(fh->properties);
                 StartDownload *newDownload = new StartDownload(id);
-                downloads.insert(id, newDownload);
+                m_downloads.insert(id, newDownload);
                 newDownload->startDownload();
             });
         }
@@ -356,12 +356,12 @@ void MainWindow::showDownloadDialog(QString url)
 void MainWindow::downloadAdded(qint64 id)
 {
     qDebug() << "database ID : " << id;
-    qDebug() << "row id : " << maxId + 1;
+    qDebug() << "row id : " << m_maxId + 1;
     if (getTreeItem(id) != nullptr) {
         qDebug() << "Item already available in tree";
     }
 //     QTreeWidgetItem *item = new QTreeWidgetItem(m_downloadView);
-//     item->setText(TableView::RowId, QString::number(++maxId));
+//     item->setText(TableView::RowId, QString::number(++m_maxId));
 //     item->setText(TableView::DatabaseId, QString::number(id));
 //     item->setText(TableView::FileName, "Unknown");
 //     item->setText(TableView::FileSize, tr("--"));
@@ -397,7 +397,7 @@ void MainWindow::updateDetails(qint64 id)
 //         return;
 //     }
 // 
-//     const DownloadProperties *properties = mMemoryDatabase->getDetails(id);
+//     const DownloadProperties *properties = m_memoryDatabase->getDetails(id);
 //     item->setText(TableView::FileName, properties->filename);
 //     item->setText(TableView::FileSize, QString::number(properties->filesize));
 //     item->setText(TableView::DownloadProgress, QString::number(properties->bytesDownloaded));
@@ -491,7 +491,7 @@ void MainWindow::saveSettings()
 //     QSettings settings("dm", "settings");
 //     settings.clear();
 //
-//     settings.setValue("maxId", maxId);
+//     settings.setValue("maxId", m_maxId);
 //
 //     settings.beginWriteArray("Downloads");
 //     for (int i = 0; i < jobs.size(); ++i) {
@@ -513,7 +513,7 @@ void MainWindow::loadSettings()
 //     QSettings settings("dm", "settings");
 //     settings.clear();
 //
-//     settings.setValue("maxId", maxId);
+//     settings.setValue("maxId", m_maxId);
 //
 //     settings.beginWriteArray("Downloads");
 //     for (int i = 0; i < jobs.size(); ++i) {

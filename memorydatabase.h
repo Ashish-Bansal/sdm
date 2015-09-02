@@ -24,12 +24,12 @@ public:
     qint64 maxId();
     void readDatabase();
     int restartDownload(qint64 id);
-    void setModel(QSharedPointer< DownloadModel > model);
+    void setModel(QSharedPointer<DownloadModel> model);
 
 private:
-    QMap<int, DownloadProperties*> downloadList;
-    DatabaseManager *mDbManager;
-    QSharedPointer< DownloadModel > m_model;
+    QMap<int, DownloadProperties*> m_downloadList;
+    DatabaseManager *m_dbManager;
+    QSharedPointer<DownloadModel> m_model;
 
 public slots:
     void writeToDatabase();

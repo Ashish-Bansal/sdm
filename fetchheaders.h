@@ -48,12 +48,12 @@ public:
     bool headerFetchComplete;
 
 private:
-    QNetworkAccessManager *qnam;
-    QNetworkRequest *req;
-    QNetworkReply *headersCheckReply;
-    int requestedContentLength;
-    int responseContentLength;
-    int mAlreadyEntered;
+    QNetworkAccessManager *m_qnam;
+    QNetworkRequest *m_req;
+    QNetworkReply *m_headersCheckReply;
+    int m_requestedContentLength;
+    int m_responseContentLength;
+    int m_alreadyEntered;
 
 signals:
     void headersFetched();

@@ -14,7 +14,7 @@
 
 MemoryDatabase::MemoryDatabase()
 {
-    mDbManager = new DatabaseManager();
+    m_dbManager = new DatabaseManager();
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MemoryDatabase::writeToDatabase);
     timer->start(10000);
@@ -31,15 +31,15 @@ MemoryDatabase::~MemoryDatabase()
 qint64 MemoryDatabase::insertDownload(DownloadProperties properties)
 {
     qint64 id = maxId() + 1;
-    if (downloadList.value(id, nullptr) == nullptr) {
+    if (m_downloadList.value(id, nullptr) == nullptr) {
         qDebug() << "ID duplication found, returning.";
     }
     DownloadProperties *dld = new DownloadProperties(properties);
-    downloadList.insert(id, dld);
+    m_downloadList.insert(id, dld);
     dld->id = id;
 
     emit downloadInserted(id);
-    QtConcurrent::run(mDbManager, &DatabaseManager::insertDownload,
+    QtConcurrent::run(m_dbManager, &DatabaseManager::insertDownload,
                       DownloadProperties(getDetails(id)));
     emit updateGUI(id);
     return id;
@@ -47,9 +47,9 @@ qint64 MemoryDatabase::insertDownload(DownloadProperties properties)
 
 qint64 MemoryDatabase::maxId()
 {
-    auto it = downloadList.begin();
+    auto it = m_downloadList.begin();
     qint64 max = 0;
-    for(; it != downloadList.end(); it++) {
+    for(; it != m_downloadList.end(); it++) {
         if (it.key() > max) {
             max = it.key();
         }
@@ -60,7 +60,7 @@ qint64 MemoryDatabase::maxId()
 void MemoryDatabase::updateDetails(const DownloadProperties properties)
 {
     qint64 id = properties.id;
-    DownloadProperties *dld = downloadList.value(id, nullptr);
+    DownloadProperties *dld = m_downloadList.value(id, nullptr);
     if (dld == nullptr) {
         return;
     }
@@ -80,7 +80,7 @@ void MemoryDatabase::updateDetails(const DownloadProperties properties)
 
 const DownloadProperties* MemoryDatabase::getDetails(qint64 id)
 {
-    auto val = downloadList.value(id, nullptr);
+    auto val = m_downloadList.value(id, nullptr);
     if (val == nullptr) {
         qDebug() << "ID not found";
     }
@@ -89,20 +89,20 @@ const DownloadProperties* MemoryDatabase::getDetails(qint64 id)
 
 void MemoryDatabase::removeDownload(qint64 id)
 {
-    DownloadProperties *prop = downloadList.value(id, nullptr);
+    DownloadProperties *prop = m_downloadList.value(id, nullptr);
     if (prop == nullptr) {
         qDebug() << "ID not found";
     }
 
     StartDownload download(id);
     download.cleanUp();
-    QtConcurrent::run(mDbManager, &DatabaseManager::removeDownload, id);
+    QtConcurrent::run(m_dbManager, &DatabaseManager::removeDownload, id);
     emit downloadRemoved(id);
 }
 
 int MemoryDatabase::restartDownload(qint64 id)
 {
-    DownloadProperties *prop = downloadList.value(id, nullptr);
+    DownloadProperties *prop = m_downloadList.value(id, nullptr);
     if (prop == nullptr) {
         qDebug() << "ID not found";
         return SDM::Failed;
@@ -114,8 +114,7 @@ int MemoryDatabase::restartDownload(qint64 id)
     prop->bytesDownloaded = 0;
     prop->started = false;
     prop->transferRate = QString();
-    prop->tempFileNames;
-    QtConcurrent::run(mDbManager, &DatabaseManager::updateDetails,
+    QtConcurrent::run(m_dbManager, &DatabaseManager::updateDetails,
                       DownloadProperties(getDetails(id)));
     emit updateGUI(id);
     return SDM::Successful;
@@ -123,17 +122,17 @@ int MemoryDatabase::restartDownload(qint64 id)
 
 void MemoryDatabase::writeToDatabase()
 {
-    auto it = downloadList.begin();
-    for(; it != downloadList.end(); it++) {
-            QtConcurrent::run(mDbManager, &DatabaseManager::updateDetails,
+    auto it = m_downloadList.begin();
+    for(; it != m_downloadList.end(); it++) {
+            QtConcurrent::run(m_dbManager, &DatabaseManager::updateDetails,
                               DownloadProperties(getDetails(it.key())));
     }
 }
 
 void MemoryDatabase::readDatabase()
 {
-    QString qryStr = "SELECT * from downloadList;";
-    QSharedPointer<QSqlQuery> it  = mDbManager->getIterator(qryStr);
+    QString qryStr = "SELECT * from m_downloadList;";
+    QSharedPointer<QSqlQuery> it  = m_dbManager->getIterator(qryStr);
 
     if (it.isNull()) {
         return;
@@ -147,12 +146,12 @@ void MemoryDatabase::readDatabase()
         dld->setValue(DownloadAttributes::TransferRate, 0);
         dld->setValue(DownloadAttributes::Status,
                       dld->status == Status::Downloading ? Status::Idle : dld->status);
-        downloadList.insert(dld->id, dld);
+        m_downloadList.insert(dld->id, dld);
         emit downloadLoaded(it->value(0).toLongLong());
     }
 }
 
-void MemoryDatabase::setModel(QSharedPointer< DownloadModel > model)
+void MemoryDatabase::setModel(QSharedPointer<DownloadModel> model)
 {
     m_model = model;
 }

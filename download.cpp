@@ -35,15 +35,18 @@
 #include <QTimer>
 #include <QDataStream>
 
-Download::Download(qint64 id, QString rawURL, qint64 start, qint64 end) : QObject(), downloadId(id)
+Download::Download(qint64 id, QString rawURL, qint64 start, qint64 end) 
+    : QObject(),
+      downloadId(id),
+      m_timeInterval(100)
 {
-    qnam = new QNetworkAccessManager();
-    url = new QUrl(rawURL);
+    m_qnam = new QNetworkAccessManager();
+    m_url = new QUrl(rawURL);
 
     rangeStart = start;
     rangeEnd = end;
-    mMemoryDatabase = SingletonFactory::instanceFor<MemoryDatabase>();
-    properties = DownloadProperties(mMemoryDatabase->getDetails(downloadId));
+    m_memoryDatabase = SingletonFactory::instanceFor< MemoryDatabase >();
+    m_properties = DownloadProperties(m_memoryDatabase->getDetails(downloadId));
 
     tempFile = new QTemporaryFile("sdm");
     tempFile->setAutoRemove(false);
@@ -52,16 +55,18 @@ Download::Download(qint64 id, QString rawURL, qint64 start, qint64 end) : QObjec
         return;
     }
     fileName = tempFile->fileName();
-    req = new QNetworkRequest();
-    req->setUrl(*url);
+
+    m_req = new QNetworkRequest();
+    m_req->setUrl(*m_url);
+
     QString rangeString;
     if (end == -1) {
         rangeString = "bytes=" + QString::number(start) + "-";
     } else {
         rangeString = "bytes=" + QString::number(start) + "-" + QString::number(end);
     }
-    req->setRawHeader("Range", rangeString.toLocal8Bit());
 
+    m_req->setRawHeader("Range", rangeString.toLocal8Bit());
 }
 
 Download::~Download()
@@ -71,21 +76,21 @@ Download::~Download()
 
 void Download::start()
 {
-    downloadReply = qnam->get(*req);
+    m_downloadReply = m_qnam->get(*m_req);
 
-    connect(downloadReply, &QNetworkReply::downloadProgress, this, &Download::downloadProgress);
-    connect(downloadReply, &QNetworkReply::finished, this, &Download::downloadFinished);
+    connect(m_downloadReply, &QNetworkReply::downloadProgress, this, &Download::downloadProgress);
+    connect(m_downloadReply, &QNetworkReply::finished, this, &Download::downloadFinished);
 
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout ,this, &Download::updateDetails);
-    timer->start(timeInterval);
+    timer->start(m_timeInterval);
     bytesProcessed = 0;
     bytesDownloaded = 0;
 }
 
 void Download::updateDetails()
 {
-    qint64 transferRate = (bytesDownloaded - bytesProcessed)/timeInterval;
+    qint64 transferRate = (bytesDownloaded - bytesProcessed)/m_timeInterval;
     QHash<int, QVariant> details;
     details.insert(DownloadBackend::TransferRate, QVariant(transferRate));
     details.insert(DownloadBackend::BytesDownloaded, QVariant(bytesDownloaded - bytesProcessed));
@@ -95,7 +100,7 @@ void Download::updateDetails()
 
 void Download::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    tempFile->write(downloadReply->readAll());
+    tempFile->write(m_downloadReply->readAll());
     Q_ASSERT(tempFile->flush());
     bytesDownloaded = bytesReceived;
     update();
@@ -117,8 +122,8 @@ void Download::errorOccured(QNetworkReply * reply, const QList<QSslError> & erro
 
 void Download::update()
 {
-    properties = DownloadProperties(mMemoryDatabase->getDetails(downloadId));
-    QByteArray baOut = properties.tempFileNames;
+    m_properties = DownloadProperties(m_memoryDatabase->getDetails(downloadId));
+    QByteArray baOut = m_properties.tempFileNames;
     QDataStream dsOut(&baOut, QIODevice::ReadOnly);
     QMap <double, QMap <qint8, QVariant> > tempFilesMeta;
     dsOut >> tempFilesMeta;
@@ -142,18 +147,18 @@ void Download::update()
         tempFilesMeta.insert(key, newDownloadMeta);
         break;
     }
-    QByteArray baIn = properties.tempFileNames;
+    QByteArray baIn = m_properties.tempFileNames;
     QDataStream dsIn(&baIn, QIODevice::WriteOnly);
     dsIn << tempFilesMeta;
-    properties.tempFileNames = baIn;
-    mMemoryDatabase->updateDetails(properties);
+    m_properties.tempFileNames = baIn;
+    m_memoryDatabase->updateDetails(m_properties);
 }
 
 void Download::abortDownload()
 {
-    disconnect(downloadReply, &QNetworkReply::finished, this, &Download::downloadFinished);
-    disconnect(downloadReply, &QNetworkReply::downloadProgress, this, &Download::downloadProgress);
-    downloadReply->abort();
+    disconnect(m_downloadReply, &QNetworkReply::finished, this, &Download::downloadFinished);
+    disconnect(m_downloadReply, &QNetworkReply::downloadProgress, this, &Download::downloadProgress);
+    m_downloadReply->abort();
     tempFile->flush();
     this->deleteLater();
 }

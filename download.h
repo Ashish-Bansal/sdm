@@ -29,45 +29,39 @@
 #include <QFile>
 #include <QElapsedTimer>
 #include <QTemporaryFile>
+
 class Download : public QObject
 {
     Q_OBJECT
+
 public:
     Download(qint64 id, QString rawURL, qint64 start, qint64 end);
     ~Download();
 
     QString fileName;
+    QTemporaryFile *tempFile;
     qint64 rangeStart;
     qint64 rangeEnd;
     qint64 downloadId;
-    QTemporaryFile *tempFile;
     qint64 bytesDownloaded;
     qint64 bytesProcessed;
-    qint64 timeInterval = 100;
     void abortDownload();
     void start();
-
 
 signals:
     void downloadComplete();
     void updateGui(QHash<int, QVariant> details);
 
 private:
-    QNetworkAccessManager *qnam;
-    QNetworkRequest *req;
-    QNetworkReply *downloadReply;
-    MemoryDatabase *mMemoryDatabase;
-    DownloadProperties properties;
-
-    QUrl *url;
-    int requestedContentLength;
-    int responseContentLength;
-    int originalContentLength;
-    QElapsedTimer downloadTimer;
-    QElapsedTimer timeGap;
-    qint64 previousDownloadSize;
+    QNetworkAccessManager *m_qnam;
+    QNetworkRequest *m_req;
+    QNetworkReply *m_downloadReply;
+    MemoryDatabase *m_memoryDatabase;
+    DownloadProperties m_properties;
+    QUrl *m_url;
     void update();
     void updateDetails();
+    qint64 m_timeInterval;
 
 private slots:
     void downloadFinished();

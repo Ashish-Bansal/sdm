@@ -27,18 +27,18 @@
 class SingletonFactory
 {
 public:
-    template <class T> static T* instanceFor()
+    template < class T > static T* instanceFor()
     {
         const QString typeName(typeid(T).name());
 
-        if (!instances.contains(typeName)) {
-            instances.insert(typeName, static_cast<QObject*>(new T()));
+        if (!m_instances.contains(typeName)) {
+            m_instances.insert(typeName, static_cast< QObject* >(new T()));
         }
 
-        return static_cast<T*>(instances.value(typeName));
+        return static_cast< T* >(m_instances.value(typeName));
     }
 private:
-    static QHash<QString, QObject*> instances;
+    static QHash< QString, QObject* > m_instances;
 };
 
 #endif // SINGLETONFACTORY_H

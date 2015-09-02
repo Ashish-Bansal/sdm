@@ -37,7 +37,7 @@ public:
     void startDownload();
     void stopDownload();
 
-    QList <Download *> dwldip;
+    QList <Download*> dwldip;
     Download *dwldaw;
     QFile file;
 
@@ -52,10 +52,9 @@ public:
     DownloadProperties properties;
 
 private:
-    MemoryDatabase *mMemoryDatabase;
+    MemoryDatabase *m_memoryDatabase;
     void fetchProperties();
     static bool compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j);
-
 
 private slots:
     void writeToFileInParts();

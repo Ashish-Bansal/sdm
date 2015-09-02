@@ -26,19 +26,19 @@
 
 FetchHeaders::FetchHeaders(QString rawURL)
 {
-     qnam = new QNetworkAccessManager();
+     m_qnam = new QNetworkAccessManager();
 
      stringUrl = rawURL;
      properties.url = stringUrl;
      url = new QUrl(stringUrl);
 
-     req = new QNetworkRequest();
-     req->setUrl(*url);
-     req->setRawHeader(QByteArray("Range"), QByteArray("bytes=0-1"));
-     requestedContentLength = 2;
+     m_req = new QNetworkRequest();
+     m_req->setUrl(*url);
+     m_req->setRawHeader(QByteArray("Range"), QByteArray("bytes=0-1"));
+     m_requestedContentLength = 2;
 
-     headersCheckReply = qnam->get(*req);
-     connect(headersCheckReply, &QNetworkReply::downloadProgress,
+     m_headersCheckReply = m_qnam->get(*m_req);
+     connect(m_headersCheckReply, &QNetworkReply::downloadProgress,
              this, &FetchHeaders::checkByteServing);
 }
 
@@ -52,28 +52,28 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
     Q_UNUSED(bytesReceived);
 
     //Hack: Due to bug in Qt, QNetworkAccessManager::head does not sends the raw headers along
-    //with the request. So use QNetworkAccessManager::get and ensure this function runs only once.
-    if (mAlreadyEntered == 1) {
+    //with the m_request. So use QNetworkAccessManager::get and ensure this function runs only once.
+    if (m_alreadyEntered == 1) {
         return;
     }
-    mAlreadyEntered = 1;
+    m_alreadyEntered = 1;
 
-    int statusCode = headersCheckReply->attribute(
+    int statusCode = m_headersCheckReply->attribute(
                 QNetworkRequest::HttpStatusCodeAttribute).toInt();
-    responseContentLength = bytesTotal;
+    m_responseContentLength = bytesTotal;
     qDebug() << stringUrl;
     qDebug() << "Status Code :" << statusCode;
     qDebug() << "Bytes Total :" << bytesTotal ;
-    qDebug() << headersCheckReply->rawHeaderPairs();
+    qDebug() << m_headersCheckReply->rawHeaderPairs();
     if (statusCode == 301 || statusCode == 302 || statusCode == 303
             || statusCode == 307 || statusCode == 308) {
         qDebug() << "Redirection";
-        url->setUrl(headersCheckReply->rawHeader("Location"));
+        url->setUrl(m_headersCheckReply->rawHeader("Location"));
         stringUrl = url->toString();
-        req->setUrl(*url);
-        req->setRawHeader("Range", "bytes=0-1");
-        headersCheckReply = qnam->get(*req);
-        connect(headersCheckReply, &QNetworkReply::downloadProgress,
+        m_req->setUrl(*url);
+        m_req->setRawHeader("Range", "bytes=0-1");
+        m_headersCheckReply = m_qnam->get(*m_req);
+        connect(m_headersCheckReply, &QNetworkReply::downloadProgress,
                 this, &FetchHeaders::processHeaders);
         return;
     } else if (statusCode/100 == 4) {
@@ -83,37 +83,37 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
         return;
     }
 
-    if(statusCode == 206 || responseContentLength == requestedContentLength) {
+    if(statusCode == 206 || m_responseContentLength == m_requestedContentLength) {
         resumeCapability = SDM::ResumeSupported;
     } else{
         resumeCapability = SDM::ResumeNotSupported;
     }
 
-    req->setUrl(*url);
-    req->setRawHeader("Range", "bytes=0-");
-    headersCheckReply = qnam->head(*req);
-    connect(headersCheckReply, &QNetworkReply::downloadProgress,
+    m_req->setUrl(*url);
+    m_req->setRawHeader("Range", "bytes=0-");
+    m_headersCheckReply = m_qnam->head(*m_req);
+    connect(m_headersCheckReply, &QNetworkReply::downloadProgress,
             this, &FetchHeaders::processHeaders);
 }
 
 void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
 {
     Q_UNUSED(bytesReceived);
-    QString contentRangeHeader = QString(headersCheckReply->rawHeader("Content-Range"));
-    qint64 contentLength = headersCheckReply->header(
+    QString contentRangeHeader = QString(m_headersCheckReply->rawHeader("Content-Range"));
+    qint64 contentLength = m_headersCheckReply->header(
                 QNetworkRequest::ContentLengthHeader).toLongLong();
     if (contentLength) {
         originalContentLength = contentLength;
     } else if (contentRangeHeader.length() && contentRangeHeader.contains("/")) {
-        originalContentLength = headersCheckReply->rawHeader(
+        originalContentLength = m_headersCheckReply->rawHeader(
                     "Content-Range").split('/').at(1).toLongLong(0);
-    } else if (bytesTotal > requestedContentLength) {
+    } else if (bytesTotal > m_requestedContentLength) {
         originalContentLength = bytesTotal;
     } else {
         originalContentLength = -1;
     }
 
-    QString contentDispositionHeader = QString(headersCheckReply->rawHeader(
+    QString contentDispositionHeader = QString(m_headersCheckReply->rawHeader(
                                                    "Content-Disposition"));
     if (contentDispositionHeader.length() && contentDispositionHeader.contains("filename")) {
         fileName = contentDispositionHeader.split("filename=\"").at(1).split("\"").at(0);

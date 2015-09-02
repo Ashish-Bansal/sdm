@@ -31,8 +31,8 @@
 StartDownload::StartDownload(int id) : id(id)
 {
     qDebug() << id;
-    mMemoryDatabase = SingletonFactory::instanceFor<MemoryDatabase>();
-    properties = DownloadProperties(mMemoryDatabase->getDetails(id));
+    m_memoryDatabase = SingletonFactory::instanceFor< MemoryDatabase >();
+    properties = DownloadProperties(m_memoryDatabase->getDetails(id));
     filename = properties.filename;
     resumeSupported = properties.resumeCapability;
     filesize = properties.filesize;
@@ -63,13 +63,13 @@ void StartDownload::startDownload()
             Download *download = new Download(id, url, start + done, end);
             dwldip.append(download);
 
-            QMultiMap <qint8, QVariant> newDownloadMeta;
+            QMultiMap<qint8, QVariant> newDownloadMeta;
             newDownloadMeta.insert(0, start + done);
             newDownloadMeta.insert(1, 0);
             newDownloadMeta.insert(2, end);
             newDownloadMeta.insert(3, download->fileName);
 
-            QMultiMap <qint8, QVariant> changedDownloadMeta;
+            QMultiMap<qint8, QVariant> changedDownloadMeta;
             changedDownloadMeta.insert(0, start);
             changedDownloadMeta.insert(1, done);
             changedDownloadMeta.insert(2, start+done-1);
@@ -92,7 +92,7 @@ void StartDownload::startDownload()
         }
         b = SDM::writeToByteArray(savedFilesMeta + newFilesMeta);
         properties.tempFileNames = b;
-        mMemoryDatabase->updateDetails(properties);
+        m_memoryDatabase->updateDetails(properties);
         for (auto g = dwldip.begin(); g != dwldip.end(); g++) {
                 (*g)->start();
         }
@@ -105,13 +105,13 @@ void StartDownload::startDownload()
             dwldip.append(new Download(id, url, 3*filesize/6 + 1, 4*filesize/6));
             dwldip.append(new Download(id, url, 4*filesize/6 + 1, 5*filesize/6));
             dwldip.append(new Download(id, url, 5*filesize/6 + 1, filesize));
-            QList <Download*>::iterator i;
-            QMultiMap <double, QMultiMap <qint8, QVariant> > tempFilesMeta;
+            QList<Download*>::iterator i;
+            QMultiMap<double, QMultiMap<qint8, QVariant>> tempFilesMeta;
             int counter = 0;
             for (i = dwldip.begin(); i != dwldip.end(); i++, counter++) {
                 connect(*i, &Download::downloadComplete, this, &StartDownload::writeToFileInParts);
                 connect(*i, &Download::updateGui, this, &StartDownload::updateDatabase);
-                QMultiMap <qint8, QVariant> newDownloadMeta;
+                QMultiMap<qint8, QVariant> newDownloadMeta;
                 newDownloadMeta.insert(0, (*i)->rangeStart);
                 newDownloadMeta.insert(1, 0);
                 newDownloadMeta.insert(2, (*i)->rangeEnd);
@@ -121,7 +121,7 @@ void StartDownload::startDownload()
 
             QByteArray b = SDM::writeToByteArray(tempFilesMeta);
             properties.tempFileNames = b;
-            mMemoryDatabase->updateDetails(properties);
+            m_memoryDatabase->updateDetails(properties);
             for (i = dwldip.begin(); i != dwldip.end(); i++) {
                 (*i)->start();
             }
@@ -132,10 +132,10 @@ void StartDownload::startDownload()
             connect(dwldaw, &Download::updateGui, this, &StartDownload::updateDatabase);
         }
         properties.started = true;
-        mMemoryDatabase->updateDetails(properties);
+        m_memoryDatabase->updateDetails(properties);
     }
     properties.status = Status::Downloading;
-    mMemoryDatabase->updateDetails(properties);
+    m_memoryDatabase->updateDetails(properties);
 }
 
 void StartDownload::updateDatabase(QHash<int, QVariant> details)
@@ -144,7 +144,7 @@ void StartDownload::updateDatabase(QHash<int, QVariant> details)
     totalBytesDownloaded += details.value(DownloadBackend::BytesDownloaded).toLongLong();
     properties.transferRate = details.value(DownloadBackend::TransferRate).toString();
     properties.bytesDownloaded = totalBytesDownloaded;
-    mMemoryDatabase->updateDetails(properties);
+    m_memoryDatabase->updateDetails(properties);
 }
 
 bool StartDownload::compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j)
@@ -174,7 +174,7 @@ void StartDownload::writeToFileInParts()
     }
 
     properties.status = Status::Merging;
-    mMemoryDatabase->updateDetails(properties);
+    m_memoryDatabase->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -183,11 +183,11 @@ void StartDownload::writeToFileInParts()
         file.open(QIODevice::WriteOnly);
     }
 
-    QList< QPair< double, QPair<qint64, QString> > > p;
+    QList<QPair<double, QPair<qint64, QString>>> p;
     for (auto i = tempFilesMeta.begin(); i != tempFilesMeta.end(); ++i) {
         QString filename = i.value().value(3).toString();
         double d = i.key();
-        p << QPair< double, QPair<qint64, QString> > (d, QPair<qint64, QString>(i.value().value(1).toLongLong(), filename));
+        p << QPair<double, QPair<qint64, QString>> (d, QPair<qint64, QString>(i.value().value(1).toLongLong(), filename));
     }
     std::sort(p.begin(), p.end(), compareList);
     for (auto listIt = p.begin(); listIt != p.end(); listIt++) {
@@ -208,7 +208,7 @@ void StartDownload::writeToFileInParts()
     qDebug() << "Write Complete In Parts";
 
     properties.status = Status::Completed;
-    mMemoryDatabase->updateDetails(properties);
+    m_memoryDatabase->updateDetails(properties);
 
     b = properties.tempFileNames;
     qDebug() << SDM::readByteArray(b);
@@ -220,7 +220,7 @@ void StartDownload::writeToFileAsWhole()
 {
     fetchProperties();
     properties.status = Status::Merging;
-    mMemoryDatabase->updateDetails(properties);
+    m_memoryDatabase->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
     if(!file.open(QIODevice::WriteOnly)){
@@ -237,7 +237,7 @@ void StartDownload::writeToFileAsWhole()
     qDebug() << "Write Complete As Whole";
     properties.status = Status::Completed;
     properties.transferRate = "";
-    mMemoryDatabase->updateDetails(properties);
+    m_memoryDatabase->updateDetails(properties);
     this->deleteLater();
     dwldaw->disconnect();
 }
@@ -262,7 +262,7 @@ void StartDownload::cleanUp()
 
 void StartDownload::fetchProperties()
 {
-    properties = DownloadProperties(mMemoryDatabase->getDetails(id));
+    properties = DownloadProperties(m_memoryDatabase->getDetails(id));
 }
 
 void StartDownload::stopDownload()
