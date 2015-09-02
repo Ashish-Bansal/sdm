@@ -9,7 +9,6 @@
 #include "databasemanager.h"
 #include "downloadproperties.h"
 
-class DatabaseManager;
 class MemoryDatabase : public QObject
 {
     Q_OBJECT
