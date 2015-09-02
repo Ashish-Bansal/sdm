@@ -16,18 +16,17 @@ public:
     DownloadProperties& operator=(const DownloadProperties&);
     void setValue(int i, QVariant v);
 
-    int id = 0;
-    QString filename = QString();
-    qint64 filesize = 0;
-    int resumeCapability = SDM::ResumeNotSupported;
-    QString url = QString();
-    qint64 bytesDownloaded = 0;
+    int id;
+    QString filename;
+    qint64 filesize;
+    int resumeCapability;
+    QString url;
+    qint64 bytesDownloaded;
     QByteArray tempFileNames;
-    QString dateAdded = QString();
-    int status = Status::Idle;
-    QString transferRate = QString();
-    bool started = false;
-
+    QString dateAdded;
+    int status;
+    QString transferRate;
+    bool started;
 };
 
 QDebug operator<<(QDebug d, const DownloadProperties prop);

@@ -9,6 +9,7 @@ DownloadProperties::DownloadProperties()
 }
 
 DownloadProperties::DownloadProperties(const DownloadProperties &properties)
+    : DownloadProperties()
 {
     id = properties.id;
     filename = properties.filename;
@@ -23,18 +24,8 @@ DownloadProperties::DownloadProperties(const DownloadProperties &properties)
 }
 
 DownloadProperties::DownloadProperties(const DownloadProperties *properties)
+    : DownloadProperties(*properties)
 {
-//    qDebug() << properties->id;
-    id = properties->id;
-    filename = properties->filename;
-    filesize = properties->filesize;
-    resumeCapability = properties->resumeCapability;
-    url = properties->url;
-    bytesDownloaded = properties->bytesDownloaded;
-    transferRate = properties->transferRate;
-    status = properties->status;
-    tempFileNames = properties->tempFileNames;
-    started = properties->started;
 }
 
 DownloadProperties& DownloadProperties::operator=(const DownloadProperties& properties)
