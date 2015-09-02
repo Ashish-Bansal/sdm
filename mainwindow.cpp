@@ -207,9 +207,7 @@ void MainWindow::onActionAddTriggered()
 
 void MainWindow::onActionResumeTriggered(qint64 id)
 {
-    StartDownload *sd = new StartDownload(id);
     if (checkResumeSupported(id)) {
-        //ToDo: start the download from where we left
         StartDownload *newDownload = new StartDownload(id);
         m_downloads.insert(id, newDownload);
         newDownload->startDownload();
