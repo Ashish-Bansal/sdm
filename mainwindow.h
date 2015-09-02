@@ -21,6 +21,8 @@
 
 #include "startdownload.h"
 #include "memorydatabase.h"
+#include "downloadmodel.h"
+#include "downloadview.h"
 
 #include <QMainWindow>
 #include <QLabel>
@@ -28,7 +30,6 @@
 #include <QPointer>
 #include <QTreeWidgetItem>
 #include <QThread>
-
 class DownloadView;
 class MainWindow : public QMainWindow
 {
@@ -53,9 +54,10 @@ public:
     void loadDownloads();
     bool checkResumeSupported(qint64 id);
     void fileAlreadyInList(DownloadProperties properties);
+    DownloadModel *m_model;
 
 private:
-    QPointer<DownloadView> downloadView;
+    QPointer<DownloadView> m_downloadView;
     MemoryDatabase *mMemoryDatabase;
     QMap<qint64, StartDownload*> downloads;
     QThread workerThread;

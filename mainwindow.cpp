@@ -44,13 +44,6 @@
 #include <QSystemTrayIcon>
 #include <QMenu>
 
-class DownloadView : public QTreeWidget
-{
-    Q_OBJECT
-public:
-    DownloadView(QWidget *parent = 0);
-};
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -83,27 +76,30 @@ MainWindow::MainWindow(QWidget *parent)
 
     QStringList headers = {"RowId", "DatabaseId", "Filename", "Size", "Progress", "Transfer Rate",
                            "Status", "Time Remaining", "Resume Capabilitiy", "Date"};
-    downloadView = new DownloadView(this);
-    downloadView->setHeaderLabels(headers);
-    downloadView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    downloadView->setAlternatingRowColors(true);
-    downloadView->setRootIsDecorated(false);
-    downloadView->setSortingEnabled(true);
-//    downloadView->setSelectionMode(QAbstractItemView::MultiSelection);
+
+    m_model = new DownloadModel();
+    m_downloadView = new DownloadView(this);
+    m_downloadView->setModel(m_model);
+//     m_downloadView->setHeaderLabels(headers);
+    m_downloadView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_downloadView->setAlternatingRowColors(true);
+//     m_downloadView->setRootIsDecorated(false);
+    m_downloadView->setSortingEnabled(true);
+//    m_downloadView->setSelectionMode(QAbstractItemView::MultiSelection);
     QVBoxLayout *layout = new QVBoxLayout();
     QLineEdit *ledit = new QLineEdit();
     ledit->setPlaceholderText("Search Box");
     layout->addWidget(ledit);
-    layout->addWidget(downloadView);
+    layout->addWidget(m_downloadView);
     setCentralWidget(new QWidget);
     centralWidget()->setLayout(layout);
     this->showMaximized();
 
     QFontMetrics fm = fontMetrics();
-    QHeaderView *header = downloadView->header();
-    header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    header->setSectionHidden(0, true);
-    header->setSectionHidden(1, true);
+//     QHeaderView *header = m_downloadView->header();
+//     header->setSectionResizeMode(QHeaderView::ResizeToContents);
+//     header->setSectionHidden(0, true);
+//     header->setSectionHidden(1, true);
 
     // Create common actions
     QAction *addDownload = new QAction(QIcon(":icons/download-icon.png"), tr("Add Download"), this);
@@ -142,40 +138,34 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(addDownload, &QAction::triggered, this, &MainWindow::onActionAddTriggered);
     connect(startDownload, &QAction::triggered, this, [=] {
-        auto items = downloadView->selectedItems();
-        foreach(auto item, items){
-            qint64 id = item->text(TableView::DatabaseId).toLongLong();
-            onActionResumeTriggered(id);
-        }
+//         auto items = m_downloadView->selectedItems();
+//         foreach(auto item, items){
+//             qint64 id = item->text(TableView::DatabaseId).toLongLong();
+//             onActionResumeTriggered(id);
+//         }
     });
     connect(restartDownload, &QAction::triggered, this, [=] {
-        auto items = downloadView->selectedItems();
-        foreach(auto item, items){
-            qint64 id = item->text(TableView::DatabaseId).toLongLong();
-            onActionRestartTriggered(id);
-        }
+//         auto items = m_downloadView->selectedItems();
+//         foreach(auto item, items){
+//             qint64 id = item->text(TableView::DatabaseId).toLongLong();
+//             onActionRestartTriggered(id);
+//         }
     });
     connect(stopDownload, &QAction::triggered, this, [=] {
-        auto items = downloadView->selectedItems();
-        foreach(auto item, items){
-            qint64 id = item->text(TableView::DatabaseId).toLongLong();
-            onActionStopTriggered(id);
-        }
+//         auto items = m_downloadView->selectedItems();
+//         foreach(auto item, items){
+//             qint64 id = item->text(TableView::DatabaseId).toLongLong();
+//             onActionStopTriggered(id);
+//         }
     });
     connect(removeDownload, &QAction::triggered, this, [=] {
-        auto items = downloadView->selectedItems();
-        foreach(auto item, items){
-            qint64 id = item->text(TableView::DatabaseId).toLongLong();
-            onActionRemoveTriggered(id);
-        }
+//         auto items = m_downloadView->selectedItems();
+//         foreach(auto item, items){
+//             qint64 id = item->text(TableView::DatabaseId).toLongLong();
+//             onActionRemoveTriggered(id);
+//         }
     });
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
-}
-
-DownloadView::DownloadView(QWidget *parent)
-    : QTreeWidget(parent)
-{
-
 }
 
 MainWindow::~MainWindow()
@@ -370,69 +360,69 @@ void MainWindow::downloadAdded(qint64 id)
     if (getTreeItem(id) != nullptr) {
         qDebug() << "Item already available in tree";
     }
-    QTreeWidgetItem *item = new QTreeWidgetItem(downloadView);
-    item->setText(TableView::RowId, QString::number(++maxId));
-    item->setText(TableView::DatabaseId, QString::number(id));
-    item->setText(TableView::FileName, "Unknown");
-    item->setText(TableView::FileSize, tr("--"));
-    item->setText(TableView::DownloadProgress, "--");
-    item->setText(TableView::TransferRate, "--");
-    item->setText(TableView::Status, "Idle");
-    item->setText(TableView::TimeRemaining, "Unknown");
-    item->setText(TableView::ResumeCapability, "Unknown");
-    item->setText(TableView::DateAdded, "Unknown");
-    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-    item->setTextAlignment(1, Qt::AlignHCenter);
+//     QTreeWidgetItem *item = new QTreeWidgetItem(m_downloadView);
+//     item->setText(TableView::RowId, QString::number(++maxId));
+//     item->setText(TableView::DatabaseId, QString::number(id));
+//     item->setText(TableView::FileName, "Unknown");
+//     item->setText(TableView::FileSize, tr("--"));
+//     item->setText(TableView::DownloadProgress, "--");
+//     item->setText(TableView::TransferRate, "--");
+//     item->setText(TableView::Status, "Idle");
+//     item->setText(TableView::TimeRemaining, "Unknown");
+//     item->setText(TableView::ResumeCapability, "Unknown");
+//     item->setText(TableView::DateAdded, "Unknown");
+//     item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+//     item->setTextAlignment(1, Qt::AlignHCenter);
 
     updateDetails(id);
 }
 
 QTreeWidgetItem* MainWindow::getTreeItem(int id)
 {
-    QTreeWidgetItemIterator it(downloadView);
-    while(*it){
-        if((*it)->text(TableView::DatabaseId).toLongLong() == id){
-            return (*it);
-        }
-        ++it;
-    }
+//     QTreeWidgetItemIterator it(m_downloadView);
+//     while(*it){
+//         if((*it)->text(TableView::DatabaseId).toLongLong() == id){
+//             return (*it);
+//         }
+//         ++it;
+//     }
     return nullptr;
 }
 
 void MainWindow::updateDetails(qint64 id)
 {
-    QTreeWidgetItem *item = getTreeItem(id);
-    if (item == nullptr) {
-        qDebug() << "Tree Item not found";
-        return;
-    }
-
-    const DownloadProperties *properties = mMemoryDatabase->getDetails(id);
-    item->setText(TableView::FileName, properties->filename);
-    item->setText(TableView::FileSize, QString::number(properties->filesize));
-    item->setText(TableView::DownloadProgress, QString::number(properties->bytesDownloaded));
-    item->setText(TableView::TransferRate, properties->transferRate);
-    QString status;
-    if (properties->status == Status::Downloading) {
-        status = "Downloading";
-    } else if (properties->status == Status::Completed) {
-        status = "Completed";
-    } else if (properties->status == Status::Error) {
-        status = "Error";
-    } else if (properties->status == Status::Idle) {
-        status = "Idle";
-    } else if (properties->status == Status::Merging) {
-        status = "Merging";
-    }
-    item->setText(TableView::Status, status);
-    item->setText(TableView::DownloadProgress, QString::number(convertUnits(properties->bytesDownloaded).first));
-    //    item->setText(TableView::TimeRemaining, QString(properties->filesize - properties->bytesDownloaded/properties->transferRate));
-    if(properties->resumeCapability == SDM::ResumeSupported){
-        item->setText(TableView::ResumeCapability, "Yes");
-    }else{
-        item->setText(TableView::ResumeCapability, "No");
-    }
-    item->setText(TableView::DateAdded, properties->dateAdded);
+//     QTreeWidgetItem *item = getTreeItem(id);
+//     if (item == nullptr) {
+//         qDebug() << "Tree Item not found";
+//         return;
+//     }
+// 
+//     const DownloadProperties *properties = mMemoryDatabase->getDetails(id);
+//     item->setText(TableView::FileName, properties->filename);
+//     item->setText(TableView::FileSize, QString::number(properties->filesize));
+//     item->setText(TableView::DownloadProgress, QString::number(properties->bytesDownloaded));
+//     item->setText(TableView::TransferRate, properties->transferRate);
+//     QString status;
+//     if (properties->status == Status::Downloading) {
+//         status = "Downloading";
+//     } else if (properties->status == Status::Completed) {
+//         status = "Completed";
+//     } else if (properties->status == Status::Error) {
+//         status = "Error";
+//     } else if (properties->status == Status::Idle) {
+//         status = "Idle";
+//     } else if (properties->status == Status::Merging) {
+//         status = "Merging";
+//     }
+//     item->setText(TableView::Status, status);
+//     item->setText(TableView::DownloadProgress, QString::number(convertUnits(properties->bytesDownloaded).first));
+//     //    item->setText(TableView::TimeRemaining, QString(properties->filesize - properties->bytesDownloaded/properties->transferRate));
+//     if(properties->resumeCapability == SDM::ResumeSupported){
+//         item->setText(TableView::ResumeCapability, "Yes");
+//     }else{
+//         item->setText(TableView::ResumeCapability, "No");
+//     }
+//     item->setText(TableView::DateAdded, properties->dateAdded);
 
 //     qDebug() << "Downloaded Amount" << convertUnits(bytesDownloaded).first << "Total Length" << convertUnits(job.down->originalContentLength).first << convertUnits(job.down->originalContentLength).second;
 //     item->setText(2, QString().sprintf("%d%s", convertUnits(bytesDownloaded).first, (const char*)convertUnits(bytesDownloaded).second.toLocal8Bit()));
