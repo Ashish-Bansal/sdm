@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-
 #include "enum.h"
 #include "global.h"
 #include "startdownload.h"
