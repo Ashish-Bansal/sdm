@@ -57,7 +57,7 @@ void AddDialog::validateUrl()
 {
     QString url = ui->lineEdit->text();
 
-    if (url == "" ||  SDM::validateUrl(url)) {
+    if (url == "" ||  !SDM::isValidUrl(url)) {
         ui->label_2->setEnabled(true);
         ui->label_2->setVisible(true);
         ui->pushButtonOk->setEnabled(false);

@@ -28,12 +28,10 @@
 #include <QUrl>
 #include <QDataStream>
 
-bool SDM::validateUrl(QString url)
+bool SDM::isValidUrl(QString url)
 {
-    QString regexp = "^(((http|ftp)(s?)\\:\\/\\/)|(www\\.))(([a-zA-Z0-9\\-\\._]+(\\.[a-zA-Z0-9\\-\\._]+)+)|localhost)(\\/?)([a-zA-Z0-9\\-\\.\\?\\,\\'\\/\\\\\\+&amp;%\\$#_]*)?([\\d\\w\\.\\/\\%\\+\\-\\=\\&amp;\\?\\:\\\\\\&quot;\\'\\,\\|\\~\\;]*)$";
-    QRegExp rx(regexp);
-    rx.indexIn(url);
-    return rx.cap(0).length() != 0;
+    QRegExp rx(SDM::regexp);
+    return rx.exactMatch(url);
 }
 
 QString SDM::convertUnits(qint64 bytes)
