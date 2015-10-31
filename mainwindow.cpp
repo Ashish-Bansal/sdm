@@ -65,12 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
         connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
         trayIcon->showMessage("SDM", "SDM has been started", QSystemTrayIcon::Information, 1 * 1000);
     }
-    qDebug() << QThread::idealThreadCount();
-    qDebug() << QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     m_memoryDatabase = SingletonFactory::instanceFor<MemoryDatabase>();
-//    ToDo: Enable threading here
-//    m_memoryDatabase->moveToThread(&m_workerThread);
-//    m_workerThread.start();
     connect (m_memoryDatabase, &MemoryDatabase::downloadInserted, this, &MainWindow::downloadAdded);
     connect (m_memoryDatabase, &MemoryDatabase::updateGUI, this, &MainWindow::updateDetails);
 
