@@ -28,9 +28,10 @@
 
 StartDownload::StartDownload(int id) : id(id)
 {
-    qDebug() << id;
     m_model = SingletonFactory::instanceFor< DownloadModel >();
-    properties = DownloadAttributes(m_model->getDetails(id));
+    const DownloadAttributes *prop = m_model->getDetails(id);
+    Q_ASSERT(prop != nullptr);
+    properties = DownloadAttributes(prop);
     filename = properties.filename;
     resumeSupported = properties.resumeCapability;
     filesize = properties.filesize;
