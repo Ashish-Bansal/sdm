@@ -24,17 +24,37 @@
 namespace Enum {
     namespace DownloadAttributes {
         enum DownloadAttributes : int {
-            Id = 0,
+            RowId = 0,
+            DatabaseId,
             Filename,
             Filesize,
             ResumeCapability,
             Url,
             BytesDownloaded,
-            tempFileNames,
+            TempFileNames,
             DateAdded,
             Status,
             TransferRate,
+            TimeRemaining,
+            DownloadProgress,
             Started,
+            END
+        };
+    }
+
+    namespace TableView {
+        enum TableView : int {
+            RowId = 0,
+            DatabaseId,
+            Filename,
+            Filesize,
+            ResumeCapability,
+            BytesDownloaded,
+            DateAdded,
+            Status,
+            TransferRate,
+            TimeRemaining,
+            DownloadProgress,
             END
         };
     }
@@ -46,22 +66,6 @@ namespace Enum {
             DownloadFinished,
             Failed,
             Successful
-        };
-    }
-
-    namespace TableView {
-        enum TableView : int {
-            RowId = 0,
-            DatabaseId,
-            FileName,
-            FileSize,
-            DownloadProgress,
-            TransferRate,
-            Status,
-            TimeRemaining,
-            ResumeCapability,
-            DateAdded,
-            END
         };
     }
 

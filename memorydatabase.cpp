@@ -56,7 +56,7 @@ qint64 MemoryDatabase::insertDownload(DownloadAttributes properties)
     }
     DownloadAttributes *dld = new DownloadAttributes(properties);
     m_downloadList.insert(id, dld);
-    dld->id = id;
+    dld->rowId = id;
 
     emit downloadInserted(id);
     QtConcurrent::run(m_dbManager, &DatabaseManager::insertDownload,
@@ -79,12 +79,12 @@ qint64 MemoryDatabase::maxId()
 
 void MemoryDatabase::updateDetails(const DownloadAttributes properties)
 {
-    qint64 id = properties.id;
+    qint64 id = properties.databaseId;
     DownloadAttributes *dld = m_downloadList.value(id, nullptr);
     if (dld == nullptr) {
         return;
     }
-    dld->id = id;
+    dld->databaseId = id;
     dld->filename = properties.filename;
     dld->filesize = properties.filesize;
     dld->resumeCapability = properties.resumeCapability;
@@ -166,7 +166,7 @@ void MemoryDatabase::readDatabase()
         dld->setValue(Enum::DownloadAttributes::TransferRate, 0);
         dld->setValue(Enum::DownloadAttributes::Status,
                       dld->status == Enum::Status::Downloading ? Enum::Status::Idle : dld->status);
-        m_downloadList.insert(dld->id, dld);
+        m_downloadList.insert(dld->databaseId, dld);
         emit downloadLoaded(it->value(0).toLongLong());
     }
 }

@@ -21,12 +21,13 @@
 #ifndef DOWNLOADMODEL_H
 #define DOWNLOADMODEL_H
 
-#include <enum.h>
+#include "enum.h"
+#include "downloadattributes.h"
 
 #include <QObject>
 #include <QAbstractTableModel>
 #include <QVariant>
-#include <QList>
+#include <QMap>
 
 class DownloadModel : public QAbstractTableModel
 {
@@ -39,48 +40,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role=Qt::EditRole);
-    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
-    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    void updateDetails(DownloadAttributes properties);
+    const DownloadAttributes* getDetails(qint64 id);
+    qint64 maxRowId();
+    void readDatabase();
+    int insertDownloadIntoModel(DownloadAttributes *properties);
+    int removeDownloadFromModel(int databaseId);
 
-    struct TableItem{
-        qint64 id;
-        qint64 rowId;
-        QString filename;
-        QString filesize;
-        QString downloadProgress;
-        QString transferRate;
-        QString status;
-        QString timeRemaining;
-        QString dateAdded;
-        QString resumeCapability;
-
-        QVariant get(int column)
-        {
-            switch (column) {
-                case Enum::TableView::RowId :
-                    return rowId;
-                case Enum::TableView::FileName :
-                    return filename;
-                case Enum::TableView::FileSize :
-                    return filesize;
-                case Enum::TableView::DownloadProgress :
-                    return downloadProgress;
-                case Enum::TableView::TransferRate :
-                    return transferRate;
-                case Enum::TableView::Status :
-                    return status;
-                case Enum::TableView::TimeRemaining :
-                    return timeRemaining;
-                case Enum::TableView::DateAdded :
-                    return dateAdded;
-                default :
-                    return QVariant();
-            };
-        }
-    };
-
-    QList< TableItem > getList();
-    QList< TableItem > items;
+    QMap< int, DownloadAttributes* > m_downloadList;
 };
 
 #endif // DOWNLOADMODEL_H

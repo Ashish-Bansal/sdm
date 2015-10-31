@@ -57,7 +57,7 @@ void DatabaseManager::insertDownload(DownloadAttributes prop)
     QSqlQuery qry(mydb);
     QString qryStr = "insert into downloadList values (:id, :filename, :filesize, :resumeCapability, :url, :bytesDownloaded, :tempFileNames, :date, :status, :speed, :started)";
     qry.prepare(qryStr);
-    qry.bindValue(":id", prop.id);
+    qry.bindValue(":id", prop.databaseId);
     qry.bindValue(":filename", prop.filename);
     qry.bindValue(":filesize", prop.filesize);
     qry.bindValue(":resumeCapability", prop.resumeCapability);
@@ -81,7 +81,7 @@ void DatabaseManager::updateDetails(DownloadAttributes prop)
     QSqlQuery qry(mydb);
     QString qryStr = "update downloadList set filename = :filename, filesize = :filesize, resumeCapability = :resumeCapability, url = :url, bytesDownloaded = :bytesDownloaded, transferRate = :speed, status = :status, tempFileNames = :tempFileNames, started = :started where id = :id";
     qry.prepare(qryStr);
-    qry.bindValue(":id", prop.id);
+    qry.bindValue(":id", prop.databaseId);
     qry.bindValue(":filename", prop.filename);
     qry.bindValue(":filesize", prop.filesize);
     qry.bindValue(":resumeCapability", prop.resumeCapability);

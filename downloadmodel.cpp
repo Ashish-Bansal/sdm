@@ -30,7 +30,7 @@ DownloadModel::DownloadModel() : QAbstractTableModel()
 int DownloadModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return items.size();
+    return m_downloadList.size();
 }
 
 int DownloadModel::columnCount(const QModelIndex& parent) const
@@ -45,13 +45,13 @@ QVariant DownloadModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (index.row() >= items.size() || index.row() < 0) {
+    if (index.row() >= m_downloadList.size() || index.row() < 0) {
         return QVariant();
     }
 
     if (role == Qt::DisplayRole) {
-        TableItem item = items.at(index.row());
-        return item.get(index.column());
+        DownloadAttributes *item = m_downloadList[index.row()];
+        return item->getValue(index.column());
     }
 
     return QVariant();
@@ -66,21 +66,27 @@ QVariant DownloadModel::headerData(int section, Qt::Orientation orientation, int
     if (orientation == Qt::Horizontal) {
         switch (section) {
         case Enum::TableView::RowId :
-            return tr("Id");
-        case Enum::TableView::FileName :
+            return tr("Row Id");
+        case Enum::TableView::DatabaseId :
+            return tr("Database Id");
+        case Enum::TableView::Filename :
             return tr("Filename");
-        case Enum::TableView::FileSize :
+        case Enum::TableView::Filesize :
             return tr("Size");
-        case Enum::TableView::DownloadProgress :
-            return tr("Download Progress");
-        case Enum::TableView::TransferRate :
-            return tr("Transfer Rate");
-        case Enum::TableView::Status :
-            return tr("Status");
-        case Enum::TableView::TimeRemaining :
-            return tr("Time Remaining");
+        case Enum::TableView::ResumeCapability :
+            return tr("Resume Capability");
+        case Enum::TableView::BytesDownloaded :
+            return tr("Downloaded");
         case Enum::TableView::DateAdded :
             return tr("Date Added");
+        case Enum::TableView::Status :
+            return tr("Status");
+        case Enum::TableView::TransferRate :
+            return tr("Transfer Rate");
+        case Enum::TableView::TimeRemaining :
+            return tr("Time Remaining");
+        case Enum::TableView::DownloadProgress :
+            return tr("Progress");
         default:
             return QVariant();
         }
@@ -101,37 +107,40 @@ bool DownloadModel::setData(const QModelIndex &index, const QVariant &value, int
     if (index.isValid() && role == Qt::EditRole) {
         int row = index.row();
 
-        TableItem item = items.value(row);
+        DownloadAttributes *item = m_downloadList.value(row, nullptr);
+        Q_ASSERT(item != nullptr);
 
         switch (index.column()) {
             case Enum::TableView::RowId :
-                item.id = value.toInt();
+                item->rowId = value.toInt();
                 break;
-            case Enum::TableView::FileName :
-                item.filename = value.toString();
+            case Enum::TableView::DatabaseId :
+                item->databaseId = value.toInt();
                 break;
-            case Enum::TableView::FileSize :
-                item.filesize = value.toString();
+            case Enum::TableView::Filename :
+                item->filename = value.toString();
+                break;
+            case Enum::TableView::Filesize :
+                item->filesize = value.toLongLong();
                 break;
             case Enum::TableView::DownloadProgress :
-                item.downloadProgress = value.toString();
+                item->downloadProgress = value.toInt();
                 break;
             case Enum::TableView::TransferRate :
-                item.transferRate = value.toString();
+                item->transferRate = value.toString();
                 break;
             case Enum::TableView::Status :
-                item.status = value.toString();
+                item->status = value.toInt();
                 break;
             case Enum::TableView::TimeRemaining :
-                item.timeRemaining = value.toString();
+                item->timeRemaining = value.toLongLong();
                 break;
             case Enum::TableView::DateAdded :
-                item.dateAdded = value.toString();
+                item->dateAdded = value.toString();
                 break;
             default:
                 return false;
         }
-        items.replace(row, item);
         emit(dataChanged(index, index));
 
         return true;
@@ -139,34 +148,39 @@ bool DownloadModel::setData(const QModelIndex &index, const QVariant &value, int
     return false;
 }
 
-bool DownloadModel::insertRows(int position, int rows, const QModelIndex &index)
+int DownloadModel::removeDownloadFromModel(int databaseId)
 {
-    Q_UNUSED(index);
-    beginInsertRows(QModelIndex(), position, position+rows-1);
-
-    for (int row=0; row < rows; row++) {
-        TableItem item;
-        items.insert(position, item);
+    int position = -1;
+    foreach(DownloadAttributes *item, m_downloadList) {
+        if (item->databaseId == databaseId) {
+            position = item->rowId;
+        }
     }
 
-    endInsertRows();
-    return true;
-}
+    Q_ASSERT(position != -1);
 
-bool DownloadModel::removeRows(int position, int rows, const QModelIndex &index)
-{
-    Q_UNUSED(index);
-    beginRemoveRows(QModelIndex(), position, position+rows-1);
-
-    for (int row = 0; row < rows; ++row) {
-        items.removeAt(position);
-    }
-
+    beginRemoveRows(QModelIndex(), position, position);
+    m_downloadList.remove(position);
     endRemoveRows();
-    return true;
+    return databaseId;
 }
 
-QList< DownloadModel::TableItem > DownloadModel::getList()
+int DownloadModel::insertDownloadIntoModel(DownloadAttributes *properties)
 {
-    return items;
+    int position = maxRowId();
+    beginInsertRows(QModelIndex(), position, position);
+    m_downloadList.insert(position+1, properties);
+    endInsertRows();
+}
+
+qint64 DownloadModel::maxRowId()
+{
+    auto it = m_downloadList.begin();
+    qint64 max = 0;
+    for(; it != m_downloadList.end(); it++) {
+        if (it.key() > max) {
+            max = it.key();
+        }
+    }
+    return max;
 }

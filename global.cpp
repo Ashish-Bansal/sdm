@@ -48,7 +48,8 @@ QString SDM::convertUnits(qint64 bytes)
 
 QDebug operator<<(QDebug d, const DownloadAttributes prop)
 {
-    d << "id" << prop.id;
+    d << "row id" << prop.rowId;
+    d << "database id" << prop.databaseId;
     d << "filename" << prop.filename;
     d << "filesize" << prop.filesize;
     d << "resumeCapability" << prop.resumeCapability;

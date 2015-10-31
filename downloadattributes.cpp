@@ -31,7 +31,8 @@ DownloadAttributes::DownloadAttributes()
 DownloadAttributes::DownloadAttributes(const DownloadAttributes &properties)
     : DownloadAttributes()
 {
-    id = properties.id;
+    rowId = properties.rowId;
+    databaseId = properties.databaseId;
     filename = properties.filename;
     filesize = properties.filesize;
     resumeCapability = properties.resumeCapability;
@@ -50,7 +51,8 @@ DownloadAttributes::DownloadAttributes(const DownloadAttributes *properties)
 
 DownloadAttributes& DownloadAttributes::operator=(const DownloadAttributes& properties)
 {
-    id = properties.id;
+    rowId = properties.rowId;
+    databaseId = properties.databaseId;
     filename = properties.filename;
     filesize = properties.filesize;
     resumeCapability = properties.resumeCapability;
@@ -60,12 +62,16 @@ DownloadAttributes& DownloadAttributes::operator=(const DownloadAttributes& prop
     status = properties.status;
     tempFileNames = properties.tempFileNames;
     started = properties.started;
+    downloadProgress = properties.downloadProgress;
+    timeRemaining = properties.timeRemaining;
 }
 
 void DownloadAttributes::setValue(int i, QVariant v)
 {
-    if (i == Enum::DownloadAttributes::Id) {
-        id = v.toLongLong();
+    if (i == Enum::DownloadAttributes::RowId) {
+        rowId = v.toLongLong();
+    } else if (i == Enum::DownloadAttributes::DatabaseId) {
+        databaseId = v.toLongLong();
     } else if (i == Enum::DownloadAttributes::Url) {
         url = v.toString();
     } else if (i == Enum::DownloadAttributes::BytesDownloaded) {
@@ -78,11 +84,51 @@ void DownloadAttributes::setValue(int i, QVariant v)
         status = v.toInt();
     } else if (i == Enum::DownloadAttributes::TransferRate) {
         transferRate = v.toString();
-    } else if (i == Enum::DownloadAttributes::tempFileNames) {
+    } else if (i == Enum::DownloadAttributes::TempFileNames) {
         tempFileNames = v.toByteArray();
     } else if (i == Enum::DownloadAttributes::Filesize) {
         filesize = v.toLongLong();
     } else if (i == Enum::DownloadAttributes::ResumeCapability) {
         resumeCapability = v.toInt() == 1 ? true : false;
+    } else if (i == Enum::DownloadAttributes::TimeRemaining) {
+        timeRemaining = v.toLongLong();
+    } else if (i == Enum::DownloadAttributes::DownloadProgress) {
+        downloadProgress = v.toInt();
+    } else if (i == Enum::DownloadAttributes::DateAdded) {
+        dateAdded = v.toString();
     }
+}
+
+QVariant DownloadAttributes::getValue(int i)
+{
+    if (i == Enum::DownloadAttributes::RowId) {
+        return rowId;
+    } else if (i == Enum::DownloadAttributes::DatabaseId) {
+        return databaseId;
+    } else if (i == Enum::DownloadAttributes::Url) {
+        return url;
+    } else if (i == Enum::DownloadAttributes::BytesDownloaded) {
+        return bytesDownloaded;
+    } else if (i == Enum::DownloadAttributes::Filename) {
+        return filename;
+    } else if (i == Enum::DownloadAttributes::Started) {
+        return started;
+    } else if (i == Enum::DownloadAttributes::Status) {
+        return status;
+    } else if (i == Enum::DownloadAttributes::TransferRate) {
+        return transferRate;
+    } else if (i == Enum::DownloadAttributes::TempFileNames) {
+        return tempFileNames;
+    } else if (i == Enum::DownloadAttributes::Filesize) {
+        return filesize;
+    } else if (i == Enum::DownloadAttributes::ResumeCapability) {
+        return resumeCapability;
+    } else if (i == Enum::DownloadAttributes::TimeRemaining) {
+        return timeRemaining;
+    } else if (i == Enum::DownloadAttributes::DownloadProgress) {
+        return downloadProgress;
+    } else if (i == Enum::DownloadAttributes::DateAdded) {
+        return dateAdded;
+    }
+    return QVariant();
 }
