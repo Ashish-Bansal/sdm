@@ -31,7 +31,6 @@ DownloadAttributes::DownloadAttributes()
 DownloadAttributes::DownloadAttributes(const DownloadAttributes &properties)
     : DownloadAttributes()
 {
-    rowId = properties.rowId;
     databaseId = properties.databaseId;
     filename = properties.filename;
     filesize = properties.filesize;
@@ -51,7 +50,6 @@ DownloadAttributes::DownloadAttributes(const DownloadAttributes *properties)
 
 DownloadAttributes& DownloadAttributes::operator=(const DownloadAttributes& properties)
 {
-    rowId = properties.rowId;
     databaseId = properties.databaseId;
     filename = properties.filename;
     filesize = properties.filesize;
@@ -68,9 +66,7 @@ DownloadAttributes& DownloadAttributes::operator=(const DownloadAttributes& prop
 
 void DownloadAttributes::setValue(int i, QVariant v)
 {
-    if (i == Enum::DownloadAttributes::RowId) {
-        rowId = v.toLongLong();
-    } else if (i == Enum::DownloadAttributes::DatabaseId) {
+    if (i == Enum::DownloadAttributes::DatabaseId) {
         databaseId = v.toLongLong();
     } else if (i == Enum::DownloadAttributes::Url) {
         url = v.toString();
@@ -101,9 +97,7 @@ void DownloadAttributes::setValue(int i, QVariant v)
 
 QVariant DownloadAttributes::getValue(int i)
 {
-    if (i == Enum::DownloadAttributes::RowId) {
-        return rowId;
-    } else if (i == Enum::DownloadAttributes::DatabaseId) {
+    if (i == Enum::DownloadAttributes::DatabaseId) {
         return databaseId;
     } else if (i == Enum::DownloadAttributes::Url) {
         return url;

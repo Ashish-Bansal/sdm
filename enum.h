@@ -24,8 +24,7 @@
 namespace Enum {
     namespace DownloadAttributes {
         enum DownloadAttributes : int {
-            RowId = 0,
-            DatabaseId,
+            DatabaseId = 0,
             Filename,
             Filesize,
             ResumeCapability,
@@ -44,8 +43,7 @@ namespace Enum {
 
     namespace TableView {
         enum TableView : int {
-            RowId = 0,
-            DatabaseId,
+            DatabaseId = 0,
             Filename,
             Filesize,
             ResumeCapability,

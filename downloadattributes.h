@@ -38,7 +38,6 @@ public:
     QVariant getValue(int i);
 
     bool started;
-    int rowId;
     int databaseId;
     int downloadProgress;
     int resumeCapability;

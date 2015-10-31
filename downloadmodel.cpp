@@ -78,8 +78,6 @@ QVariant DownloadModel::headerData(int section, Qt::Orientation orientation, int
 
     if (orientation == Qt::Horizontal) {
         switch (section) {
-        case Enum::TableView::RowId :
-            return tr("Row Id");
         case Enum::TableView::DatabaseId :
             return tr("Database Id");
         case Enum::TableView::Filename :

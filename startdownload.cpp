@@ -90,7 +90,7 @@ void StartDownload::startDownload()
         }
         b = SDM::writeToByteArray(savedFilesMeta + newFilesMeta);
         properties.tempFileNames = b;
-        m_model->setData(m_model->index(properties.rowId, Enum::DownloadAttributes::TempFileNames), b);
+        m_model->updateDetails(properties);
         for (auto g = dwldip.begin(); g != dwldip.end(); g++) {
                 (*g)->start();
         }
