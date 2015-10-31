@@ -23,6 +23,7 @@
 
 #include "enum.h"
 #include "downloadattributes.h"
+#include "databasemanager.h"
 
 #include <QObject>
 #include <QAbstractTableModel>
@@ -34,6 +35,7 @@ class DownloadModel : public QAbstractTableModel
     Q_OBJECT
 public:
     DownloadModel();
+    ~DownloadModel();
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
@@ -46,7 +48,11 @@ public:
     void readDatabase();
     int insertDownloadIntoModel(DownloadAttributes *properties);
     int removeDownloadFromModel(int databaseId);
+    void writeToDatabase();
+    int findRowByDatabaseId(int databaseId);
 
+private:
+    DatabaseManager *m_dbManager;
     QMap< int, DownloadAttributes* > m_downloadList;
 };
 

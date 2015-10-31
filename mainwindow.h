@@ -22,7 +22,7 @@
 #define MAINWINDOW_H
 
 #include "startdownload.h"
-#include "memorydatabase.h"
+#include "downloadmodel.h"
 #include "downloadmodel.h"
 #include "downloadview.h"
 
@@ -50,7 +50,6 @@ private:
     qint64 m_maxId;
     DownloadModel *m_model;
     QPointer<DownloadView> m_downloadView;
-    MemoryDatabase *m_memoryDatabase;
     QMap<qint64, StartDownload*> m_downloads;
     QThread m_workerThread;
     QThread m_downloadThread;

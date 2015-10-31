@@ -24,7 +24,6 @@ set (downloadManager_SRCS
         debug.cpp
         global.cpp
         downloadattributes.cpp
-        memorydatabase.cpp
         downloadmodel.cpp
         downloadview.cpp
     )

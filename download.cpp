@@ -45,8 +45,8 @@ Download::Download(qint64 id, QString rawURL, qint64 start, qint64 end)
 
     rangeStart = start;
     rangeEnd = end;
-    m_memoryDatabase = SingletonFactory::instanceFor< MemoryDatabase >();
-    m_properties = DownloadAttributes(m_memoryDatabase->getDetails(downloadId));
+    m_model = SingletonFactory::instanceFor< DownloadModel >();
+    m_properties = DownloadAttributes(m_model->getDetails(downloadId));
 
     tempFile = new QTemporaryFile("sdm");
     tempFile->setAutoRemove(false);
@@ -122,7 +122,7 @@ void Download::errorOccured(QNetworkReply * reply, const QList<QSslError> & erro
 
 void Download::update()
 {
-    m_properties = DownloadAttributes(m_memoryDatabase->getDetails(downloadId));
+    m_properties = DownloadAttributes(m_model->getDetails(downloadId));
     QByteArray baOut = m_properties.tempFileNames;
     QDataStream dsOut(&baOut, QIODevice::ReadOnly);
     QMap <double, QMap <qint8, QVariant> > tempFilesMeta;
@@ -151,7 +151,7 @@ void Download::update()
     QDataStream dsIn(&baIn, QIODevice::WriteOnly);
     dsIn << tempFilesMeta;
     m_properties.tempFileNames = baIn;
-    m_memoryDatabase->updateDetails(m_properties);
+    m_model->updateDetails(m_properties);
 }
 
 void Download::abortDownload()

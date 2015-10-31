@@ -37,18 +37,16 @@
 class DatabaseManager :public QObject
 {
     Q_OBJECT
-
 public:
     DatabaseManager();
     ~DatabaseManager();
     QSqlDatabase mydb;
-    void insertDownload(DownloadAttributes properties);
+    int insertDownload(DownloadAttributes properties);
     void removeDownload(qint64 id);
     int lastInsertRowId();
     void updateDetails(DownloadAttributes properties);
     DownloadAttributes getDetails(qint64 id);
     QSharedPointer<QSqlQuery> getIterator(QString qryStr);
-
 };
 
 #endif // DATABASEMANAGER_H

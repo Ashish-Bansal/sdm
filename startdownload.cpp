@@ -29,8 +29,8 @@
 StartDownload::StartDownload(int id) : id(id)
 {
     qDebug() << id;
-    m_memoryDatabase = SingletonFactory::instanceFor< MemoryDatabase >();
-    properties = DownloadAttributes(m_memoryDatabase->getDetails(id));
+    m_model = SingletonFactory::instanceFor< DownloadModel >();
+    properties = DownloadAttributes(m_model->getDetails(id));
     filename = properties.filename;
     resumeSupported = properties.resumeCapability;
     filesize = properties.filesize;
@@ -90,7 +90,7 @@ void StartDownload::startDownload()
         }
         b = SDM::writeToByteArray(savedFilesMeta + newFilesMeta);
         properties.tempFileNames = b;
-        m_memoryDatabase->updateDetails(properties);
+        m_model->setData(m_model->index(properties.rowId, Enum::DownloadAttributes::TempFileNames), b);
         for (auto g = dwldip.begin(); g != dwldip.end(); g++) {
                 (*g)->start();
         }
@@ -119,7 +119,7 @@ void StartDownload::startDownload()
 
             QByteArray b = SDM::writeToByteArray(tempFilesMeta);
             properties.tempFileNames = b;
-            m_memoryDatabase->updateDetails(properties);
+            m_model->updateDetails(properties);
             for (i = dwldip.begin(); i != dwldip.end(); i++) {
                 (*i)->start();
             }
@@ -131,10 +131,10 @@ void StartDownload::startDownload()
             dwldaw->start();
         }
         properties.started = true;
-        m_memoryDatabase->updateDetails(properties);
+        m_model->updateDetails(properties);
     }
     properties.status = Enum::Status::Downloading;
-    m_memoryDatabase->updateDetails(properties);
+    m_model->updateDetails(properties);
 }
 
 void StartDownload::updateDatabase(QHash<int, QVariant> details)
@@ -143,7 +143,7 @@ void StartDownload::updateDatabase(QHash<int, QVariant> details)
     totalBytesDownloaded += details.value(Enum::DownloadBackend::BytesDownloaded).toLongLong();
     properties.transferRate = details.value(Enum::DownloadBackend::TransferRate).toString();
     properties.bytesDownloaded = totalBytesDownloaded;
-    m_memoryDatabase->updateDetails(properties);
+    m_model->updateDetails(properties);
 }
 
 bool StartDownload::compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j)
@@ -173,7 +173,7 @@ void StartDownload::writeToFileInParts()
     }
 
     properties.status = Enum::Status::Merging;
-    m_memoryDatabase->updateDetails(properties);
+    m_model->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -207,7 +207,7 @@ void StartDownload::writeToFileInParts()
     qDebug() << "Write Complete In Parts";
 
     properties.status = Enum::Status::Completed;
-    m_memoryDatabase->updateDetails(properties);
+    m_model->updateDetails(properties);
 
     b = properties.tempFileNames;
     qDebug() << SDM::readByteArray(b);
@@ -219,7 +219,7 @@ void StartDownload::writeToFileAsWhole()
 {
     fetchProperties();
     properties.status = Enum::Status::Merging;
-    m_memoryDatabase->updateDetails(properties);
+    m_model->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
     if(!file.open(QIODevice::WriteOnly)){
@@ -236,7 +236,7 @@ void StartDownload::writeToFileAsWhole()
     qDebug() << "Write Complete As Whole";
     properties.status = Enum::Status::Completed;
     properties.transferRate = "";
-    m_memoryDatabase->updateDetails(properties);
+    m_model->updateDetails(properties);
     this->deleteLater();
     dwldaw->disconnect();
 }
@@ -261,7 +261,7 @@ void StartDownload::cleanUp()
 
 void StartDownload::fetchProperties()
 {
-    properties = DownloadAttributes(m_memoryDatabase->getDetails(id));
+    properties = DownloadAttributes(m_model->getDetails(id));
 }
 
 void StartDownload::stopDownload()

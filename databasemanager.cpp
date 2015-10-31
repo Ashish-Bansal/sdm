@@ -19,7 +19,6 @@
  */
 
 #include "databasemanager.h"
-#include "singletonfactory.h"
 
 #include <QDateTime>
 
@@ -52,12 +51,11 @@ DatabaseManager::~DatabaseManager()
     qDebug() << "SQL Manager Destructor Called";
 }
 
-void DatabaseManager::insertDownload(DownloadAttributes prop)
+int DatabaseManager::insertDownload(DownloadAttributes prop)
 {
     QSqlQuery qry(mydb);
     QString qryStr = "insert into downloadList values (:id, :filename, :filesize, :resumeCapability, :url, :bytesDownloaded, :tempFileNames, :date, :status, :speed, :started)";
     qry.prepare(qryStr);
-    qry.bindValue(":id", prop.databaseId);
     qry.bindValue(":filename", prop.filename);
     qry.bindValue(":filesize", prop.filesize);
     qry.bindValue(":resumeCapability", prop.resumeCapability);
@@ -69,11 +67,23 @@ void DatabaseManager::insertDownload(DownloadAttributes prop)
     qry.bindValue(":speed", prop.transferRate);
     qry.bindValue(":started", 0);
     if (!qry.exec()) {
-        qWarning() << "Unable to insert row in table!";
-        qWarning() << qry.lastError();
-    } else {
-        qDebug() << "Row successfully created";
+        qDebug() << qry.lastError();
+        Q_ASSERT(false);
+        return -1;
     }
+    return lastInsertRowId();
+}
+
+int DatabaseManager::lastInsertRowId()
+{
+    QString qryStr = "SELECT last_insert_rowid()";
+    QSharedPointer<QSqlQuery> qry = QSharedPointer<QSqlQuery>(new QSqlQuery(mydb));
+    if(!qry->exec(qryStr)){
+        qWarning() << qry->lastError();
+        Q_ASSERT(false);
+        return -1;
+    }
+    return qry->value(0).toInt();
 }
 
 void DatabaseManager::updateDetails(DownloadAttributes prop)

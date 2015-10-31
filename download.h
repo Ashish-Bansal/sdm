@@ -22,7 +22,7 @@
 #define DOWNLOAD_H
 
 #include "enum.h"
-#include "memorydatabase.h"
+#include "downloadmodel.h"
 #include "downloadattributes.h"
 
 #include <QObject>
@@ -58,7 +58,7 @@ private:
     QNetworkAccessManager *m_qnam;
     QNetworkRequest *m_req;
     QNetworkReply *m_downloadReply;
-    MemoryDatabase *m_memoryDatabase;
+    DownloadModel *m_model;
     DownloadAttributes m_properties;
     QUrl *m_url;
     void update();

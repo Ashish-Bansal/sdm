@@ -19,12 +19,24 @@
  */
 
 #include "downloadmodel.h"
+#include "global.h"
 
 #include <QDebug>
+#include <QSqlQuery>
+#include <QtConcurrent>
+#include <QTimer>
 
 DownloadModel::DownloadModel() : QAbstractTableModel()
 {
+    m_dbManager = new DatabaseManager();
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &DownloadModel::writeToDatabase);
+    timer->start(10000);
+}
 
+DownloadModel::~DownloadModel()
+{
+    writeToDatabase();
 }
 
 int DownloadModel::rowCount(const QModelIndex &parent) const
@@ -110,37 +122,8 @@ bool DownloadModel::setData(const QModelIndex &index, const QVariant &value, int
         DownloadAttributes *item = m_downloadList.value(row, nullptr);
         Q_ASSERT(item != nullptr);
 
-        switch (index.column()) {
-            case Enum::TableView::RowId :
-                item->rowId = value.toInt();
-                break;
-            case Enum::TableView::DatabaseId :
-                item->databaseId = value.toInt();
-                break;
-            case Enum::TableView::Filename :
-                item->filename = value.toString();
-                break;
-            case Enum::TableView::Filesize :
-                item->filesize = value.toLongLong();
-                break;
-            case Enum::TableView::DownloadProgress :
-                item->downloadProgress = value.toInt();
-                break;
-            case Enum::TableView::TransferRate :
-                item->transferRate = value.toString();
-                break;
-            case Enum::TableView::Status :
-                item->status = value.toInt();
-                break;
-            case Enum::TableView::TimeRemaining :
-                item->timeRemaining = value.toLongLong();
-                break;
-            case Enum::TableView::DateAdded :
-                item->dateAdded = value.toString();
-                break;
-            default:
-                return false;
-        }
+        // Warning: Here column needs to be according to Enum::DownloadAttributes instead of Enum::TableView
+        item->setValue(index.column(), value);
         emit(dataChanged(index, index));
 
         return true;
@@ -150,27 +133,28 @@ bool DownloadModel::setData(const QModelIndex &index, const QVariant &value, int
 
 int DownloadModel::removeDownloadFromModel(int databaseId)
 {
-    int position = -1;
-    foreach(DownloadAttributes *item, m_downloadList) {
-        if (item->databaseId == databaseId) {
-            position = item->rowId;
-        }
-    }
-
-    Q_ASSERT(position != -1);
-
-    beginRemoveRows(QModelIndex(), position, position);
-    m_downloadList.remove(position);
+    int rowId = findRowByDatabaseId(databaseId);
+    beginRemoveRows(QModelIndex(), rowId, rowId);
+    m_downloadList.remove(rowId);
     endRemoveRows();
+    writeToDatabase();
     return databaseId;
 }
 
 int DownloadModel::insertDownloadIntoModel(DownloadAttributes *properties)
 {
-    int position = maxRowId();
-    beginInsertRows(QModelIndex(), position, position);
-    m_downloadList.insert(position+1, properties);
+    int lastRow = maxRowId();
+    beginInsertRows(QModelIndex(), lastRow, lastRow);
+    properties->databaseId = m_dbManager->insertDownload(properties);
+    foreach(DownloadAttributes *item, m_downloadList) {
+        qDebug() << item->databaseId << item->rowId << item->url;
+        qDebug() << m_downloadList;
+        Q_ASSERT(item->databaseId != properties->databaseId);
+    }
+    m_downloadList.insert(lastRow, properties);
     endInsertRows();
+    writeToDatabase();
+    return properties->databaseId;
 }
 
 qint64 DownloadModel::maxRowId()
@@ -184,3 +168,100 @@ qint64 DownloadModel::maxRowId()
     }
     return max;
 }
+
+void DownloadModel::readDatabase()
+{
+    QString qryStr = "SELECT * from downloadList;";
+    QSharedPointer<QSqlQuery> it  = m_dbManager->getIterator(qryStr);
+
+    if (it.isNull()) {
+        return;
+    }
+
+    while (it->next()) {
+        DownloadAttributes *dld = new DownloadAttributes();
+        for(int i = 0; i < Enum::DownloadAttributes::END; i++){
+            dld->setValue(i, it->value(i));
+        }
+        dld->setValue(Enum::DownloadAttributes::TransferRate, 0);
+        dld->setValue(Enum::DownloadAttributes::Status,
+                      dld->status == Enum::Status::Downloading ? Enum::Status::Idle : dld->status);
+        insertDownloadIntoModel(dld);
+    }
+}
+
+void DownloadModel::writeToDatabase()
+{
+    auto it = m_downloadList.begin();
+    for(; it != m_downloadList.end(); it++) {
+        QtConcurrent::run(m_dbManager, &DatabaseManager::updateDetails,
+                          DownloadAttributes(m_downloadList[it.key()]));
+    }
+}
+
+const DownloadAttributes* DownloadModel::getDetails(qint64 databaseId)
+{
+    int rowId = findRowByDatabaseId(databaseId);
+    return m_downloadList[rowId];
+}
+
+void DownloadModel::updateDetails(DownloadAttributes properties)
+{
+    int rowId = findRowByDatabaseId(properties.databaseId);
+    DownloadAttributes *item = m_downloadList[rowId];
+    for(int i=0; i < Enum::DownloadAttributes::END; i++) {
+        item->setValue(i, properties.getValue(i));
+    }
+}
+
+int DownloadModel::findRowByDatabaseId(int databaseId)
+{
+    int position = -1;
+    foreach(DownloadAttributes *item, m_downloadList) {
+        if (item->databaseId == databaseId) {
+            position = item->rowId;
+            break;
+        }
+    }
+
+    Q_ASSERT(position != -1);
+
+    return position;
+}
+
+/*
+
+int DownloadModel::restartDownload(qint64 id)
+{
+    DownloadAttributes *prop = m_downloadList.value(id, nullptr);
+    if (prop == nullptr) {
+        qDebug() << "ID not found";
+        return Enum::SDM::Failed;
+    }
+
+    StartDownload download(id);
+    download.cleanUp();
+
+    prop->bytesDownloaded = 0;
+    prop->started = false;
+    prop->transferRate = QString();
+    QtConcurrent::run(m_dbManager, &DatabaseManager::updateDetails,
+                      DownloadAttributes(getDetails(id)));
+    emit updateGUI(id);
+    return Enum::SDM::Successful;
+}
+
+void DownloadModel::removeDownload(qint64 id)
+{
+    DownloadAttributes *prop = m_downloadList.value(id, nullptr);
+    if (prop == nullptr) {
+        qDebug() << "ID not found";
+    }
+
+    StartDownload download(id);
+    download.cleanUp();
+    QtConcurrent::run(m_dbManager, &DatabaseManager::removeDownload, id);
+    emit downloadRemoved(id);
+}
+
+*/

@@ -22,7 +22,7 @@
 #define STARTDOWNLOAD_H
 
 #include "download.h"
-#include "memorydatabase.h"
+#include "downloadmodel.h"
 
 #include <QObject>
 #include <QFile>
@@ -54,7 +54,7 @@ public:
     DownloadAttributes properties;
 
 private:
-    MemoryDatabase *m_memoryDatabase;
+    DownloadModel *m_model;
     void fetchProperties();
     static bool compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j);
 

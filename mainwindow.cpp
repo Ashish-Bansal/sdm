@@ -65,14 +65,11 @@ MainWindow::MainWindow(QWidget *parent)
         connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
         trayIcon->showMessage("SDM", "SDM has been started", QSystemTrayIcon::Information, 1 * 1000);
     }
-    m_memoryDatabase = SingletonFactory::instanceFor<MemoryDatabase>();
-    connect (m_memoryDatabase, &MemoryDatabase::downloadInserted, this, &MainWindow::downloadAdded);
-    connect (m_memoryDatabase, &MemoryDatabase::updateGUI, this, &MainWindow::updateDetails);
+    m_model = SingletonFactory::instanceFor<DownloadModel>();
 
     QStringList headers = {"RowId", "DatabaseId", "Filename", "Size", "Progress", "Transfer Rate",
                            "Status", "Time Remaining", "Resume Capabilitiy", "Date"};
 
-    m_model = new DownloadModel();
     m_downloadView = new DownloadView(this);
     m_downloadView->setModel(m_model);
 //     m_downloadView->setHeaderLabels(headers);
@@ -181,8 +178,7 @@ void MainWindow::exit()
 
 void MainWindow::loadDownloads()
 {
-    connect(m_memoryDatabase, &MemoryDatabase::downloadLoaded, this, &MainWindow::downloadAdded);
-    m_memoryDatabase->readDatabase();
+    m_model->readDatabase();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -215,7 +211,7 @@ void MainWindow::onActionResumeTriggered(qint64 id)
 
 bool MainWindow::checkResumeSupported(qint64 id)
 {
-    const DownloadAttributes *properties = m_memoryDatabase->getDetails(id);
+    const DownloadAttributes *properties = m_model->getDetails(id);
     if (properties->resumeCapability == Enum::SDM::ResumeSupported) {
         return true;
     }
@@ -239,10 +235,10 @@ void MainWindow::onActionRestartTriggered(qint64 id, QString message)
         m_downloads.remove(id);
     }
 
-    if (m_memoryDatabase->restartDownload(id) == Enum::SDM::Failed) {
-        QMessageBox::critical(this, "Failed", "Unable to Restart Download");
-        return;
-    }
+//     if (m_model->restartDownload(id) == Enum::SDM::Failed) {
+//         QMessageBox::critical(this, "Failed", "Unable to Restart Download");
+//         return;
+//     }
 
     StartDownload *newDownload = new StartDownload(id);
     m_downloads.insert(id, newDownload);
@@ -274,9 +270,9 @@ void MainWindow::stopDownload(qint64 id)
         it.value()->deleteLater();
         m_downloads.remove(id);
     }
-    clearTreeItem(id);
+//     clearTreeItem(id);
 }
-
+/*
 void MainWindow::clearTreeItem(qint64 id)
 {
     QTreeWidgetItem *item = getTreeItem(id);
@@ -286,7 +282,7 @@ void MainWindow::clearTreeItem(qint64 id)
     item->setText(Enum::TableView::TransferRate, "");
     item->setText(Enum::TableView::Status, "Idle");
     item->setText(Enum::TableView::TimeRemaining, "");
-}
+}*/
 
 void MainWindow::onActionRemoveTriggered(qint64 id)
 {
@@ -300,9 +296,9 @@ void MainWindow::onActionRemoveTriggered(qint64 id)
     }
 
     stopDownload(id);
-    QTreeWidgetItem *item = getTreeItem(id);
-    delete item;
-    m_memoryDatabase->removeDownload(id);
+//     QTreeWidgetItem *item = getTreeItem(id);
+//     delete item;
+    m_model->removeDownloadFromModel(id);
 }
 
 void MainWindow::fileAlreadyInList(DownloadAttributes properties)
@@ -329,13 +325,13 @@ void MainWindow::showDownloadDialog(QString url)
     connect(infoDialog->ui->startDownload, &QPushButton::clicked,[=](){
         infoDialog->close();
         if (fh->headerFetchComplete) {
-            qint64 id = m_memoryDatabase->insertDownload(fh->properties);
+            qint64 id = m_model->insertDownloadIntoModel(&fh->properties);
             StartDownload *newDownload = new StartDownload(id);
             m_downloads.insert(id, newDownload);
             newDownload->startDownload();
         } else {
             connect(fh, &FetchHeaders::headersFetched, [=](){
-                qint64 id = m_memoryDatabase->insertDownload(fh->properties);
+                qint64 id = m_model->insertDownloadIntoModel(&fh->properties);
                 StartDownload *newDownload = new StartDownload(id);
                 m_downloads.insert(id, newDownload);
                 newDownload->startDownload();
@@ -346,42 +342,6 @@ void MainWindow::showDownloadDialog(QString url)
     infoDialog->deleteLater();
 }
 
-void MainWindow::downloadAdded(qint64 id)
-{
-    qDebug() << "database ID : " << id;
-    qDebug() << "row id : " << m_maxId + 1;
-    if (getTreeItem(id) != nullptr) {
-        qDebug() << "Item already available in tree";
-    }
-//     QTreeWidgetItem *item = new QTreeWidgetItem(m_downloadView);
-//     item->setText(TableView::RowId, QString::number(++m_maxId));
-//     item->setText(TableView::DatabaseId, QString::number(id));
-//     item->setText(TableView::FileName, "Unknown");
-//     item->setText(TableView::FileSize, tr("--"));
-//     item->setText(TableView::DownloadProgress, "--");
-//     item->setText(TableView::TransferRate, "--");
-//     item->setText(TableView::Status, "Idle");
-//     item->setText(TableView::TimeRemaining, "Unknown");
-//     item->setText(TableView::ResumeCapability, "Unknown");
-//     item->setText(TableView::DateAdded, "Unknown");
-//     item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-//     item->setTextAlignment(1, Qt::AlignHCenter);
-
-    updateDetails(id);
-}
-
-QTreeWidgetItem* MainWindow::getTreeItem(int id)
-{
-//     QTreeWidgetItemIterator it(m_downloadView);
-//     while(*it){
-//         if((*it)->text(TableView::DatabaseId).toLongLong() == id){
-//             return (*it);
-//         }
-//         ++it;
-//     }
-    return nullptr;
-}
-
 void MainWindow::updateDetails(qint64 id)
 {
 //     QTreeWidgetItem *item = getTreeItem(id);
@@ -390,7 +350,7 @@ void MainWindow::updateDetails(qint64 id)
 //         return;
 //     }
 // 
-//     const DownloadAttributes *properties = m_memoryDatabase->getDetails(id);
+//     const DownloadAttributes *properties = m_model->getDetails(id);
 //     item->setText(TableView::FileName, properties->filename);
 //     item->setText(TableView::FileSize, QString::number(properties->filesize));
 //     item->setText(TableView::DownloadProgress, QString::number(properties->bytesDownloaded));
