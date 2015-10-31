@@ -128,6 +128,7 @@ void StartDownload::startDownload()
             dwldaw = new Download(id, url,0, -1);
             connect(dwldaw, &Download::downloadComplete, this, &StartDownload::writeToFileAsWhole);
             connect(dwldaw, &Download::updateGui, this, &StartDownload::updateDatabase);
+            dwldaw->start();
         }
         properties.started = true;
         m_memoryDatabase->updateDetails(properties);
