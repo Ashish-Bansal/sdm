@@ -48,7 +48,7 @@ int DownloadModel::rowCount(const QModelIndex &parent) const
 int DownloadModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    return Enum::TableView::END;
+    return Enum::DownloadAttributes::END;
 }
 
 QVariant DownloadModel::data(const QModelIndex &index, int role) const
@@ -64,6 +64,9 @@ QVariant DownloadModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         DownloadAttributes *item = m_downloadList.value(index.row() + 1, nullptr);
         Q_ASSERT(item != nullptr);
+        if (index.column() == Enum::DownloadAttributes::RowId) {
+            return index.row() + 1;
+        }
         return item->getValue(index.column());
     }
 
@@ -78,25 +81,25 @@ QVariant DownloadModel::headerData(int section, Qt::Orientation orientation, int
 
     if (orientation == Qt::Horizontal) {
         switch (section) {
-        case Enum::TableView::DatabaseId :
-            return tr("Database Id");
-        case Enum::TableView::Filename :
-            return tr("Filename");
-        case Enum::TableView::Filesize :
+        case Enum::DownloadAttributes::RowId :
+            return tr("#");
+        case Enum::DownloadAttributes::Filename :
+            return tr("Name");
+        case Enum::DownloadAttributes::Filesize :
             return tr("Size");
-        case Enum::TableView::ResumeCapability :
+        case Enum::DownloadAttributes::ResumeCapability :
             return tr("Resume Capability");
-        case Enum::TableView::BytesDownloaded :
-            return tr("Downloaded");
-        case Enum::TableView::DateAdded :
+        case Enum::DownloadAttributes::BytesDownloaded :
+            return tr("Done");
+        case Enum::DownloadAttributes::DateAdded :
             return tr("Date Added");
-        case Enum::TableView::Status :
+        case Enum::DownloadAttributes::Status :
             return tr("Status");
-        case Enum::TableView::TransferRate :
-            return tr("Transfer Rate");
-        case Enum::TableView::TimeRemaining :
-            return tr("Time Remaining");
-        case Enum::TableView::DownloadProgress :
+        case Enum::DownloadAttributes::TransferRate :
+            return tr("Download Speed");
+        case Enum::DownloadAttributes::TimeRemaining :
+            return tr("ETA");
+        case Enum::DownloadAttributes::DownloadProgress :
             return tr("Progress");
         default:
             return QVariant();
