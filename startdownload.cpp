@@ -126,7 +126,7 @@ void StartDownload::startDownload()
             }
         } else {
             qDebug() << "Downloading In parts *NOT* supported";
-            dwldaw = new Download(id, url,0, -1);
+            dwldaw = new Download(id, url, 0, -1);
             connect(dwldaw, &Download::downloadComplete, this, &StartDownload::writeToFileAsWhole);
             connect(dwldaw, &Download::updateGui, this, &StartDownload::updateDatabase);
             dwldaw->start();
@@ -158,7 +158,7 @@ void StartDownload::writeToFileInParts()
     QByteArray b = properties.tempFileNames;
     auto tempFilesMeta = SDM::readByteArray(b);
 
-    Q_ASSERT(tempFilesMeta.isEmpty());
+    Q_ASSERT(!tempFilesMeta.isEmpty());
 
     for (auto i = tempFilesMeta.begin(); i != tempFilesMeta.end(); ++i) {
         if (i.value().value(0).toLongLong() + i.value().value(1).toLongLong() < i.value().value(2).toLongLong()) {

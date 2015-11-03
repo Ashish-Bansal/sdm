@@ -51,12 +51,6 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
 {
     Q_UNUSED(bytesReceived);
 
-    //Hack: Due to bug in Qt, QNetworkAccessManager::head does not sends the raw headers along
-    //with the m_request. So use QNetworkAccessManager::get and ensure this function runs only once.
-    if (m_alreadyEntered == 1) {
-        return;
-    }
-    m_alreadyEntered = 1;
 
     int statusCode = m_headersCheckReply->attribute(
                 QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -88,6 +82,10 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
     } else{
         resumeCapability = Enum::SDM::ResumeNotSupported;
     }
+
+    m_headersCheckReply->abort();
+    disconnect(m_headersCheckReply, &QNetworkReply::downloadProgress,
+             this, &FetchHeaders::checkByteServing);
 
     m_req->setUrl(*url);
     m_req->setRawHeader("Range", "bytes=0-");
@@ -126,6 +124,7 @@ void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
     properties.filename = fileName;
     properties.filesize = originalContentLength;
     properties.resumeCapability = resumeCapability;
+    properties.url = url->toString();
     size = SDM::convertUnits(originalContentLength);
 
     headerFetchComplete = true;

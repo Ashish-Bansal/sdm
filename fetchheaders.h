@@ -62,6 +62,14 @@ signals:
 
 private slots:
     void processHeaders(qint64 bytesReceived, qint64 bytesTotal);
+
+    /**
+     * Checks if server supports byte-serving and according to that sets resumeCapability. It's
+     * been connected to QNetworkReply::downloadProgress signal.
+     *
+     * Hack: Due to bug in Qt, QNetworkAccessManager::head does not sends the raw headers along
+     * with the m_request. So, use QNetworkAccessManager::get and check byte serving.
+     */
     void checkByteServing(qint64 bytesReceived, qint64 bytesTotal);
 };
 
