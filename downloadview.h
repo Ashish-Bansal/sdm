@@ -29,6 +29,7 @@ class DownloadView : public QTableView
     Q_OBJECT
 public:
     DownloadView(QWidget *parent = 0);
+    void loadViewSettings();
 };
 
 #endif // DOWNLOADVIEW_H

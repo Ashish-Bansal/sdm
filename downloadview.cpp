@@ -20,8 +20,25 @@
 
 #include "downloadview.h"
 
+#include <QHeaderView>
+#include <QDesktopServices>
+#include <QUrl>
+
 DownloadView::DownloadView(QWidget* parent)
 {
 
 }
 
+void DownloadView::loadViewSettings()
+{
+    setSelectionBehavior(QAbstractItemView::SelectRows);
+    setAlternatingRowColors(true);
+    setSortingEnabled(true);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
+    setTabKeyNavigation(true);
+    setColumnHidden(0, true);
+    setShowGrid(false);
+    resizeColumnsToContents();
+    verticalHeader()->hide();
+    horizontalHeader()->resizeContentsPrecision();
+}

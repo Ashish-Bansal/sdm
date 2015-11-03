@@ -72,12 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_downloadView = new DownloadView(this);
     m_downloadView->setModel(m_model);
-//     m_downloadView->setHeaderLabels(headers);
-    m_downloadView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_downloadView->setAlternatingRowColors(true);
-//     m_downloadView->setRootIsDecorated(false);
-    m_downloadView->setSortingEnabled(true);
-//    m_downloadView->setSelectionMode(QAbstractItemView::MultiSelection);
+    m_downloadView->loadViewSettings();
     QVBoxLayout *layout = new QVBoxLayout();
     QLineEdit *ledit = new QLineEdit();
     ledit->setPlaceholderText("Search Box");
@@ -85,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
     layout->addWidget(m_downloadView);
     setCentralWidget(new QWidget);
     centralWidget()->setLayout(layout);
-    this->showMaximized();
+    showMaximized();
 
     QFontMetrics fm = fontMetrics();
 //     QHeaderView *header = m_downloadView->header();
