@@ -100,8 +100,10 @@ void Download::updateDetails()
 
 void Download::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    tempFile->write(m_downloadReply->readAll());
-    Q_ASSERT(tempFile->flush());
+    bool writeResult = tempFile->write(m_downloadReply->readAll());
+    Q_ASSERT(writeResult);
+    bool flushResult = tempFile->flush();
+    Q_ASSERT(flushResult);
     bytesDownloaded = bytesReceived;
     update();
 }
