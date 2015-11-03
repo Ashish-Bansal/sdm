@@ -19,6 +19,7 @@
  */
 
 #include "downloadview.h"
+#include "enum.h"
 
 #include <QHeaderView>
 #include <QDesktopServices>
@@ -40,5 +41,12 @@ void DownloadView::loadViewSettings()
     setShowGrid(false);
     resizeColumnsToContents();
     verticalHeader()->hide();
-    horizontalHeader()->resizeContentsPrecision();
+    horizontalHeader()->setSectionHidden(Enum::DownloadAttributes::DatabaseId, true);
+    horizontalHeader()->setSectionHidden(Enum::DownloadAttributes::Url, true);
+    horizontalHeader()->setSectionHidden(Enum::DownloadAttributes::TempFileNames, true);
+    horizontalHeader()->setSectionHidden(Enum::DownloadAttributes::Started, true);
+    horizontalHeader()->setSectionsMovable(true);
+    horizontalHeader()->setHighlightSections(false);
+    horizontalHeader()->setDefaultAlignment(Qt::AlignJustify);
+    horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
