@@ -67,6 +67,7 @@ private slots:
     void updateDetails(qint64 id);
     void stopDownload(qint64 id);
     void closeEvent(QCloseEvent *event);
+    void saveHeaderState();
 };
 
 #endif // MAINWINDOW_H

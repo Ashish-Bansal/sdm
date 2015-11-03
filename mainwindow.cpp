@@ -73,6 +73,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_downloadView = new DownloadView(this);
     m_downloadView->setModel(m_model);
     m_downloadView->loadViewSettings();
+
+    connect(m_downloadView->horizontalHeader(), &QHeaderView::sectionPressed, this, &MainWindow::saveHeaderState);
     QVBoxLayout *layout = new QVBoxLayout();
     QLineEdit *ledit = new QLineEdit();
     ledit->setPlaceholderText("Search Box");
@@ -81,12 +83,6 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(new QWidget);
     centralWidget()->setLayout(layout);
     showMaximized();
-
-    QFontMetrics fm = fontMetrics();
-//     QHeaderView *header = m_downloadView->header();
-//     header->setSectionResizeMode(QHeaderView::ResizeToContents);
-//     header->setSectionHidden(0, true);
-//     header->setSectionHidden(1, true);
 
     // Create common actions
     QAction *addDownload = new QAction(QIcon(":icons/download-icon.png"), tr("Add Download"), this);
@@ -374,6 +370,13 @@ void MainWindow::updateDetails(qint64 id)
 
 //     qDebug() << "Downloaded Amount" << convertUnits(bytesDownloaded).first << "Total Length" << convertUnits(job.down->originalContentLength).first << convertUnits(job.down->originalContentLength).second;
 //     item->setText(2, QString().sprintf("%d%s", convertUnits(bytesDownloaded).first, (const char*)convertUnits(bytesDownloaded).second.toLocal8Bit()));
+}
+
+void MainWindow::saveHeaderState()
+{
+    QByteArray headerViewState = m_downloadView->horizontalHeader()->saveState();
+    // ToDo: save this qbytearray in new table in database.
+    // and add restoring function in load settings.
 }
 
 QPair<double, QString> MainWindow::convertUnits(qint64 bytes)
