@@ -43,7 +43,7 @@ namespace Enum {
     }
 
     namespace SDM {
-        enum Global : int {
+        enum SDM : int {
             ResumeNotSupported,
             ResumeSupported,
             DownloadFinished,
