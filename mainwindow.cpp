@@ -338,20 +338,6 @@ void MainWindow::saveHeaderState()
     // and add restoring function in load settings.
 }
 
-QPair<double, QString> MainWindow::convertUnits(qint64 bytes)
-{
-    if(bytes <= 0){
-        return qMakePair(double(0), QString('B'));
-    }
-    QString units[5] = {"B", "KB", "MB", "GB", "TB"};
-    int pow = floor(log((double)bytes)/log(1024));
-    pow = qMin(pow, 5);
-    QPair<double, QString> speed;
-    speed.first = (bytes*1.0)/qPow(1024, pow);
-    speed.second = units[pow];
-    return speed;
-}
-
 void MainWindow::about()
 {
     qDebug() << "about";
