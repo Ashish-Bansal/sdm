@@ -68,6 +68,8 @@ DownloadAttributes& DownloadAttributes::operator=(const DownloadAttributes& prop
 void DownloadAttributes::setValue(int i, QVariant v)
 {
     switch(i) {
+        case Enum::DownloadAttributes::RowId :
+            break;
         case Enum::DownloadAttributes::DatabaseId :
             databaseId = v.toLongLong();
             break;
@@ -116,6 +118,8 @@ void DownloadAttributes::setValue(int i, QVariant v)
 QVariant DownloadAttributes::getValue(int i)
 {
     switch(i) {
+        case Enum::DownloadAttributes::RowId :
+            return -1;
         case Enum::DownloadAttributes::DatabaseId :
             return databaseId;
         case Enum::DownloadAttributes::Url :
