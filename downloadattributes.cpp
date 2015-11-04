@@ -87,7 +87,7 @@ void DownloadAttributes::setValue(int i, QVariant v)
             status = v.toInt();
             break;
         case Enum::DownloadAttributes::TransferRate :
-            transferRate = v.toString();
+            transferRate = v.toLongLong();
             break;
         case Enum::DownloadAttributes::TempFileNames :
             tempFileNames = v.toByteArray();
@@ -190,7 +190,7 @@ QVariant DownloadAttributes::getValuesForView(int i)
             if (transferRate == 0) {
                 return tr("\xE2\x88\x9E");
             }
-//             return (filesize - bytesDownloaded)/transferRate;
+            return (filesize - bytesDownloaded)/transferRate;
         case Enum::DownloadAttributes::DownloadProgress :
             return SDM::convertUnits(bytesDownloaded);
         case Enum::DownloadAttributes::DateAdded :

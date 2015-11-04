@@ -46,10 +46,10 @@ public:
     qint64 filesize;
     qint64 bytesDownloaded;
     qint64 timeRemaining;
+    qint64 transferRate;
     QString filename;
     QString url;
     QString dateAdded;
-    QString transferRate;
     QByteArray tempFileNames;
 };
 

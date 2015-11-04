@@ -142,7 +142,7 @@ void StartDownload::updateDatabase(QHash<int, QVariant> details)
 {
     fetchProperties();
     totalBytesDownloaded += details.value(Enum::DownloadBackend::BytesDownloaded).toLongLong();
-    properties.transferRate = details.value(Enum::DownloadBackend::TransferRate).toString();
+    properties.transferRate = details.value(Enum::DownloadBackend::TransferRate).toLongLong();
     properties.bytesDownloaded = totalBytesDownloaded;
     m_model->updateDetails(properties);
 }
@@ -236,7 +236,7 @@ void StartDownload::writeToFileAsWhole()
 //     emit downloadComplete(id);
     qDebug() << "Write Complete As Whole";
     properties.status = Enum::Status::Completed;
-    properties.transferRate = "";
+    properties.transferRate = 0;
     m_model->updateDetails(properties);
     this->deleteLater();
     dwldaw->disconnect();
