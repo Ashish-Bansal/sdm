@@ -37,7 +37,7 @@ bool SDM::isValidUrl(QString url)
 QString SDM::convertUnits(qint64 bytes)
 {
     if (bytes <= 0) {
-        return "unknown";
+        return "Unknown";
     }
     QString units[5] = {"B", "KB", "MB", "GB", "TB"};
     int pow = floor(log((double)bytes)/log(1024));
