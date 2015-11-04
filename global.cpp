@@ -42,7 +42,7 @@ QString SDM::convertUnits(qint64 bytes)
     QString units[5] = {"B", "KB", "MB", "GB", "TB"};
     int pow = floor(log((double)bytes)/log(1024));
     pow = qMin(pow, 5);
-    QString fileSize = QLocale().toString(bytes/qPow(1024, pow), 'g', 2) + units[pow];
+    QString fileSize = QString::number(bytes/qPow(1024, pow), 'f', 2) + units[pow];
     return fileSize;
 }
 
