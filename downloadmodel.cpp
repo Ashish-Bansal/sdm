@@ -67,7 +67,7 @@ QVariant DownloadModel::data(const QModelIndex &index, int role) const
         if (index.column() == Enum::DownloadAttributes::RowId) {
             return index.row() + 1;
         }
-        return item->getValue(index.column());
+        return item->getValuesForView(index.column());
     }
 
     return QVariant();
@@ -186,18 +186,28 @@ void DownloadModel::readDatabase()
 
     while (it->next()) {
         DownloadAttributes *dld = new DownloadAttributes();
+
+        Q_ASSERT(it->value("id").isValid());
         dld->databaseId = it->value("id").toInt();
+        Q_ASSERT(it->value("filename").isValid());
         dld->filename = it->value("filename").toString();
-        dld->filesize = it->value("filesize").toInt();
+        Q_ASSERT(it->value("filesize").isValid());
+        dld->filesize = it->value("filesize").toLongLong();
+        Q_ASSERT(it->value("started").isValid());
         dld->started = it->value("started").toInt();
+        Q_ASSERT(it->value("resumeCapability").isValid());
         dld->resumeCapability = it->value("resumeCapability").toInt();
+        Q_ASSERT(it->value("url").isValid());
         dld->url = it->value("url").toString();
+        Q_ASSERT(it->value("bytesDownloaded").isValid());
         dld->bytesDownloaded = it->value("bytesDownloaded").toInt();
+        Q_ASSERT(it->value("date").isValid());
         dld->dateAdded = it->value("date").toString();
+        Q_ASSERT(it->value("tempFileNames").isValid());
         dld->tempFileNames = it->value("tempFileNames").toByteArray();
+        Q_ASSERT(it->value("status").isValid());
+        dld->status = it->value("status").toInt();
         dld->setValue(Enum::DownloadAttributes::TransferRate, 0);
-        dld->setValue(Enum::DownloadAttributes::Status,
-                      dld->status == Enum::Status::Downloading ? Enum::Status::Idle : dld->status);
         loadDownloadIntoModel(dld);
     }
 }
