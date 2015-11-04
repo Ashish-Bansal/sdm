@@ -67,9 +67,6 @@ MainWindow::MainWindow(QWidget *parent)
     }
     m_model = SingletonFactory::instanceFor<DownloadModel>();
 
-    QStringList headers = {"RowId", "DatabaseId", "Filename", "Size", "Progress", "Transfer Rate",
-                           "Status", "Time Remaining", "Resume Capabilitiy", "Date"};
-
     m_downloadView = new DownloadView(this);
     m_downloadView->setModel(m_model);
     m_downloadView->loadViewSettings();
@@ -120,34 +117,11 @@ MainWindow::MainWindow(QWidget *parent)
     loadDownloads();
 
     connect(addDownload, &QAction::triggered, this, &MainWindow::onActionAddTriggered);
-    connect(startDownload, &QAction::triggered, this, [=] {
-//         auto items = m_downloadView->selectedItems();
-//         foreach(auto item, items){
-//             qint64 id = item->text(TableView::DatabaseId).toLongLong();
-//             onActionResumeTriggered(id);
-//         }
-    });
-    connect(restartDownload, &QAction::triggered, this, [=] {
-//         auto items = m_downloadView->selectedItems();
-//         foreach(auto item, items){
-//             qint64 id = item->text(TableView::DatabaseId).toLongLong();
-//             onActionRestartTriggered(id);
-//         }
-    });
-    connect(stopDownload, &QAction::triggered, this, [=] {
-//         auto items = m_downloadView->selectedItems();
-//         foreach(auto item, items){
-//             qint64 id = item->text(TableView::DatabaseId).toLongLong();
-//             onActionStopTriggered(id);
-//         }
-    });
-    connect(removeDownload, &QAction::triggered, this, [=] {
-//         auto items = m_downloadView->selectedItems();
-//         foreach(auto item, items){
-//             qint64 id = item->text(TableView::DatabaseId).toLongLong();
-//             onActionRemoveTriggered(id);
-//         }
-    });
+    connect(startDownload, &QAction::triggered, this, &MainWindow::onActionResumeTriggered);
+    connect(restartDownload, &QAction::triggered, this, &MainWindow::onActionRestartTriggered);
+    connect(stopDownload, &QAction::triggered, this, &MainWindow::onActionStopTriggered);
+    connect(removeDownload, &QAction::triggered, this, &MainWindow::onActionRemoveTriggered);
+
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
 }
 
@@ -160,7 +134,7 @@ void MainWindow::exit()
 {
     QMessageBox::StandardButton ans;
     ans = QMessageBox::question(this, "Close Confirmation?",
-                              "Are you sure you want to exit?", QMessageBox::Yes|QMessageBox::No);
+                                "Are you sure you want to exit?", QMessageBox::Yes|QMessageBox::No);
     if (QMessageBox::Yes == ans) {
         this->setAttribute(Qt::WA_DeleteOnClose);
         this->close();
@@ -178,6 +152,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
     hide();
 }
 
+QList< int > MainWindow::getSelectedItemIds()
+{
+    QList< int > ids;
+    QItemSelectionModel *selectedItemModel = m_downloadView->selectionModel();
+    auto items = selectedItemModel->selectedRows(Enum::DownloadAttributes::DatabaseId);
+    foreach(auto item, items) {
+        qint64 id = m_model->data(item, Qt::DisplayRole).toInt();
+        ids.append(id);
+    }
+    return ids;
+}
+
 void MainWindow::onActionAddTriggered()
 {
     AddDialog addDialog;
@@ -187,20 +173,60 @@ void MainWindow::onActionAddTriggered()
     addDialog.exec();
 }
 
-void MainWindow::onActionResumeTriggered(qint64 id)
+void MainWindow::onActionResumeTriggered()
 {
-    if (checkResumeSupported(id)) {
-        StartDownload *newDownload = new StartDownload(id);
-        m_downloads.insert(id, newDownload);
-        newDownload->startDownload();
+    QList< int > ids = getSelectedItemIds();
+    int restartCount = ids.size();
+    if (restartCount == 0) {
+        return;
+    }
+
+    int resumeNotSupportedCount = 0;
+    foreach(int id, ids) {
+        if (!checkResumeSupported(id)) {
+            resumeNotSupportedCount += 1;
+        }
+    }
+
+    if (resumeNotSupportedCount == 0) {
+        foreach(int id, ids) {
+            StartDownload *newDownload = new StartDownload(id);
+            m_downloads.insert(id, newDownload);
+            newDownload->startDownload();
+        }
     } else {
-        QString message = "This download cannot be resumed\n"
-                          "Would you like to restart this download?";
-        onActionRestartTriggered(id, message);
+        QMessageBox::StandardButton ans;
+        QString message = "Some of the downloads you selected cannot be resumed. \n"
+                          "Do you want to restart them ?";
+        ans = QMessageBox::question(this, "Restart Confirmation?",
+                                    message, QMessageBox::Yes|QMessageBox::No);
+        if (ans == QMessageBox::Yes) {
+            foreach(int id, ids) {
+                if (checkResumeSupported(id)) {
+                    resumeDownload(id);
+                } else {
+                    restartDownload(id);
+                }
+            }
+        } else {
+            foreach(int id, ids) {
+                if (checkResumeSupported(id)) {
+                    resumeDownload(id);
+                }
+            }
+        }
     }
 }
 
-bool MainWindow::checkResumeSupported(qint64 id)
+void MainWindow::resumeDownload(int id)
+{
+    auto it = m_downloads.find(id);
+    if (it != m_downloads.end()) {
+        it.value()->startDownload();
+    }
+}
+
+bool MainWindow::checkResumeSupported(int id)
 {
     const DownloadAttributes *properties = m_model->getDetails(id);
     if (properties->resumeCapability == Enum::SDM::ResumeSupported) {
@@ -209,47 +235,62 @@ bool MainWindow::checkResumeSupported(qint64 id)
     return false;
 }
 
-void MainWindow::onActionRestartTriggered(qint64 id, QString message)
+void MainWindow::onActionRestartTriggered()
 {
+    QList< int > ids = getSelectedItemIds();
+    int restartCount = ids.size();
+    if (restartCount == 0) {
+        return;
+    }
+
     QMessageBox::StandardButton ans;
-    message = message.isEmpty() ? "Are you sure you want to restart this download?" : message;
+    QString message = "Are you sure you want to restart this download?";
+    if (restartCount > 1) {
+        message = "You have selected " + QString::number(restartCount) + " downloads to restart\n";
+        message.append("Are you sure you want to restart these downloads ?");
+    }
+
     ans = QMessageBox::question(this, "Restart Confirmation?",
                                 message, QMessageBox::Yes|QMessageBox::No);
     if (ans == QMessageBox::No) {
         return;
     }
+    foreach(int id, ids) {
+        restartDownload(id);
+    }
+}
 
+void MainWindow::restartDownload(int id)
+{
     auto it = m_downloads.find(id);
     if (it != m_downloads.end()) {
+        Q_ASSERT(it.value() != nullptr);
         it.value()->stopDownload();
         it.value()->deleteLater();
         m_downloads.remove(id);
     }
-
-//     if (m_model->restartDownload(id) == Enum::SDM::Failed) {
-//         QMessageBox::critical(this, "Failed", "Unable to Restart Download");
-//         return;
-//     }
 
     StartDownload *newDownload = new StartDownload(id);
     m_downloads.insert(id, newDownload);
     newDownload->startDownload();
 }
 
-void MainWindow::onActionStopTriggered(qint64 id)
+void MainWindow::onActionStopTriggered()
 {
-    if (checkResumeSupported(id)) {
-        stopDownload(id);
-        return;
-    }
+    QList< int > ids = getSelectedItemIds();
+    foreach(int id, ids) {
+        if (checkResumeSupported(id)) {
+            stopDownload(id);
+            return;
+        }
 
-    QString message = "This download cannot be resumed\n"
-                      "Would you like to stop this download?";
-    QMessageBox::StandardButton ans =
-            QMessageBox::question(this, "Stop Confirmation",
-                                  message, QMessageBox::Yes | QMessageBox::No);
-    if (ans == QMessageBox::Yes) {
-        stopDownload(id);
+        QString message = "This download cannot be resumed\n"
+                          "Would you like to stop this download?";
+        QMessageBox::StandardButton ans = QMessageBox::question(this, "Stop Confirmation",
+                                          message, QMessageBox::Yes | QMessageBox::No);
+        if (ans == QMessageBox::Yes) {
+            stopDownload(id);
+        }
     }
 }
 
@@ -261,33 +302,23 @@ void MainWindow::stopDownload(qint64 id)
         it.value()->deleteLater();
         m_downloads.remove(id);
     }
-//     clearTreeItem(id);
 }
-/*
-void MainWindow::clearTreeItem(qint64 id)
-{
-    QTreeWidgetItem *item = getTreeItem(id);
-    if (item == nullptr) {
-        return;
-    }
-    item->setText(Enum::TableView::TransferRate, "");
-    item->setText(Enum::TableView::Status, "Idle");
-    item->setText(Enum::TableView::TimeRemaining, "");
-}*/
 
-void MainWindow::onActionRemoveTriggered(qint64 id)
+void MainWindow::onActionRemoveTriggered()
 {
-    QString message = "If you remove the download, it would be lost permanently\n"
-                      "Do you want to remove this download?";
-    QMessageBox::StandardButton ans =
-            QMessageBox::question(this, "Remove Confirmation",
-                                  message, QMessageBox::Yes | QMessageBox::No);
-    if (ans == QMessageBox::No) {
-        return;
-    }
+    QList< int > ids = getSelectedItemIds();
+    foreach(int id, ids) {
+        QString message = "If you remove the download, download will be removed from list\n"
+                          "Do you want to remove this download?";
+        QMessageBox::StandardButton ans = QMessageBox::question(this, "Remove Confirmation",
+                                          message, QMessageBox::Yes | QMessageBox::No);
+        if (ans == QMessageBox::No) {
+            return;
+        }
 
-    stopDownload(id);
-    m_model->removeDownloadFromModel(id);
+        stopDownload(id);
+        m_model->removeDownloadFromModel(id);
+    }
 }
 
 void MainWindow::fileAlreadyInList(DownloadAttributes properties)
@@ -311,7 +342,7 @@ void MainWindow::showDownloadDialog(QString url)
         }
     });
 
-    connect(infoDialog->ui->startDownload, &QPushButton::clicked,[=](){
+    connect(infoDialog->ui->startDownload, &QPushButton::clicked,[=]() {
         infoDialog->close();
         if (fh->headerFetchComplete) {
             qint64 id = m_model->insertDownloadIntoModel(&fh->properties);
@@ -319,7 +350,7 @@ void MainWindow::showDownloadDialog(QString url)
             m_downloads.insert(id, newDownload);
             newDownload->startDownload();
         } else {
-            connect(fh, &FetchHeaders::headersFetched, [=](){
+            connect(fh, &FetchHeaders::headersFetched, [=]() {
                 qint64 id = m_model->insertDownloadIntoModel(&fh->properties);
                 StartDownload *newDownload = new StartDownload(id);
                 m_downloads.insert(id, newDownload);

@@ -30,6 +30,7 @@
 #include <QPointer>
 #include <QTreeWidgetItem>
 #include <QThread>
+#include <QList>
 
 class MainWindow : public QMainWindow
 {
@@ -43,7 +44,7 @@ public:
     void downloadAdded(qint64 id);
     QTreeWidgetItem* getTreeItem(int id);
     void loadDownloads();
-    bool checkResumeSupported(qint64 id);
+    bool checkResumeSupported(int id);
     void fileAlreadyInList(DownloadAttributes properties);
 
 private:
@@ -53,20 +54,22 @@ private:
     QMap<qint64, StartDownload*> m_downloads;
     QThread m_workerThread;
     QThread m_downloadThread;
-    void clearTreeItem(qint64 id);
 
 private slots:
     void exit();
     void about();
     void onActionAddTriggered();
-    void onActionResumeTriggered(qint64 id);
-    void onActionRestartTriggered(qint64 id, QString message = QString());
-    void onActionStopTriggered(qint64 id);
-    void onActionRemoveTriggered(qint64 id);
+    void onActionResumeTriggered();
+    void onActionRestartTriggered();
+    void onActionStopTriggered();
+    void onActionRemoveTriggered();
     void showDownloadDialog(QString url);
     void stopDownload(qint64 id);
     void closeEvent(QCloseEvent *event);
     void saveHeaderState();
+    QList< int > getSelectedItemIds();
+    void restartDownload(int id);
+    void resumeDownload(int id);
 };
 
 #endif // MAINWINDOW_H
