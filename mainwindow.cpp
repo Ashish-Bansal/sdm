@@ -307,15 +307,15 @@ void MainWindow::stopDownload(qint64 id)
 void MainWindow::onActionRemoveTriggered()
 {
     QList< int > ids = getSelectedItemIds();
-    foreach(int id, ids) {
-        QString message = "If you remove the download, download will be removed from list\n"
-                          "Do you want to remove this download?";
-        QMessageBox::StandardButton ans = QMessageBox::question(this, "Remove Confirmation",
-                                          message, QMessageBox::Yes | QMessageBox::No);
-        if (ans == QMessageBox::No) {
-            return;
-        }
+    QString message = "If you remove the download, download will be removed from list\n"
+                      "Do you want to remove this download?";
+    QMessageBox::StandardButton ans = QMessageBox::question(this, "Remove Confirmation",
+                                      message, QMessageBox::Yes | QMessageBox::No);
+    if (ans == QMessageBox::No) {
+        return;
+    }
 
+    foreach(int id, ids) {
         stopDownload(id);
         m_model->removeDownloadFromModel(id);
     }

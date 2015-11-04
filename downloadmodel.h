@@ -51,6 +51,7 @@ public:
     void writeToDatabase();
     int findRowByDatabaseId(int databaseId);
     int loadDownloadIntoModel(DownloadAttributes *properties);
+    void deleteDownloadFromDatabase(int id);
 
 private:
     DatabaseManager *m_dbManager;

@@ -137,9 +137,10 @@ int DownloadModel::removeDownloadFromModel(int databaseId)
 {
     int rowId = findRowByDatabaseId(databaseId);
     beginRemoveRows(QModelIndex(), rowId, rowId);
+    m_downloadList[rowId]->deleteLater();
     m_downloadList.remove(rowId);
     endRemoveRows();
-    writeToDatabase();
+    deleteDownloadFromDatabase(databaseId);
     return databaseId;
 }
 
@@ -219,6 +220,12 @@ void DownloadModel::writeToDatabase()
         QtConcurrent::run(m_dbManager, &DatabaseManager::updateDetails,
                           DownloadAttributes(m_downloadList[it.key()]));
     }
+}
+
+void DownloadModel::deleteDownloadFromDatabase(int id)
+{
+    QtConcurrent::run(m_dbManager, &DatabaseManager::removeDownload,
+                      id);
 }
 
 const DownloadAttributes* DownloadModel::getDetails(qint64 databaseId)
