@@ -20,6 +20,7 @@
 
 #include "downloadattributes.h"
 #include "enum.h"
+#include "global.h"
 
 #include <QDebug>
 
@@ -66,63 +67,136 @@ DownloadAttributes& DownloadAttributes::operator=(const DownloadAttributes& prop
 
 void DownloadAttributes::setValue(int i, QVariant v)
 {
-    if (i == Enum::DownloadAttributes::DatabaseId) {
-        databaseId = v.toLongLong();
-    } else if (i == Enum::DownloadAttributes::Url) {
-        url = v.toString();
-    } else if (i == Enum::DownloadAttributes::BytesDownloaded) {
-        bytesDownloaded = v.toLongLong();
-    } else if (i == Enum::DownloadAttributes::Filename) {
-        filename = v.toString();
-    } else if (i == Enum::DownloadAttributes::Started) {
-        started = v.toInt() == 1 ? true : false;
-    } else if (i == Enum::DownloadAttributes::Status) {
-        status = v.toInt();
-    } else if (i == Enum::DownloadAttributes::TransferRate) {
-        transferRate = v.toString();
-    } else if (i == Enum::DownloadAttributes::TempFileNames) {
-        tempFileNames = v.toByteArray();
-    } else if (i == Enum::DownloadAttributes::Filesize) {
-        filesize = v.toLongLong();
-    } else if (i == Enum::DownloadAttributes::ResumeCapability) {
-        resumeCapability = v.toInt() == 1 ? true : false;
-    } else if (i == Enum::DownloadAttributes::TimeRemaining) {
-        timeRemaining = v.toLongLong();
-    } else if (i == Enum::DownloadAttributes::DownloadProgress) {
-        downloadProgress = v.toInt();
-    } else if (i == Enum::DownloadAttributes::DateAdded) {
-        dateAdded = v.toString();
+    switch(i) {
+        case Enum::DownloadAttributes::DatabaseId :
+            databaseId = v.toLongLong();
+            break;
+        case Enum::DownloadAttributes::Url :
+            url = v.toString();
+            break;
+        case Enum::DownloadAttributes::BytesDownloaded :
+            bytesDownloaded = v.toLongLong();
+            break;
+        case Enum::DownloadAttributes::Filename :
+            filename = v.toString();
+            break;
+        case Enum::DownloadAttributes::Started :
+            started = v.toInt() == 1 ? true : false;
+            break;
+        case Enum::DownloadAttributes::Status :
+            status = v.toInt();
+            break;
+        case Enum::DownloadAttributes::TransferRate :
+            transferRate = v.toString();
+            break;
+        case Enum::DownloadAttributes::TempFileNames :
+            tempFileNames = v.toByteArray();
+            break;
+        case Enum::DownloadAttributes::Filesize :
+            filesize = v.toLongLong();
+            break;
+        case Enum::DownloadAttributes::ResumeCapability :
+            resumeCapability = v.toInt() == 1 ? true : false;
+            break;
+        case Enum::DownloadAttributes::TimeRemaining :
+            timeRemaining = v.toLongLong();
+            break;
+        case Enum::DownloadAttributes::DownloadProgress :
+            downloadProgress = v.toInt();
+            break;
+        case Enum::DownloadAttributes::DateAdded :
+            dateAdded = v.toString();
+            break;
+        default:
+            qDebug() << "Invalid attribute id :" << i;
+            Q_ASSERT(false);
     }
 }
 
 QVariant DownloadAttributes::getValue(int i)
 {
-    if (i == Enum::DownloadAttributes::DatabaseId) {
-        return databaseId;
-    } else if (i == Enum::DownloadAttributes::Url) {
-        return url;
-    } else if (i == Enum::DownloadAttributes::BytesDownloaded) {
-        return bytesDownloaded;
-    } else if (i == Enum::DownloadAttributes::Filename) {
-        return filename;
-    } else if (i == Enum::DownloadAttributes::Started) {
-        return started;
-    } else if (i == Enum::DownloadAttributes::Status) {
-        return status;
-    } else if (i == Enum::DownloadAttributes::TransferRate) {
-        return transferRate;
-    } else if (i == Enum::DownloadAttributes::TempFileNames) {
-        return tempFileNames;
-    } else if (i == Enum::DownloadAttributes::Filesize) {
-        return filesize;
-    } else if (i == Enum::DownloadAttributes::ResumeCapability) {
-        return resumeCapability;
-    } else if (i == Enum::DownloadAttributes::TimeRemaining) {
-        return timeRemaining;
-    } else if (i == Enum::DownloadAttributes::DownloadProgress) {
-        return downloadProgress;
-    } else if (i == Enum::DownloadAttributes::DateAdded) {
-        return dateAdded;
+    switch(i) {
+        case Enum::DownloadAttributes::DatabaseId :
+            return databaseId;
+        case Enum::DownloadAttributes::Url :
+            return url;
+        case Enum::DownloadAttributes::BytesDownloaded :
+            return bytesDownloaded;
+        case Enum::DownloadAttributes::Filename :
+            return filename;
+        case Enum::DownloadAttributes::Started :
+            return started;
+        case Enum::DownloadAttributes::Status :
+            return status;
+        case Enum::DownloadAttributes::TransferRate :
+            return transferRate;
+        case Enum::DownloadAttributes::TempFileNames :
+            return tempFileNames;
+        case Enum::DownloadAttributes::Filesize :
+            return filesize;
+        case Enum::DownloadAttributes::ResumeCapability :
+            return resumeCapability;
+        case Enum::DownloadAttributes::TimeRemaining :
+            return timeRemaining;
+        case Enum::DownloadAttributes::DownloadProgress :
+            return downloadProgress;
+        case Enum::DownloadAttributes::DateAdded :
+            return dateAdded;
+        default:
+            qDebug() << "Invalid attribute id :" << i;
+            Q_ASSERT(false);
     }
-    return QVariant();
+}
+
+QVariant DownloadAttributes::getValuesForView(int i)
+{
+    switch(i) {
+        case Enum::DownloadAttributes::DatabaseId :
+            return databaseId;
+        case Enum::DownloadAttributes::Url :
+            return url;
+        case Enum::DownloadAttributes::BytesDownloaded :
+            return bytesDownloaded;
+        case Enum::DownloadAttributes::Filename :
+            return filename;
+        case Enum::DownloadAttributes::Started :
+            if (started) {
+                return "True";
+            } else {
+                return "False";
+            }
+        case Enum::DownloadAttributes::Status :
+            switch (status) {
+                case Enum::Status::Idle :
+                    return tr("Idle");
+                case Enum::Status::Completed :
+                    return tr("Completed");
+                case Enum::Status::Downloading :
+                    return tr("Downloading");
+                case Enum::Status::Error :
+                    return tr("Error");
+                case Enum::Status::Merging :
+                    return tr("Merging");
+            }
+        case Enum::DownloadAttributes::TransferRate :
+            return transferRate;
+        case Enum::DownloadAttributes::TempFileNames :
+            return tempFileNames;
+        case Enum::DownloadAttributes::Filesize :
+            return filesize;
+        case Enum::DownloadAttributes::ResumeCapability :
+            return resumeCapability;
+        case Enum::DownloadAttributes::TimeRemaining :
+            if (transferRate == 0) {
+                return tr("\xE2\x88\x9E");
+            }
+//             return (filesize - bytesDownloaded)/transferRate;
+        case Enum::DownloadAttributes::DownloadProgress :
+            return SDM::convertUnits(bytesDownloaded);
+        case Enum::DownloadAttributes::DateAdded :
+            return dateAdded;
+        default:
+            qDebug() << "Invalid attribute id :" << i;
+            Q_ASSERT(false);
+    }
 }

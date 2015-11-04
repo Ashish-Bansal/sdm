@@ -36,6 +36,7 @@ public:
     DownloadAttributes& operator=(const DownloadAttributes&);
     void setValue(int i, QVariant v);
     QVariant getValue(int i);
+    QVariant getValuesForView(int i);
 
     bool started;
     int databaseId;
