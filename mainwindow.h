@@ -64,7 +64,6 @@ private slots:
     void onActionStopTriggered(qint64 id);
     void onActionRemoveTriggered(qint64 id);
     void showDownloadDialog(QString url);
-    void updateDetails(qint64 id);
     void stopDownload(qint64 id);
     void closeEvent(QCloseEvent *event);
     void saveHeaderState();

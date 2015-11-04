@@ -287,8 +287,6 @@ void MainWindow::onActionRemoveTriggered(qint64 id)
     }
 
     stopDownload(id);
-//     QTreeWidgetItem *item = getTreeItem(id);
-//     delete item;
     m_model->removeDownloadFromModel(id);
 }
 
@@ -331,45 +329,6 @@ void MainWindow::showDownloadDialog(QString url)
     });
     infoDialog->exec();
     infoDialog->deleteLater();
-}
-
-void MainWindow::updateDetails(qint64 id)
-{
-//     QTreeWidgetItem *item = getTreeItem(id);
-//     if (item == nullptr) {
-//         qDebug() << "Tree Item not found";
-//         return;
-//     }
-// 
-//     const DownloadAttributes *properties = m_model->getDetails(id);
-//     item->setText(TableView::FileName, properties->filename);
-//     item->setText(TableView::FileSize, QString::number(properties->filesize));
-//     item->setText(TableView::DownloadProgress, QString::number(properties->bytesDownloaded));
-//     item->setText(TableView::TransferRate, properties->transferRate);
-//     QString status;
-//     if (properties->status == Status::Downloading) {
-//         status = "Downloading";
-//     } else if (properties->status == Status::Completed) {
-//         status = "Completed";
-//     } else if (properties->status == Status::Error) {
-//         status = "Error";
-//     } else if (properties->status == Status::Idle) {
-//         status = "Idle";
-//     } else if (properties->status == Status::Merging) {
-//         status = "Merging";
-//     }
-//     item->setText(TableView::Status, status);
-//     item->setText(TableView::DownloadProgress, QString::number(convertUnits(properties->bytesDownloaded).first));
-//     //    item->setText(TableView::TimeRemaining, QString(properties->filesize - properties->bytesDownloaded/properties->transferRate));
-//     if(properties->resumeCapability == SDM::ResumeSupported){
-//         item->setText(TableView::ResumeCapability, "Yes");
-//     }else{
-//         item->setText(TableView::ResumeCapability, "No");
-//     }
-//     item->setText(TableView::DateAdded, properties->dateAdded);
-
-//     qDebug() << "Downloaded Amount" << convertUnits(bytesDownloaded).first << "Total Length" << convertUnits(job.down->originalContentLength).first << convertUnits(job.down->originalContentLength).second;
-//     item->setText(2, QString().sprintf("%d%s", convertUnits(bytesDownloaded).first, (const char*)convertUnits(bytesDownloaded).second.toLocal8Bit()));
 }
 
 void MainWindow::saveHeaderState()
