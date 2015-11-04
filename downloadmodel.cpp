@@ -119,12 +119,12 @@ Qt::ItemFlags DownloadModel::flags(const QModelIndex &index) const
 bool DownloadModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole) {
-        int row = index.row();
+        int databaseId = index.row();
+        int rowId = findRowByDatabaseId(databaseId);
 
-        DownloadAttributes *item = m_downloadList.value(row, nullptr);
+        DownloadAttributes *item = m_downloadList.value(rowId, nullptr);
         Q_ASSERT(item != nullptr);
 
-        // Warning: Here column needs to be according to Enum::DownloadAttributes instead of Enum::TableView
         item->setValue(index.column(), value);
         emit(dataChanged(index, index));
 

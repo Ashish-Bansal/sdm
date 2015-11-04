@@ -41,7 +41,14 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    /**
+     * Changes some property of DownloadProperties specified by @p index to @p value.
+     * Warning: Here row in QModelIndex is Id of download in database and column is according
+     * to Enum::DownloadAttributes
+     */
     bool setData(const QModelIndex &index, const QVariant &value, int role=Qt::EditRole);
+
     void updateDetails(DownloadAttributes properties);
     const DownloadAttributes* getDetails(qint64 id);
     qint64 maxRowId();
