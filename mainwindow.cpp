@@ -58,7 +58,6 @@ MainWindow::MainWindow(QWidget *parent)
         menu->addSection("adfasd");
         QAction* restoreAction = new QAction(tr("&Restore"), this);
         menu->addAction(restoreAction);
-        menu->addAction(restoreAction);
         trayIcon->setVisible(true);
         trayIcon->show();
         connect(trayIcon, &QSystemTrayIcon::activated, this, &QWidget::showNormal);
@@ -266,9 +265,13 @@ void MainWindow::restartDownload(int id)
     if (it != m_downloads.end()) {
         Q_ASSERT(it.value() != nullptr);
         it.value()->stopDownload();
+        it.value()->cleanUp();
         it.value()->deleteLater();
         m_downloads.remove(id);
     }
+
+    int rowId = m_model->findRowByDatabaseId(id);
+    m_model->setData(m_model->index(rowId, Enum::DownloadAttributes::Started), false);
 
     StartDownload *newDownload = new StartDownload(id);
     m_downloads.insert(id, newDownload);
@@ -278,18 +281,39 @@ void MainWindow::restartDownload(int id)
 void MainWindow::onActionStopTriggered()
 {
     QList< int > ids = getSelectedItemIds();
-    foreach(int id, ids) {
-        if (checkResumeSupported(id)) {
-            stopDownload(id);
-            return;
-        }
+    int stopCount = ids.size();
+    if (stopCount == 0) {
+        return;
+    }
 
-        QString message = "This download cannot be resumed\n"
-                          "Would you like to stop this download?";
-        QMessageBox::StandardButton ans = QMessageBox::question(this, "Stop Confirmation",
-                                          message, QMessageBox::Yes | QMessageBox::No);
-        if (ans == QMessageBox::Yes) {
+    int resumeNotSupportedCount = 0;
+    foreach(int id, ids) {
+        if (!checkResumeSupported(id)) {
+            resumeNotSupportedCount += 1;
+        }
+    }
+
+    if (resumeNotSupportedCount == 0) {
+        foreach(int id, ids) {
             stopDownload(id);
+        }
+    } else {
+        foreach(int id, ids) {
+            if (checkResumeSupported(id)) {
+                stopDownload(id);
+            }
+        }
+        QMessageBox::StandardButton ans;
+        QString message = "Some of the downloads you selected cannot be resumed. \n"
+                          "Do you want to stop them ?";
+        ans = QMessageBox::question(this, "Stop Confirmation?",
+                                    message, QMessageBox::Yes|QMessageBox::No);
+        if (ans == QMessageBox::Yes) {
+            foreach(int id, ids) {
+                if (checkResumeSupported(id)) {
+                    stopDownload(id);
+                }
+            }
         }
     }
 }
