@@ -164,7 +164,7 @@ int DownloadModel::loadDownloadIntoModel(DownloadAttributes *properties)
     return properties->databaseId;
 }
 
-qint64 DownloadModel::maxRowId()
+qint64 DownloadModel::maxRowId() const
 {
     auto it = m_downloadList.begin();
     qint64 max = 0;
@@ -256,6 +256,13 @@ int DownloadModel::findRowByDatabaseId(int databaseId)
     Q_ASSERT(position != -1);
 
     return position;
+}
+
+QModelIndex DownloadModel::index(int row, int column, const QModelIndex &parent) const {
+    if (maxRowId() >= row && Enum::DownloadAttributes::END > column) {
+        return this->createIndex(row, column);
+    }
+    return QModelIndex();
 }
 
 /*

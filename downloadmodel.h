@@ -51,7 +51,7 @@ public:
 
     void updateDetails(DownloadAttributes properties);
     const DownloadAttributes* getDetails(qint64 id);
-    qint64 maxRowId();
+    qint64 maxRowId() const;
     void readDatabase();
     int insertDownloadIntoModel(DownloadAttributes *properties);
     int removeDownloadFromModel(int databaseId);
@@ -59,6 +59,7 @@ public:
     int findRowByDatabaseId(int databaseId);
     int loadDownloadIntoModel(DownloadAttributes *properties);
     void deleteDownloadFromDatabase(int id);
+    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
 
 private:
     DatabaseManager *m_dbManager;
