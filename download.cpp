@@ -21,8 +21,6 @@
 #include "download.h"
 #include "singletonfactory.h"
 
-#include <curl/curl.h>
-
 #include <QNetworkRequest>
 #include <QNetworkAccessManager>
 #include <QUrl>
