@@ -70,6 +70,7 @@ private slots:
     QList< int > getSelectedItemIds();
     void restartDownload(int id);
     void resumeDownload(int id);
+    void afterDownloadCompleted(int databaseId);
 };
 
 #endif // MAINWINDOW_H

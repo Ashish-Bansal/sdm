@@ -372,18 +372,29 @@ void MainWindow::showDownloadDialog(QString url)
             qint64 id = m_model->insertDownloadIntoModel(&fh->properties);
             StartDownload *newDownload = new StartDownload(id);
             m_downloads.insert(id, newDownload);
+            connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
             newDownload->startDownload();
         } else {
             connect(fh, &FetchHeaders::headersFetched, [=]() {
                 qint64 id = m_model->insertDownloadIntoModel(&fh->properties);
                 StartDownload *newDownload = new StartDownload(id);
                 m_downloads.insert(id, newDownload);
+                connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
                 newDownload->startDownload();
             });
         }
     });
     infoDialog->exec();
     infoDialog->deleteLater();
+}
+
+void MainWindow::afterDownloadCompleted(int databaseId)
+{
+    QMap<qint64, StartDownload*>::iterator it = m_downloads.find(databaseId);
+    if (it != m_downloads.end()) {
+        it.value()->deleteLater();
+        m_downloads.remove(databaseId);
+    }
 }
 
 void MainWindow::saveHeaderState()
