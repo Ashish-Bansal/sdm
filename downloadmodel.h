@@ -60,6 +60,7 @@ public:
     int loadDownloadIntoModel(DownloadAttributes *properties);
     void deleteDownloadFromDatabase(int id);
     QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
+    bool urlAlreadyInList(QString url);
 
 private:
     DatabaseManager *m_dbManager;

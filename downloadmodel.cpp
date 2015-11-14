@@ -264,6 +264,17 @@ QModelIndex DownloadModel::index(int row, int column, const QModelIndex &parent)
     return QModelIndex();
 }
 
+bool DownloadModel::urlAlreadyInList(QString url)
+{
+    foreach(DownloadAttributes *item, m_downloadList) {
+        if (item->getValue(Enum::DownloadAttributes::Url) == url) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 /*
 
 int DownloadModel::restartDownload(qint64 id)
