@@ -44,8 +44,8 @@ public:
 
     /**
      * Changes some property of DownloadProperties specified by @p index to @p value.
-     * Warning: Here row in QModelIndex is Id of download in database and column is according
-     * to Enum::DownloadAttributes
+     * Warning: Here row in QModelIndex is Row Id of that element in m_downloadList
+     * and column is according to Enum::DownloadAttributes
      */
     bool setData(const QModelIndex &index, const QVariant &value, int role=Qt::EditRole);
 

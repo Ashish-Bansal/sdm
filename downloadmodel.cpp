@@ -119,8 +119,7 @@ Qt::ItemFlags DownloadModel::flags(const QModelIndex &index) const
 bool DownloadModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.isValid() && role == Qt::EditRole) {
-        int databaseId = index.row();
-        int rowId = findRowByDatabaseId(databaseId);
+        int rowId = index.row();
 
         DownloadAttributes *item = m_downloadList.value(rowId, nullptr);
         Q_ASSERT(item != nullptr);
