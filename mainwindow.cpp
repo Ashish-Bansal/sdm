@@ -331,6 +331,10 @@ void MainWindow::stopDownload(qint64 id)
 void MainWindow::onActionRemoveTriggered()
 {
     QList< int > ids = getSelectedItemIds();
+    if (ids.length() == 0) {
+        return;
+    }
+
     QString message = "If you remove the download, download will be removed from list\n"
                       "Do you want to remove this download?";
     QMessageBox::StandardButton ans = QMessageBox::question(this, "Remove Confirmation",
