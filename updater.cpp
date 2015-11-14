@@ -33,7 +33,7 @@ Updater::Updater(QWidget *parent)
     QNetworkAccessManager *qnam = new QNetworkAccessManager(this);
     connect(qnam, &QNetworkAccessManager::finished, this, &Updater::replyFinished);
 
-    QString rawUrl = "http://ashish-bansal.in/css/loader.css";
+    QString rawUrl = "https://raw.githubusercontent.com/Ashish-Bansal/sdm/master/release";
     QUrl url(rawUrl);
 
     qnam->get(QNetworkRequest(url));
@@ -41,15 +41,10 @@ Updater::Updater(QWidget *parent)
 
 void Updater::replyFinished(QNetworkReply *reply)
 {
-//    QByteArray data = reply->readAll();
-//    QString html(data);
-    QByteArray data = "{"
-            "\"releaseNo\" : \"5\""
-            "}";
+    QByteArray data = reply->readAll();
     QJsonDocument loadDoc(QJsonDocument::fromJson(data));
     QJsonObject obj = loadDoc.object();
-    qDebug() << data;
-    qDebug() << obj["releaseNo"].toString();
+    qDebug() << obj["version"].toString();
 }
 
 Updater::~Updater()
