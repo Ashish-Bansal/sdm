@@ -45,7 +45,6 @@ public:
     QTreeWidgetItem* getTreeItem(int id);
     void loadDownloads();
     bool checkResumeSupported(int id);
-    void fileAlreadyInList(DownloadAttributes properties);
 
 private:
     qint64 m_maxId;

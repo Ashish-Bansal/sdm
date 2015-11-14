@@ -349,13 +349,12 @@ void MainWindow::onActionRemoveTriggered()
     }
 }
 
-void MainWindow::fileAlreadyInList(DownloadAttributes properties)
-{
-    //warn user that file is already present in the download list and ask for restart or resume if possible
-}
-
 void MainWindow::showDownloadDialog(QString url)
 {
+    if (m_model->urlAlreadyInList(url)) {
+        // ToDo: warn user that file is already present in the download list and ask for restart or resume if possible
+    }
+
     QPointer<DownloadInfoDialog> infoDialog = QPointer<DownloadInfoDialog>(new DownloadInfoDialog());
     infoDialog->setWindowTitle("Add Download");
     infoDialog->setModal(true);
