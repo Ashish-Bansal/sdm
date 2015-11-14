@@ -202,9 +202,8 @@ void StartDownload::writeToFileInParts()
         Q_ASSERT(file.flush());
     }
     file.close();
-    dwldip.clear();
     cleanUp();
-//     emit downloadComplete(id);
+    emit downloadComplete(id);
     qDebug() << "Write Complete In Parts";
 
     properties.status = Enum::Status::Completed;
@@ -212,8 +211,6 @@ void StartDownload::writeToFileInParts()
 
     b = properties.tempFileNames;
     qDebug() << SDM::readByteArray(b);
-
-    this->deleteLater();
 }
 
 void StartDownload::writeToFileAsWhole()
@@ -228,18 +225,18 @@ void StartDownload::writeToFileAsWhole()
         file.setFileName(QDir::homePath() + "/sdm/" + "filename" + QString::number(qrand()));
         file.open(QIODevice::WriteOnly);
     }
+
     dwldaw->tempFile->seek(0);
     file.write(dwldaw->tempFile->readAll());
     file.close();
-    dwldaw->tempFile->remove();
-    cleanUp();
-//     emit downloadComplete(id);
-    qDebug() << "Write Complete As Whole";
+
     properties.status = Enum::Status::Completed;
     properties.transferRate = 0;
     m_model->updateDetails(properties);
-    this->deleteLater();
-    dwldaw->disconnect();
+
+    qDebug() << "Write Complete As Whole";
+    cleanUp();
+    emit downloadComplete(id);
 }
 
 void StartDownload::cleanUp()
@@ -253,10 +250,12 @@ void StartDownload::cleanUp()
         }
         for (auto it = dwldip.begin(); it != dwldip.end(); it++) {
             (*it)->deleteLater();
+            *it = nullptr;
         }
     } else {
         dwldaw->tempFile->remove();
         dwldaw->deleteLater();
+        dwldaw = nullptr;
     }
 }
 
@@ -270,10 +269,14 @@ void StartDownload::stopDownload()
     if (resumeSupported) {
         QList<Download*>::Iterator it;
         for(it = dwldip.begin(); it != dwldip.end(); it++) {
-            (*it)->abortDownload();
+            if (*it != nullptr) {
+                (*it)->abortDownload();
+            }
         }
     } else {
-        dwldaw->abortDownload();
+        if (dwldaw != nullptr) {
+            dwldaw->abortDownload();
+        }
     }
     this->deleteLater();
 }

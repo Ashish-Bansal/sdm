@@ -53,6 +53,9 @@ public:
     bool isAlreadyStarted;
     DownloadAttributes properties;
 
+signals:
+    void downloadComplete(int id);
+
 private:
     DownloadModel *m_model;
     void fetchProperties();
