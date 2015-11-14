@@ -43,6 +43,10 @@ public:
     Download *dwldaw;
     QFile file;
 
+signals:
+    void downloadComplete(int id);
+
+private:
     bool resumeSupported = false;
     int counter;
     qint64 totalBytesDownloaded;
@@ -52,11 +56,6 @@ public:
     QString filename;
     bool isAlreadyStarted;
     DownloadAttributes properties;
-
-signals:
-    void downloadComplete(int id);
-
-private:
     DownloadModel *m_model;
     void fetchProperties();
     static bool compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j);
