@@ -25,6 +25,7 @@
 #include "downloadmodel.h"
 #include "downloadmodel.h"
 #include "downloadview.h"
+#include "localserver.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -53,6 +54,7 @@ private:
     QMap<qint64, StartDownload*> m_downloads;
     QThread m_workerThread;
     QThread m_downloadThread;
+    LocalServer m_localserver;
 
 private slots:
     void exit();

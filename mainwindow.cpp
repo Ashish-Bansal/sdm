@@ -26,7 +26,7 @@
 #include "singletonfactory.h"
 #include "updater.h"
 #include "debug.h"
-#include "localserver.h"
+
 #include <ui_downloadinfodialog.h>
 
 #include <QNetworkAccessManager>
@@ -48,7 +48,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     qInstallMessageHandler(Debug::debugStyle);
-//    LocalServer *server = new LocalServer();
 //    Updater *up = new Updater(this);
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         qDebug() << "SystemTrayAvailable";
@@ -122,6 +121,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(removeDownload, &QAction::triggered, this, &MainWindow::onActionRemoveTriggered);
 
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
+    m_localserver.startListening();
 }
 
 MainWindow::~MainWindow()
