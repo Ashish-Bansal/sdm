@@ -21,34 +21,60 @@
 #include "localserver.h"
 #include "downloadinfodialog.h"
 
-LocalServer::LocalServer()
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+
+LocalServer::LocalServer(QObject *parent) :
+    QObject(parent)
 {
-    tcpServer = new QTcpServer(this);
-    if(!tcpServer->listen(QHostAddress::LocalHost, 33533)){
-        qDebug() << "TCP Server opening failed";
+    const int port = 33533;
+    m_webSocketServer = new QWebSocketServer(QStringLiteral("Echo Server"),
+                                             QWebSocketServer::NonSecureMode);
+    if (m_webSocketServer->listen(QHostAddress::Any, port)) {
+
+        qDebug() << "Local Server listening on port :" << port;
+        connect(m_webSocketServer, &QWebSocketServer::newConnection,
+                this, &LocalServer::clientConnected);
+        connect(m_webSocketServer, &QWebSocketServer::closed, this, &LocalServer::closed);
     }
-    qDebug() << tcpServer->serverAddress();
-    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(connectToHost()));
 }
 
 LocalServer::~LocalServer()
 {
-    qDebug() << "Local Server destroyed!";
+    m_webSocketServer->close();
+    qDeleteAll(m_clients.begin(), m_clients.end());
 }
 
-void LocalServer::connectToHost()
+void LocalServer::clientConnected()
 {
-    clientConnection = tcpServer->nextPendingConnection();
-    connect(clientConnection, SIGNAL(readyRead()), this, SLOT(readClient()));
+    qDebug() << "IM HERE";
+    QWebSocket *socket = m_webSocketServer->nextPendingConnection();
+
+    connect(socket, &QWebSocket::textMessageReceived, this, &LocalServer::processTextMessage);
+    connect(socket, &QWebSocket::disconnected, this, &LocalServer::socketDisconnected);
+
+    m_clients << socket;
 }
 
-void LocalServer::readClient()
+void LocalServer::processTextMessage(QString data)
 {
-    QString requestLine = clientConnection->readLine();
-    QString path;
-    if(requestLine.split(" ").length() > 2){
-        path = requestLine.split(" ").at(1);
+    QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
+
+    QJsonDocument loadDoc(QJsonDocument::fromJson(data));
+    QJsonObject obj = loadDoc.object();
+    if (socket) {
+        socket->sendTextMessage(data);
     }
-    QString url = path.split("&").at(0).mid(6);
-    qDebug() << url;
+}
+
+void LocalServer::socketDisconnected()
+{
+    QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
+
+    qDebug() << "socketDisconnected:" << socket;
+    if (socket) {
+        m_clients.removeAll(socket);
+        socket->deleteLater();
+    }
 }

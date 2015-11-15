@@ -21,22 +21,28 @@
 #ifndef LOCALSERVER_H
 #define LOCALSERVER_H
 
-#include <QTcpSocket>
-#include <QTcpServer>
+#include <QWebSocket>
+#include <QWebSocketServer>
 #include <QObject>
+
 class LocalServer : public QObject
 {
     Q_OBJECT
 public:
-    LocalServer();
+    explicit LocalServer(QObject *parent = 0);
     ~LocalServer();
-    QTcpSocket *socket;
-    QTcpServer *tcpServer;
-    QTcpSocket *clientConnection;
 
-public slots :
-    void connectToHost();
-    void readClient();
+Q_SIGNALS:
+    void closed();
+
+private Q_SLOTS:
+    void clientConnected();
+    void processTextMessage(QString data);
+    void socketDisconnected();
+
+private:
+    QWebSocketServer *m_webSocketServer;
+    QList<QWebSocket *> m_clients;
 };
 
 #endif // LOCALSERVER_H
