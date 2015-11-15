@@ -31,9 +31,8 @@ class LocalServer : public QObject
 public:
     explicit LocalServer(QObject *parent = 0);
     ~LocalServer();
-
-Q_SIGNALS:
-    void closed();
+    void startListening();
+    void stopServer();
 
 private Q_SLOTS:
     void clientConnected();
@@ -41,6 +40,7 @@ private Q_SLOTS:
     void socketDisconnected();
 
 private:
+    int m_port;
     QWebSocketServer *m_webSocketServer;
     QList<QWebSocket *> m_clients;
 };

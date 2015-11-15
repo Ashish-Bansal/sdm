@@ -28,19 +28,28 @@
 LocalServer::LocalServer(QObject *parent) :
     QObject(parent)
 {
-    const int port = 33533;
     m_webSocketServer = new QWebSocketServer(QStringLiteral("Echo Server"),
                                              QWebSocketServer::NonSecureMode);
-    if (m_webSocketServer->listen(QHostAddress::Any, port)) {
+    m_port = 33533;
 
-        qDebug() << "Local Server listening on port :" << port;
-        connect(m_webSocketServer, &QWebSocketServer::newConnection,
-                this, &LocalServer::clientConnected);
-        connect(m_webSocketServer, &QWebSocketServer::closed, this, &LocalServer::closed);
-    }
 }
 
 LocalServer::~LocalServer()
+{
+    stopServer();
+}
+
+void LocalServer::startListening()
+{
+    if (m_webSocketServer->listen(QHostAddress::Any, m_port)) {
+
+        qDebug() << "Local Server listening on port :" << m_port;
+        connect(m_webSocketServer, &QWebSocketServer::newConnection,
+                this, &LocalServer::clientConnected);
+    }
+}
+
+void LocalServer::stopServer()
 {
     m_webSocketServer->close();
     qDeleteAll(m_clients.begin(), m_clients.end());
