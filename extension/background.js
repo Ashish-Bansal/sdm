@@ -36,7 +36,7 @@ var map = (function() {
 
         this.contains = function(key) {
             return typeof _map[key] != "undefined"
-        }
+        };
     }
 
     return map;
@@ -80,8 +80,10 @@ chrome.webRequest.onHeadersReceived.addListener(
         if (contentDisposition.indexOf("attachment") > -1 && contentType.indexOf("application") > -1) {
             if (socket.readyState == 1) {
                 details.responseHeaders.redirectUrl = "http://127.0.0.1";
-                if (map.contains(details.requestId)) {
-                    //ToDo: Pass requestHeaders of this ID to SDM over WebSocket
+                if (requests.contains(details.requestId)) {
+                    var headers = requests.value(details.requestId);
+                    var jsonValue = JSON.stringify(headers);
+                    socket.send(jsonValue);
                     return {redirectUrl: "javascript:"};
                 }
             }
