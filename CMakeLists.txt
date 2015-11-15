@@ -33,4 +33,4 @@ QT5_ADD_RESOURCES(RSCS icons.qrc)
 add_executable(downloadManager ${downloadManager_SRCS} ${UIS} ${RSCS})
 target_link_libraries(downloadManager ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY})
 
-qt5_use_modules(downloadManager Widgets Network Sql Concurrent)
+qt5_use_modules(downloadManager Widgets Network Sql Concurrent WebSockets)
