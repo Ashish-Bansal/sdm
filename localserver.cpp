@@ -70,11 +70,9 @@ void LocalServer::processTextMessage(QString data)
 {
     QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
 
-    QJsonDocument loadDoc(QJsonDocument::fromJson(data));
-    QJsonObject obj = loadDoc.object();
-    if (socket) {
-        socket->sendTextMessage(data);
-    }
+    QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8());
+    QString formattedJsonString = doc.toJson(QJsonDocument::Indented);
+    qDebug() << formattedJsonString;
 }
 
 void LocalServer::socketDisconnected()
