@@ -63,19 +63,29 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 
 chrome.webRequest.onHeadersReceived.addListener(
     function(details) {
+        var contentType = "";
+        var contentDisposition = "";
         for (var i = 0; i < details.responseHeaders.length; ++i) {
-            if (details.responseHeaders[i].name.toLowerCase() === 'content-type'
-                && details.responseHeaders[i].value.indexOf("video") > -1) {
-                console.log(details);
-                console.log(details.url);
-            } else if (details.responseHeaders[i].name.toLowerCase() === "content-disposition"
-                && details.responseHeaders[i].value.indexOf("filename") > -1) {
-                if (socket.readyState == 1) {
-                    details.responseHeaders.redirectUrl = "javascript:";
-                    //ToDo: Pass requestHeaders of this ID to SDM over WebSocket
-                }
+            if (details.responseHeaders[i].name.toLowerCase() === 'content-type') {
+                contentType = details.responseHeaders[i].value;
+            } else if (details.responseHeaders[i].name.toLowerCase() === "content-disposition") {
+                contentDisposition = details.responseHeaders[i].value;
             }
         }
+
+        if (contentDisposition.indexOf("attachment") > -1 && contentType.indexOf("application") > -1) {
+            if (socket.readyState == 1) {
+                details.responseHeaders.redirectUrl = "http://127.0.0.1";
+                //ToDo: Pass requestHeaders of this ID to SDM over WebSocket
+                return {redirectUrl: "javascript:"};
+            }
+        }
+
+        if (contentType.indexOf("video") > -1) {
+            console.log(details.url);
+            //ToDo: Add an option to download that file.
+        }
+
         return {responseHeaders: details.responseHeaders};
     },
     {urls: ["<all_urls>"]},
