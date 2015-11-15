@@ -41,6 +41,17 @@ var map = (function() {
 
 var requests = new map();
 
+var url = "ws://127.0.0.1:33533";
+var socket = new WebSocket(url);
+
+socket.onopen = function() {
+    console.log('Web Socket open');
+};
+
+socket.onerror = function (error) {
+    console.error('Web Socket error');
+};
+
 chrome.webRequest.onBeforeSendHeaders.addListener(
     function(details) {
         requests.insert(details.id, details);
@@ -57,10 +68,16 @@ chrome.webRequest.onHeadersReceived.addListener(
                 && details.responseHeaders[i].value.indexOf("video") > -1) {
                 console.log(details);
                 console.log(details.url);
+            } else if (details.responseHeaders[i].name.toLowerCase() === "content-disposition"
+                && details.responseHeaders[i].value.indexOf("filename") > -1) {
+                if (socket.readyState == 1) {
+                    details.responseHeaders.redirectUrl = "javascript:";
+                    //ToDo: Pass requestHeaders of this ID to SDM over WebSocket
+                }
             }
         }
         return {responseHeaders: details.responseHeaders};
     },
     {urls: ["<all_urls>"]},
-    ["responseHeaders"]
+    ["blocking", "responseHeaders"]
 );
