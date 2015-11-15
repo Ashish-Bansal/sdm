@@ -42,4 +42,4 @@ By default, it downloads files in `$HOME/sdm` and stores all the downloads in th
 
 **Note**
 
-Transfering download requires installing extension in the web browser. Well it's not available online yet. I'll upload it later on.
+Transfering download requires installing extension in the web browser.
