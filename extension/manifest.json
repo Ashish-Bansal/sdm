@@ -12,7 +12,8 @@
     },
     "permissions": [
         "webRequest",
-        "*://*/*"
+        "*://*/*",
+        "webRequestBlocking"
     ],
     "browser_action": {
         "default_title": "SDM"
