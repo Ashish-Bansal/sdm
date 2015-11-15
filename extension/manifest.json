@@ -1,0 +1,20 @@
+{
+    "name": "Simple Download Manager",
+    "version": "0.1",
+    "manifest_version": 2,
+    "description": "Download files at faster rate using SDM.",
+    "offline_enabled": true,
+    "icons": {
+        "128": "icon128.png"
+    },
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "permissions": [
+        "webRequest",
+        "*://*/*"
+    ],
+    "browser_action": {
+        "default_title": "SDM"
+    }
+}

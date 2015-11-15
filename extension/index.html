@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="-1">
+  <title>NaCl IO Demo</title>
+  <script type="text/javascript" src="common.js"></script>
+  <script type="text/javascript" src="example.js"></script>
+</head>
+<body data-custom-load="true" data-name="nacl_io_demo" data-tools="pnacl newlib glibc clang-newlib linux" data-configs="Debug Release" data-path="{tc}/{config}">
+  <p><b>Socket Operations:</b></p>
+  <div>
+    <span>
+      <input type="radio" id="radiogethostbyname" name="group">gethostbyname
+      <input type="radio" id="radiogetaddrinfo" name="group">getaddrinfo
+      <input type="radio" id="radioconnect" name="group">connect
+      <input type="radio" id="radiosend" name="group">send
+      <input type="radio" id="radiorecv" name="group">recv
+      <input type="radio" id="radioclose" name="group">close
+    </span>
+  </div>
+  <div class="function" id="gethostbyname" hidden>
+    <span>
+      Hostname:
+      <input type="text" id="gethostbynameName" value="google.com">
+      <button>gethostbyname</button>
+    </span>
+  </div>
+  <div class="function" id="getaddrinfo" hidden>
+    <span>
+      Hostname:
+      <input type="text" id="getaddrinfoName" value="google.com">
+      <select id="getaddrinfoFamily">
+        <option>AF_INET</option>
+        <option>AF_INET6</option>
+        <option>AF_UNSPEC</option>
+      </select>
+      <button>getaddrinfo</button>
+    </span>
+  </div>
+  <div class="function" id="connect" hidden>
+    <span>
+      Host:
+      <input type="text" id="connectHost" value="google.com">
+      Port:
+      <input type="text" id="connectPort" value="80">
+      <button>connect</button>
+    </span>
+  </div>
+  <div class="function" id="send" hidden>
+    <span>
+      <select class="sock-handle" id="sendHandle"></select>
+      Message:
+      <input type="text" id="sendMessage" value="Hello!">
+      <button>send</button>
+    </span>
+  </div>
+  <div class="function" id="recv" hidden>
+    <span>
+      <select class="sock-handle" id="recvHandle"></select>
+      Buffer Size:
+      <input type="text" id="recvBufferSize" value="256">
+      <button>recv</button>
+    </span>
+  </div>
+  <div class="function" id="close" hidden>
+    <span>
+      <select class="sock-handle" id="closeHandle"></select>
+      <button>close</button>
+    </span>
+  </div>
+  <hr>
+  <p><b>Log:</b></p>
+  <pre id="log" style="font-weight: bold"></pre>
+  <!-- The NaCl plugin will be embedded inside the element with id "listener".
+      See common.js.-->
+  <div id="listener"></div>
+</body>
+</html>
