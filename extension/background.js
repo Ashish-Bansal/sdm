@@ -33,6 +33,10 @@ var map = (function() {
         this.value = function(key) {
             return _map[key];
         };
+
+        this.contains = function(key) {
+            return typeof _map[key] != "undefined"
+        }
     }
 
     return map;
