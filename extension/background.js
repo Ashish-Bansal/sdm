@@ -58,7 +58,7 @@ socket.onerror = function (error) {
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
     function(details) {
-        requests.insert(details.id, details);
+        requests.insert(details.requestId, details);
         return {requestHeaders: details.requestHeaders};
     },
     {urls: ["<all_urls>"]},
@@ -80,8 +80,10 @@ chrome.webRequest.onHeadersReceived.addListener(
         if (contentDisposition.indexOf("attachment") > -1 && contentType.indexOf("application") > -1) {
             if (socket.readyState == 1) {
                 details.responseHeaders.redirectUrl = "http://127.0.0.1";
-                //ToDo: Pass requestHeaders of this ID to SDM over WebSocket
-                return {redirectUrl: "javascript:"};
+                if (map.contains(details.requestId)) {
+                    //ToDo: Pass requestHeaders of this ID to SDM over WebSocket
+                    return {redirectUrl: "javascript:"};
+                }
             }
         }
 
