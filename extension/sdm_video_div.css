@@ -1,0 +1,17 @@
+.sdm_video_div {
+    z-index: 99999999;
+    background-color: #272B2E;
+    color: #CC6633;
+    cursor: pointer;
+    position: absolute;
+    right: 50;
+    box-shadow: 0 1px 50px 0 rgba(0,0,0,.3);
+    height: 20px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.sdm_close {
+    font-size: 15px;
+    padding:5px;
+}
