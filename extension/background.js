@@ -56,7 +56,7 @@ socket.onerror = function (error) {
     console.error('Web Socket error');
 };
 
-chrome.webRequest.onBeforeSendHeaders.addListener(
+chrome.webRequest.onSendHeaders.addListener(
     function(details) {
         requests.insert(details.requestId, details);
         return {requestHeaders: details.requestHeaders};
