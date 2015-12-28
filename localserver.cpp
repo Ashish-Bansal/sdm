@@ -57,7 +57,7 @@ void LocalServer::stopServer()
 
 void LocalServer::clientConnected()
 {
-    qDebug() << "IM HERE";
+    qDebug() << "Client Connected";
     QWebSocket *socket = m_webSocketServer->nextPendingConnection();
 
     connect(socket, &QWebSocket::textMessageReceived, this, &LocalServer::processTextMessage);
@@ -71,8 +71,10 @@ void LocalServer::processTextMessage(QString data)
     QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
 
     QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8());
-    QString formattedJsonString = doc.toJson(QJsonDocument::Indented);
-    qDebug() << formattedJsonString;
+    QString url = doc.object().take("url").toString();
+    if (url != "") {
+        emit downloadRequested(url);
+    }
 }
 
 void LocalServer::socketDisconnected()

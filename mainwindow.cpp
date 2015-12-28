@@ -120,6 +120,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(stopDownload, &QAction::triggered, this, &MainWindow::onActionStopTriggered);
     connect(removeDownload, &QAction::triggered, this, &MainWindow::onActionRemoveTriggered);
 
+    connect(&m_localserver, &LocalServer::downloadRequested, this, &MainWindow::showDownloadDialog);
+
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
     m_localserver.startListening();
 }

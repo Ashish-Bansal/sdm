@@ -34,6 +34,9 @@ public:
     void startListening();
     void stopServer();
 
+signals:
+    void downloadRequested(QString url);
+
 private Q_SLOTS:
     void clientConnected();
     void processTextMessage(QString data);
