@@ -83,6 +83,7 @@ int DatabaseManager::lastInsertRowId()
         Q_ASSERT(false);
         return -1;
     }
+    qry->first();
     return qry->value(0).toInt();
 }
 
