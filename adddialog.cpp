@@ -35,7 +35,7 @@ AddDialog::AddDialog(QWidget *parent) :
     ui->setupUi(this);
     ui->label_2->setVisible(false);
 //    ui->pushButtonOk->setEnabled(false);
-    ui->lineEdit->setText("http://torrent.ashish-bansal.in/completed/Internet%20Download%20Manager%20(IDM)%206.23%20Build%2017%20%20Registered%20(32bit%20+%2064bit%20Patch)%20%5bCrackingPatching%5d.zip");
+    ui->lineEdit->setText("https://raw.githubusercontent.com/Ashish-Bansal/sdm/master/updater.cpp");
     connect(ui->lineEdit, &QLineEdit::textChanged, this, &AddDialog::validateUrl);
     connect(ui->pushButtonOk, &QPushButton::clicked, this, &AddDialog::urlAccepted);
     connect(ui->pushButtonCancel, &QPushButton::clicked, this, &QDialog::close);
