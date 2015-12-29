@@ -56,7 +56,7 @@ public:
     int insertDownloadIntoModel(DownloadAttributes properties);
     int removeDownloadFromModel(int databaseId);
     void writeToDatabase();
-    int findRowByDatabaseId(int databaseId);
+    int findRowByDatabaseId(int databaseId) const;
     int loadDownloadIntoModel(DownloadAttributes *properties);
     void deleteDownloadFromDatabase(int id);
     QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;

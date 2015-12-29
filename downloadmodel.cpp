@@ -243,7 +243,7 @@ void DownloadModel::updateDetails(DownloadAttributes properties)
     }
 }
 
-int DownloadModel::findRowByDatabaseId(int databaseId)
+int DownloadModel::findRowByDatabaseId(int databaseId) const
 {
     int position = -1;
     foreach(DownloadAttributes *item, m_downloadList) {
