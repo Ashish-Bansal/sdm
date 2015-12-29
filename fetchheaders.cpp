@@ -24,28 +24,28 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 
-FetchHeaders::FetchHeaders(QString rawURL) :
+FetchHeaders::FetchHeaders(QString rawUrl) :
     mRequestedContentLength(0),
     mResponseContentLength(0),
     mOriginalContentLength(0),
     mResumeCapability(Enum::SDM::ResumeNotSupported),
+    mUrlString(rawUrl),
     mHeaderFetchComplete(false)
 {
     mFilename = SDM::filenameFromUrl(mUrlString);
-     mNetworkAccessManager = new QNetworkAccessManager();
+    mNetworkAccessManager = new QNetworkAccessManager();
 
-     mUrlString = rawURL;
-     mProperties.url = mUrlString;
-     mUrl = new QUrl(mUrlString);
+    mProperties.url = mUrlString;
+    mUrl = new QUrl(mUrlString);
 
-     mNetworkRequest = new QNetworkRequest();
-     mNetworkRequest->setUrl(*mUrl);
-     mNetworkRequest->setRawHeader(QByteArray("Range"), QByteArray("bytes=0-1"));
-     mRequestedContentLength = 2;
+    mNetworkRequest = new QNetworkRequest();
+    mNetworkRequest->setUrl(*mUrl);
+    mNetworkRequest->setRawHeader(QByteArray("Range"), QByteArray("bytes=0-1"));
+    mRequestedContentLength = 2;
 
-     mHeadersReply = mNetworkAccessManager->get(*mNetworkRequest);
-     connect(mHeadersReply, &QNetworkReply::downloadProgress,
-             this, &FetchHeaders::checkByteServing);
+    mHeadersReply = mNetworkAccessManager->get(*mNetworkRequest);
+    connect(mHeadersReply, &QNetworkReply::downloadProgress,
+            this, &FetchHeaders::checkByteServing);
 }
 
 FetchHeaders::~FetchHeaders()
@@ -58,9 +58,8 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
     Q_UNUSED(bytesReceived);
 
 
-    int statusCode = mHeadersReply->attribute(
-                QNetworkRequest::HttpStatusCodeAttribute).toInt();
-                mResponseContentLength = bytesTotal;
+    int statusCode = mHeadersReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    mResponseContentLength = bytesTotal;
     qDebug() << mUrlString;
     qDebug() << "Status Code :" << statusCode;
     qDebug() << "Bytes Total :" << bytesTotal ;
@@ -68,10 +67,10 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
     if (statusCode == 301 || statusCode == 302 || statusCode == 303
             || statusCode == 307 || statusCode == 308) {
         qDebug() << "Redirection";
-    mUrl->setUrl(mHeadersReply->rawHeader("Location"));
-    mUrlString = mUrl->toString();
-    mFilename = SDM::filenameFromUrl(mUrlString);
-    mNetworkRequest->setUrl(*mUrl);
+        mUrl->setUrl(mHeadersReply->rawHeader("Location"));
+        mUrlString = mUrl->toString();
+        mFilename = SDM::filenameFromUrl(mUrlString);
+        mNetworkRequest->setUrl(*mUrl);
         mNetworkRequest->setRawHeader("Range", "bytes=0-1");
         mHeadersReply = mNetworkAccessManager->get(*mNetworkRequest);
         return;
@@ -84,13 +83,13 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
 
     if(statusCode == 206 || mResponseContentLength == mRequestedContentLength) {
         mResumeCapability = Enum::SDM::ResumeSupported;
-    } else{
+    } else {
         mResumeCapability = Enum::SDM::ResumeNotSupported;
     }
 
     mHeadersReply->abort();
     disconnect(mHeadersReply, &QNetworkReply::downloadProgress,
-             this, &FetchHeaders::checkByteServing);
+               this, &FetchHeaders::checkByteServing);
 
     mNetworkRequest->setUrl(*mUrl);
     mNetworkRequest->setRawHeader("Range", "bytes=0-");
@@ -103,13 +102,12 @@ void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
 {
     Q_UNUSED(bytesReceived);
     QString contentRangeHeader = QString(mHeadersReply->rawHeader("Content-Range"));
-    qint64 contentLength = mHeadersReply->header(
-                QNetworkRequest::ContentLengthHeader).toLongLong();
+    qint64 contentLength = mHeadersReply->header(QNetworkRequest::ContentLengthHeader).toLongLong();
     if (contentLength) {
         mOriginalContentLength = contentLength;
     } else if (contentRangeHeader.length() && contentRangeHeader.contains("/")) {
         mOriginalContentLength = mHeadersReply->rawHeader(
-                    "Content-Range").split('/').at(1).toLongLong(0);
+                                     "Content-Range").split('/').at(1).toLongLong(0);
     } else if (bytesTotal > mRequestedContentLength) {
         mOriginalContentLength = bytesTotal;
     } else {

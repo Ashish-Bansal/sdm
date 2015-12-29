@@ -37,7 +37,7 @@ class FetchHeaders : public QObject
 {
     Q_OBJECT
 public:
-    FetchHeaders(QString rawURL);
+    FetchHeaders(QString rawUrl);
     ~FetchHeaders();
     QString filename();
     int filesize();
