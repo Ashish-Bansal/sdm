@@ -74,8 +74,6 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
     mNetworkRequest->setUrl(*mUrl);
         mNetworkRequest->setRawHeader("Range", "bytes=0-1");
         mHeadersReply = mNetworkAccessManager->get(*mNetworkRequest);
-        connect(mHeadersReply, &QNetworkReply::downloadProgress,
-                this, &FetchHeaders::processHeaders);
         return;
     } else if (statusCode/100 == 4) {
         //ToDo: Close Download Dialog if error
