@@ -51,7 +51,6 @@ private:
     QNetworkReply *mHeadersReply;
     int mRequestedContentLength;
     int mResponseContentLength;
-    int mAlreadyEntered;
     int mOriginalContentLength;
     int mResumeCapability;
     QString mFilename;

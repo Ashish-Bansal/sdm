@@ -24,7 +24,12 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 
-FetchHeaders::FetchHeaders(QString rawURL)
+FetchHeaders::FetchHeaders(QString rawURL) :
+    mRequestedContentLength(0),
+    mResponseContentLength(0),
+    mOriginalContentLength(0),
+    mResumeCapability(Enum::SDM::ResumeNotSupported),
+    mHeaderFetchComplete(false)
 {
      mNetworkAccessManager = new QNetworkAccessManager();
 
