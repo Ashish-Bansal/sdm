@@ -39,25 +39,28 @@ class FetchHeaders : public QObject
 public:
     FetchHeaders(QString rawURL);
     ~FetchHeaders();
-    QString fileName;
-    QString size;
-    QString convertUnits(qint64 bytes);
-    int resumeCapability;
-    QUrl *url;
-    QString stringUrl;
-    int originalContentLength;
-    DownloadAttributes properties;
-    bool headerFetchComplete;
+    QString filename();
+    int filesize();
+    bool fetchHeadersCompleted();
+    DownloadAttributes properties();
 
 private:
-    QNetworkAccessManager *m_qnam;
-    QNetworkRequest *m_req;
-    QNetworkReply *m_headersCheckReply;
-    int m_requestedContentLength;
-    int m_responseContentLength;
-    int m_alreadyEntered;
+    DownloadAttributes mProperties;
+    QNetworkAccessManager *mNetworkAccessManager;
+    QNetworkRequest *mNetworkRequest;
+    QNetworkReply *mHeadersReply;
+    int mRequestedContentLength;
+    int mResponseContentLength;
+    int mAlreadyEntered;
+    int mOriginalContentLength;
+    int mResumeCapability;
+    QString mFilename;
+    QString mUrlString;
+    QString mSizeString;
+    bool mHeaderFetchComplete;
+    QUrl *mUrl;
 
-    QString getFilenameFromContentDisposition(QString header);
+    QString parseFilenameFromContentDisposition(QString header);
 
 signals:
     void headersFetched();

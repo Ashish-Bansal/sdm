@@ -143,12 +143,13 @@ int DownloadModel::removeDownloadFromModel(int databaseId)
     return databaseId;
 }
 
-int DownloadModel::insertDownloadIntoModel(DownloadAttributes *properties)
+int DownloadModel::insertDownloadIntoModel(DownloadAttributes properties)
 {
-    properties->databaseId = m_dbManager->insertDownload(properties);
-    loadDownloadIntoModel(properties);
+    DownloadAttributes *downloadProperties = new DownloadAttributes(properties);
+    downloadProperties->databaseId = m_dbManager->insertDownload(properties);
+    loadDownloadIntoModel(downloadProperties);
     writeToDatabase();
-    return properties->databaseId;
+    return downloadProperties->databaseId;
 }
 
 int DownloadModel::loadDownloadIntoModel(DownloadAttributes *properties)

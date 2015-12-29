@@ -53,7 +53,7 @@ public:
     const DownloadAttributes* getDetails(qint64 id);
     qint64 maxRowId() const;
     void readDatabase();
-    int insertDownloadIntoModel(DownloadAttributes *properties);
+    int insertDownloadIntoModel(DownloadAttributes properties);
     int removeDownloadFromModel(int databaseId);
     void writeToDatabase();
     int findRowByDatabaseId(int databaseId);

@@ -26,6 +26,7 @@
 #include "singletonfactory.h"
 #include "updater.h"
 #include "debug.h"
+#include "global.h"
 
 #include <ui_downloadinfodialog.h>
 
@@ -364,24 +365,26 @@ void MainWindow::showDownloadDialog(QString url)
     FetchHeaders *fh = new FetchHeaders(url);
     connect(fh, &FetchHeaders::headersFetched, [=]() {
         if (!infoDialog.isNull()) {
+            int filesize = fh->filesize();
+            QString filesizeString = SDM::convertUnits(filesize);
             infoDialog->ui->size->setVisible(true);
-            infoDialog->ui->size->setText(fh->size);
+            infoDialog->ui->size->setText(filesizeString);
             infoDialog->ui->filePath->setEnabled(false);
-            infoDialog->ui->filePath->setText(fh->fileName);
+            infoDialog->ui->filePath->setText(fh->filename());
         }
     });
 
     connect(infoDialog->ui->startDownload, &QPushButton::clicked,[=]() {
         infoDialog->close();
-        if (fh->headerFetchComplete) {
-            qint64 id = m_model->insertDownloadIntoModel(&fh->properties);
+        if (fh->fetchHeadersCompleted()) {
+            qint64 id = m_model->insertDownloadIntoModel(fh->properties());
             StartDownload *newDownload = new StartDownload(id);
             m_downloads.insert(id, newDownload);
             connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
             newDownload->startDownload();
         } else {
             connect(fh, &FetchHeaders::headersFetched, [=]() {
-                qint64 id = m_model->insertDownloadIntoModel(&fh->properties);
+                qint64 id = m_model->insertDownloadIntoModel(fh->properties());
                 StartDownload *newDownload = new StartDownload(id);
                 m_downloads.insert(id, newDownload);
                 connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
