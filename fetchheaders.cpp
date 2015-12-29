@@ -111,15 +111,14 @@ void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
         originalContentLength = -1;
     }
 
-    QString contentDispositionHeader = QString(m_headersCheckReply->rawHeader(
-                                                   "Content-Disposition"));
-    if (contentDispositionHeader.length() && contentDispositionHeader.contains("filename")) {
-        fileName = contentDispositionHeader.split("filename=\"").at(1).split("\"").at(0);
-        qDebug() << "FileName :" << fileName;
-    } else {
+    QString contentDispositionHeader = QString(m_headersCheckReply->rawHeader("Content-Disposition"));
+
+    fileName = getFilenameFromContentDisposition(contentDispositionHeader);
+    if (fileName.isEmpty()) {
         fileName = SDM::filenameFromUrl(*url);
-        qDebug() << fileName;
     }
+
+    qDebug() << "FileName :" << fileName;
 
     properties.filename = fileName;
     properties.filesize = originalContentLength;
@@ -129,4 +128,19 @@ void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
 
     headerFetchComplete = true;
     emit headersFetched();
+}
+
+
+QString FetchHeaders::getFilenameFromContentDisposition(QString header)
+{
+    int indexOfEqual = header.indexOf('=');
+    if (indexOfEqual == -1) {
+        return QString();
+    }
+
+    QString filename = header.mid(indexOfEqual + 1);
+    if (filename.at(0) == '"' && filename.at(filename.size() - 1) == '"') {
+        filename = filename.mid(1, filename.size() - 2);
+    }
+    return filename;
 }

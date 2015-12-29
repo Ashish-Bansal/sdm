@@ -57,6 +57,8 @@ private:
     int m_responseContentLength;
     int m_alreadyEntered;
 
+    QString getFilenameFromContentDisposition(QString header);
+
 signals:
     void headersFetched();
 
