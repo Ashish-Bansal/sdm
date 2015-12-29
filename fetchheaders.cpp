@@ -31,6 +31,7 @@ FetchHeaders::FetchHeaders(QString rawURL) :
     mResumeCapability(Enum::SDM::ResumeNotSupported),
     mHeaderFetchComplete(false)
 {
+    mFilename = SDM::filenameFromUrl(mUrlString);
      mNetworkAccessManager = new QNetworkAccessManager();
 
      mUrlString = rawURL;
@@ -69,6 +70,7 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
         qDebug() << "Redirection";
     mUrl->setUrl(mHeadersReply->rawHeader("Location"));
     mUrlString = mUrl->toString();
+    mFilename = SDM::filenameFromUrl(mUrlString);
     mNetworkRequest->setUrl(*mUrl);
         mNetworkRequest->setRawHeader("Range", "bytes=0-1");
         mHeadersReply = mNetworkAccessManager->get(*mNetworkRequest);
@@ -118,9 +120,9 @@ void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
 
     QString contentDispositionHeader = QString(mHeadersReply->rawHeader("Content-Disposition"));
 
-    mFilename = parseFilenameFromContentDisposition(contentDispositionHeader);
-    if (mFilename.isEmpty()) {
-        mFilename = SDM::filenameFromUrl(mUrlString);
+    QString possibleFilename = parseFilenameFromContentDisposition(contentDispositionHeader);
+    if (!possibleFilename.isEmpty()) {
+        mFilename = possibleFilename;
     }
 
     qDebug() << "Filename :" << mFilename;
