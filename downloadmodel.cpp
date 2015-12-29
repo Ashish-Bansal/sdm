@@ -45,6 +45,11 @@ int DownloadModel::rowCount(const QModelIndex &parent) const
     return m_downloadList.size();
 }
 
+int DownloadModel::rowCount() const
+{
+    return rowCount(QModelIndex());
+}
+
 int DownloadModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
@@ -57,13 +62,15 @@ QVariant DownloadModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (index.row() >= m_downloadList.size() || index.row() < 0) {
+    if (index.row() >= rowCount() || index.row() < 0) {
         return QVariant();
     }
 
     if (role == Qt::DisplayRole) {
-        DownloadAttributes *item = m_downloadList.value(index.row() + 1, nullptr);
-        Q_ASSERT(item != nullptr);
+
+        Q_ASSERT(index.row() < rowCount());
+
+        DownloadAttributes *item = m_downloadList.at(index.row());
         if (index.column() == Enum::DownloadAttributes::RowId) {
             return index.row() + 1;
         }
@@ -136,8 +143,8 @@ int DownloadModel::removeDownloadFromModel(int databaseId)
 {
     int rowId = findRowByDatabaseId(databaseId);
     beginRemoveRows(QModelIndex(), rowId, rowId);
-    m_downloadList[rowId]->deleteLater();
-    m_downloadList.remove(rowId);
+    m_downloadList.at(rowId)->deleteLater();
+    m_downloadList.removeAt(rowId);
     endRemoveRows();
     deleteDownloadFromDatabase(databaseId);
     return databaseId;
@@ -154,26 +161,14 @@ int DownloadModel::insertDownloadIntoModel(DownloadAttributes properties)
 
 int DownloadModel::loadDownloadIntoModel(DownloadAttributes *properties)
 {
-    int lastRow = maxRowId();
-    beginInsertRows(QModelIndex(), lastRow, lastRow);
+    int newRowIndex = rowCount();
+    beginInsertRows(QModelIndex(), newRowIndex, newRowIndex);
     foreach(DownloadAttributes *item, m_downloadList) {
         Q_ASSERT(item->databaseId != properties->databaseId);
     }
-    m_downloadList.insert(lastRow+1, properties);
+    m_downloadList.insert(newRowIndex, properties);
     endInsertRows();
     return properties->databaseId;
-}
-
-qint64 DownloadModel::maxRowId() const
-{
-    auto it = m_downloadList.begin();
-    qint64 max = 0;
-    for(; it != m_downloadList.end(); it++) {
-        if (it.key() > max) {
-            max = it.key();
-        }
-    }
-    return max;
 }
 
 void DownloadModel::readDatabase()
@@ -218,7 +213,7 @@ void DownloadModel::writeToDatabase()
     auto it = m_downloadList.begin();
     for(; it != m_downloadList.end(); it++) {
         QtConcurrent::run(m_dbManager, &DatabaseManager::updateDetails,
-                          DownloadAttributes(m_downloadList[it.key()]));
+                          DownloadAttributes(*it));
     }
 }
 
@@ -246,9 +241,9 @@ void DownloadModel::updateDetails(DownloadAttributes properties)
 int DownloadModel::findRowByDatabaseId(int databaseId) const
 {
     int position = -1;
-    foreach(DownloadAttributes *item, m_downloadList) {
-        if (item->databaseId == databaseId) {
-            position = m_downloadList.key(item);
+    for(int i = 0; i < rowCount(); i++) {
+        if (m_downloadList.at(i)->databaseId == databaseId) {
+            position = i;
             break;
         }
     }
@@ -259,7 +254,7 @@ int DownloadModel::findRowByDatabaseId(int databaseId) const
 }
 
 QModelIndex DownloadModel::index(int row, int column, const QModelIndex &parent) const {
-    if (maxRowId() >= row && Enum::DownloadAttributes::END > column) {
+    if (rowCount() > row && Enum::DownloadAttributes::END > column) {
         return this->createIndex(row, column);
     }
     return QModelIndex();

@@ -51,7 +51,7 @@ public:
 
     void updateDetails(DownloadAttributes properties);
     const DownloadAttributes* getDetails(qint64 id);
-    qint64 maxRowId() const;
+    int rowCount() const;
     void readDatabase();
     int insertDownloadIntoModel(DownloadAttributes properties);
     int removeDownloadFromModel(int databaseId);
@@ -64,7 +64,7 @@ public:
 
 private:
     DatabaseManager *m_dbManager;
-    QMap< int, DownloadAttributes* > m_downloadList;
+    QList< DownloadAttributes* > m_downloadList;
 };
 
 #endif // DOWNLOADMODEL_H
