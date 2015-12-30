@@ -236,7 +236,9 @@ void DownloadModel::updateDetails(int databaseId, DownloadAttributes properties)
     for(int i=0; i < Enum::DownloadAttributes::END; i++) {
         item->setValue(i, properties.getValue(i));
     }
+    item->setValue(Enum::DownloadAttributes::DatabaseId, databaseId);
 }
+
 void DownloadModel::updateDetails(DownloadAttributes properties)
 {
     updateDetails(properties.databaseId, properties);
