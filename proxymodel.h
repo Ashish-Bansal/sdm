@@ -40,6 +40,7 @@ public:
     bool urlAlreadyInList(QString url);
     void updateDetails(DownloadAttributes properties);
     void updateDetails(int databaseId, DownloadAttributes properties);
+    void readDatabase();
     int insertDownloadIntoModel(DownloadAttributes properties);
     int removeDownloadFromModel(int databaseId);
     int findRowByDatabaseId(int databaseId) const;
