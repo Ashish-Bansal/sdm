@@ -55,6 +55,7 @@ public:
     void readDatabase();
     int insertDownloadIntoModel(DownloadAttributes properties);
     int removeDownloadFromModel(int databaseId);
+    void updateDetails(int databaseId, DownloadAttributes properties);
     void writeToDatabase();
     int findRowByDatabaseId(int databaseId) const;
     int loadDownloadIntoModel(DownloadAttributes *properties);

@@ -229,13 +229,17 @@ const DownloadAttributes* DownloadModel::getDetails(qint64 databaseId)
     return m_downloadList[rowId];
 }
 
-void DownloadModel::updateDetails(DownloadAttributes properties)
+void DownloadModel::updateDetails(int databaseId, DownloadAttributes properties)
 {
-    int rowId = findRowByDatabaseId(properties.databaseId);
+    int rowId = findRowByDatabaseId(databaseId);
     DownloadAttributes *item = m_downloadList[rowId];
     for(int i=0; i < Enum::DownloadAttributes::END; i++) {
         item->setValue(i, properties.getValue(i));
     }
+}
+void DownloadModel::updateDetails(DownloadAttributes properties)
+{
+    updateDetails(properties.databaseId, properties);
 }
 
 int DownloadModel::findRowByDatabaseId(int databaseId) const
