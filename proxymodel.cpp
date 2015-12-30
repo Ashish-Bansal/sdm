@@ -85,3 +85,15 @@ bool ProxyModel::urlAlreadyInList(QString url)
 {
     return downloadModel()->urlAlreadyInList(url);
 }
+
+bool ProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+{
+    int columnCount = downloadModel()->columnCount(QModelIndex());
+    for(int column = 0; column < columnCount; column++) {
+        QModelIndex index = downloadModel()->index(sourceRow, column, sourceParent);
+        if (downloadModel()->data(index, Qt::DisplayRole).toString().contains(filterRegExp())) {
+            return true;
+        }
+    }
+    return false;
+}

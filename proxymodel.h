@@ -38,6 +38,7 @@ public:
     explicit ProxyModel(QObject *parent = 0);
     bool setData(const QModelIndex &index, const QVariant &value, int role=Qt::EditRole);
     bool urlAlreadyInList(QString url);
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
     void updateDetails(DownloadAttributes properties);
     void updateDetails(int databaseId, DownloadAttributes properties);
     void readDatabase();

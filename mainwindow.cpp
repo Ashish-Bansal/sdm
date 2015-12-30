@@ -413,7 +413,8 @@ void MainWindow::afterDownloadCompleted(int databaseId)
 
 void MainWindow::onFilterTextChanged(QString text)
 {
-
+    QRegExp regExp(text, Qt::CaseInsensitive);
+    mProxyModel->setFilterRegExp(regExp);
 }
 
 void MainWindow::saveHeaderState()
