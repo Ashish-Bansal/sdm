@@ -72,6 +72,7 @@ private slots:
     void restartDownload(int id);
     void resumeDownload(int id);
     void afterDownloadCompleted(int databaseId);
+    void onFilterTextChanged(QString text);
 };
 
 #endif // MAINWINDOW_H

@@ -123,6 +123,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(&m_localserver, &LocalServer::downloadRequested, this, &MainWindow::showDownloadDialog);
 
+    connect(ledit, &QLineEdit::textChanged, this, &MainWindow::onFilterTextChanged);
+
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
     m_localserver.startListening();
 }
@@ -405,6 +407,11 @@ void MainWindow::afterDownloadCompleted(int databaseId)
         it.value()->deleteLater();
         m_downloads.remove(databaseId);
     }
+}
+
+void MainWindow::onFilterTextChanged(QString text)
+{
+
 }
 
 void MainWindow::saveHeaderState()
