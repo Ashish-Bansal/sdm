@@ -33,6 +33,8 @@ FetchHeaders::FetchHeaders(QString rawUrl) :
     mHeaderFetchComplete(false)
 {
     mFilename = SDM::filenameFromUrl(mUrlString);
+    mProperties.filename = mFilename;
+
     mNetworkAccessManager = new QNetworkAccessManager();
 
     mProperties.url = mUrlString;
