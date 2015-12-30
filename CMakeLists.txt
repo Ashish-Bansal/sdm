@@ -26,6 +26,7 @@ set (downloadManager_SRCS
         downloadattributes.cpp
         downloadmodel.cpp
         downloadview.cpp
+        proxymodel.cpp
     )
 QT5_WRAP_UI(UIS adddialog.ui downloadinfodialog.ui)
 QT5_ADD_RESOURCES(RSCS icons.qrc)

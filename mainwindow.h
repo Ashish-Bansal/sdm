@@ -23,7 +23,7 @@
 
 #include "startdownload.h"
 #include "downloadmodel.h"
-#include "downloadmodel.h"
+#include "proxymodel.h"
 #include "downloadview.h"
 #include "localserver.h"
 
@@ -49,7 +49,8 @@ public:
 
 private:
     qint64 m_maxId;
-    DownloadModel *m_model;
+    ProxyModel *mProxyModel;
+    DownloadModel *mDownloadModel;
     QPointer<DownloadView> m_downloadView;
     QMap<qint64, StartDownload*> m_downloads;
     QThread m_workerThread;

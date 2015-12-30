@@ -64,10 +64,12 @@ MainWindow::MainWindow(QWidget *parent)
         connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
         trayIcon->showMessage("SDM", "SDM has been started", QSystemTrayIcon::Information, 1 * 1000);
     }
-    m_model = SingletonFactory::instanceFor<DownloadModel>();
+    mProxyModel = SingletonFactory::instanceFor<ProxyModel>();
+    mDownloadModel = SingletonFactory::instanceFor<DownloadModel>();
+    mProxyModel->setSourceModel(mDownloadModel);
 
     m_downloadView = new DownloadView(this);
-    m_downloadView->setModel(m_model);
+    m_downloadView->setModel(mProxyModel);
     m_downloadView->loadViewSettings();
 
     connect(m_downloadView->horizontalHeader(), &QHeaderView::sectionPressed, this, &MainWindow::saveHeaderState);
@@ -147,7 +149,7 @@ void MainWindow::exit()
 
 void MainWindow::loadDownloads()
 {
-    m_model->readDatabase();
+    mProxyModel->readDatabase();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -162,7 +164,7 @@ QList< int > MainWindow::getSelectedItemIds()
     QItemSelectionModel *selectedItemModel = m_downloadView->selectionModel();
     auto items = selectedItemModel->selectedRows(Enum::DownloadAttributes::DatabaseId);
     foreach(auto item, items) {
-        qint64 id = m_model->data(item, Qt::DisplayRole).toInt();
+        qint64 id = mProxyModel->data(item, Qt::DisplayRole).toInt();
         ids.append(id);
     }
     return ids;
@@ -232,7 +234,7 @@ void MainWindow::resumeDownload(int id)
 
 bool MainWindow::checkResumeSupported(int id)
 {
-    const DownloadAttributes *properties = m_model->getDetails(id);
+    const DownloadAttributes *properties = mProxyModel->getDetails(id);
     if (properties->resumeCapability == Enum::SDM::ResumeSupported) {
         return true;
     }
@@ -275,8 +277,8 @@ void MainWindow::restartDownload(int id)
         m_downloads.remove(id);
     }
 
-    int rowId = m_model->findRowByDatabaseId(id);
-    m_model->setData(m_model->index(rowId, Enum::DownloadAttributes::Started), false);
+    int rowId = mProxyModel->findRowByDatabaseId(id);
+    mProxyModel->setData(mProxyModel->index(rowId, Enum::DownloadAttributes::Started), false);
 
     StartDownload *newDownload = new StartDownload(id);
     m_downloads.insert(id, newDownload);
@@ -350,13 +352,13 @@ void MainWindow::onActionRemoveTriggered()
 
     foreach(int id, ids) {
         stopDownload(id);
-        m_model->removeDownloadFromModel(id);
+        mProxyModel->removeDownloadFromModel(id);
     }
 }
 
 void MainWindow::showDownloadDialog(QString url)
 {
-    if (m_model->urlAlreadyInList(url)) {
+    if (mProxyModel->urlAlreadyInList(url)) {
         // ToDo: warn user that file is already present in the download list and ask for restart or resume if possible
     }
 
@@ -379,16 +381,16 @@ void MainWindow::showDownloadDialog(QString url)
 
     connect(infoDialog->ui->startDownload, &QPushButton::clicked,[=]() {
         infoDialog->close();
-        int databaseId = m_model->insertDownloadIntoModel(fh->properties());
+        int databaseId = mProxyModel->insertDownloadIntoModel(fh->properties());
         if (fh->fetchHeadersCompleted()) {
-            m_model->updateDetails(databaseId, fh->properties());
+            mProxyModel->updateDetails(databaseId, fh->properties());
             StartDownload *newDownload = new StartDownload(databaseId);
             m_downloads.insert(databaseId, newDownload);
             connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
             newDownload->startDownload();
         } else {
             connect(fh, &FetchHeaders::headersFetched, [=]() {
-                m_model->updateDetails(databaseId, fh->properties());
+                mProxyModel->updateDetails(databaseId, fh->properties());
                 StartDownload *newDownload = new StartDownload(databaseId);
                 m_downloads.insert(databaseId, newDownload);
                 connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
