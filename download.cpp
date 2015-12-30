@@ -98,8 +98,18 @@ void Download::updateDetails()
 
 void Download::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-    bool writeResult = tempFile->write(m_downloadReply->readAll());
-    Q_ASSERT(writeResult);
+    char buffer[4098];
+    qint64 bytesToBeWritten = bytesReceived > 4098 ? 4098 : bytesReceived;
+    int readStatus = m_downloadReply->read(buffer, bytesToBeWritten);
+    if (readStatus == -1) {
+        qDebug() << "Reading from device failed!";
+        return;
+    }
+
+    int writeResult = tempFile->write(buffer, bytesToBeWritten);
+
+    Q_ASSERT(writeResult != -1);
+
     bool flushResult = tempFile->flush();
     Q_ASSERT(flushResult);
     bytesDownloaded = bytesReceived;
