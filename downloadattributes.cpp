@@ -160,7 +160,7 @@ QVariant DownloadAttributes::getValuesForView(int i)
         case Enum::DownloadAttributes::Url :
             return url;
         case Enum::DownloadAttributes::BytesDownloaded :
-            return bytesDownloaded;
+            return SDM::convertUnits(bytesDownloaded);
         case Enum::DownloadAttributes::Filename :
             return filename;
         case Enum::DownloadAttributes::Started :
@@ -187,7 +187,7 @@ QVariant DownloadAttributes::getValuesForView(int i)
         case Enum::DownloadAttributes::TempFileNames :
             return tempFileNames;
         case Enum::DownloadAttributes::Filesize :
-            return filesize;
+            return filesize != -1 ? SDM::convertUnits(filesize) : SDM::convertUnits(downloadProgress);
         case Enum::DownloadAttributes::ResumeCapability :
             return resumeCapability == 1 ? "Yes" : "No";
         case Enum::DownloadAttributes::TimeRemaining :
