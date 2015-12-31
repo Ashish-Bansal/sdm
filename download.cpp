@@ -51,13 +51,11 @@ Download::Download(qint64 id, QString rawURL, qint64 start, qint64 end)
     mNetworkRequest->setUrl(*m_url);
 
     QString rangeString;
-    if (end == -1) {
-        rangeString = "bytes=" + QString::number(start) + "-";
-    } else {
+    if (end != -1) {
         rangeString = "bytes=" + QString::number(start) + "-" + QString::number(end);
+        mNetworkRequest->setRawHeader("Range", rangeString.toLocal8Bit());
     }
 
-    mNetworkRequest->setRawHeader("Range", rangeString.toLocal8Bit());
 }
 
 Download::~Download()
