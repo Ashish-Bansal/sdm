@@ -37,7 +37,15 @@ class DownloadInfoDialog : public QDialog
 public:
     explicit DownloadInfoDialog(QWidget *parent = 0);
     ~DownloadInfoDialog();
+    void setSize(QString size);
+    void setPath(QString path);
+    void setUrl(QString path);
     void cancel();
+
+signals:
+    void downloadNow();
+
+private:
     Ui::DownloadInfoDialog *ui;
 };
 

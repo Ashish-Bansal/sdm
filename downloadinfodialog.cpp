@@ -31,11 +31,29 @@ DownloadInfoDialog::DownloadInfoDialog(QWidget *parent) :
     ui->size->setVisible(false);
     ui->url->setEnabled(false);
     connect(ui->cancel, &QPushButton::clicked, this, &DownloadInfoDialog::cancel);
+    connect(ui->startDownload, &QPushButton::clicked, this, &DownloadInfoDialog::downloadNow);
 }
 
 DownloadInfoDialog::~DownloadInfoDialog()
 {
     delete ui;
+}
+
+void DownloadInfoDialog::setPath(QString path)
+{
+    ui->filePath->setEnabled(false);
+    ui->filePath->setText(path);
+}
+
+void DownloadInfoDialog::setSize(QString size)
+{
+    ui->size->setVisible(true);
+    ui->size->setText(size);
+}
+
+void DownloadInfoDialog::setUrl(QString url)
+{
+    ui->url->setText(url);
 }
 
 void DownloadInfoDialog::cancel()

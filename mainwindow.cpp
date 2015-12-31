@@ -28,8 +28,6 @@
 #include "debug.h"
 #include "global.h"
 
-#include <ui_downloadinfodialog.h>
-
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -366,21 +364,19 @@ void MainWindow::showDownloadDialog(QString url)
     QPointer<DownloadInfoDialog> infoDialog = QPointer<DownloadInfoDialog>(new DownloadInfoDialog());
     infoDialog->setWindowTitle("Add Download");
     infoDialog->setModal(true);
-    infoDialog->ui->url->setText(url);
+    infoDialog->setUrl(url);
     FetchHeaders *fh = new FetchHeaders(url);
 
     connect(fh, &FetchHeaders::headersFetched, [=]() {
         if (!infoDialog.isNull()) {
             int filesize = fh->filesize();
             QString filesizeString = SDM::convertUnits(filesize);
-            infoDialog->ui->size->setVisible(true);
-            infoDialog->ui->size->setText(filesizeString);
-            infoDialog->ui->filePath->setEnabled(false);
-            infoDialog->ui->filePath->setText(fh->filename());
+            infoDialog->setSize(filesizeString);
+            infoDialog->setPath(fh->filename());
         }
     });
 
-    connect(infoDialog->ui->startDownload, &QPushButton::clicked,[=]() {
+    connect(infoDialog, &DownloadInfoDialog::downloadNow,[=]() {
         infoDialog->close();
         int databaseId = mProxyModel->insertDownloadIntoModel(fh->properties());
         if (fh->fetchHeadersCompleted()) {
