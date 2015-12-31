@@ -189,7 +189,7 @@ QVariant DownloadAttributes::getValuesForView(int i)
         case Enum::DownloadAttributes::Filesize :
             return filesize;
         case Enum::DownloadAttributes::ResumeCapability :
-            return resumeCapability;
+            return resumeCapability == 1 ? "Yes" : "No";
         case Enum::DownloadAttributes::TimeRemaining :
             if (transferRate == 0) {
                 return tr("\xE2\x88\x9E");
