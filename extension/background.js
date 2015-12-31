@@ -44,7 +44,7 @@ var map = (function() {
 })();
 
 var requests = new map();
-var videoUrls = new map();
+var videoRequests = new map();
 
 var url = "ws://127.0.0.1:33533";
 var socket = new WebSocket(url);
@@ -113,11 +113,9 @@ chrome.webRequest.onHeadersReceived.addListener(
         }
 
         if (contentType.indexOf("video") > -1) {
-            console.log(details.url);
-            var parametersToBeRemoved = ['range', 'rn', 'rbuf'];
-            var url = removeURLParameters(details.url, parametersToBeRemoved);
-            videoUrls.insert(details.tabId, url);
-            //ToDo: Add an option to download that file.
+            if (requests.contains(details.requestId)) {
+                videoRequests.insert(details.tabId, requests.value(details.requestId));
+            }
         }
 
         return {responseHeaders: details.responseHeaders};
@@ -125,3 +123,16 @@ chrome.webRequest.onHeadersReceived.addListener(
     {urls: ["<all_urls>"]},
     ["blocking", "responseHeaders"]
 );
+
+chrome.browserAction.onClicked.addListener(function(tab) {
+    if (videoRequests.contains(tab.id)) {
+        if (socket.readyState == 1) {
+            var request = videoRequests.value(tab.id);
+            var parametersToBeRemoved = ['range', 'rn', 'rbuf'];
+            var url = removeURLParameters(request.url, parametersToBeRemoved);
+            request.url = url;
+            var jsonValue = JSON.stringify(request);
+            socket.send(jsonValue);
+        }
+    }
+});
