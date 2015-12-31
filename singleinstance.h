@@ -18,15 +18,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "singleinstance.h"
-#include "mainwindow.h"
+#ifndef SINGLEINSTANCE_H
+#define SINGLEINSTANCE_H
 
 #include <QApplication>
+#include <QLocalSocket>
+#include <QLocalServer>
 
-int main(int argc, char *argv[])
+class SingleInstance : public QApplication
 {
-    SingleInstance a(argc, argv);
-    MainWindow *w = new MainWindow();
-    w->show();
-    return a.exec();
-}
+    Q_OBJECT
+public:
+    explicit SingleInstance(int argc, char *argv[]);
+    ~SingleInstance();
+    void stopServer();
+
+private Q_SLOTS:
+    void clientConnected();
+    void socketDisconnected();
+
+private:
+    QLocalServer *mLocalServer;
+    QLocalSocket *mLocalSocket;
+    int mTimeToWait = -1;
+    QString mServerName;
+
+    void askForMainWindow();
+};
+
+#endif // SINGLEINSTANCE_H
