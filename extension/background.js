@@ -83,7 +83,8 @@ chrome.webRequest.onHeadersReceived.addListener(
                 if (requests.contains(details.requestId)) {
                     var headers = requests.value(details.requestId);
                     var jsonValue = JSON.stringify(headers);
-                    if (jsonValue.indexOf("xmlhttprequest") == -1) {
+                    if (jsonValue.indexOf("xmlhttprequest") == -1
+                        && jsonValue.indexOf("script") == -1) {
                         socket.send(jsonValue);
                         return {redirectUrl: "javascript:"};
                     }
