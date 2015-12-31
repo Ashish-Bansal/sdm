@@ -19,7 +19,6 @@
  */
 
 #include "mainwindow.h"
-#include "download.h"
 #include "adddialog.h"
 #include "downloadinfodialog.h"
 #include "startdownload.h"
@@ -28,18 +27,8 @@
 #include "debug.h"
 #include "global.h"
 
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QTableView>
 #include <QtWidgets>
-#include <QPair>
-#include <QPointer>
-#include <QScopedPointer>
-#include <QDateTime>
-#include <QTreeWidgetItemIterator>
 #include <QMessageBox>
-#include <QStandardPaths>
 #include <QSystemTrayIcon>
 #include <QMenu>
 
@@ -66,16 +55,16 @@ MainWindow::MainWindow(QWidget *parent)
     mDownloadModel = SingletonFactory::instanceFor<DownloadModel>();
     mProxyModel->setSourceModel(mDownloadModel);
 
-    m_downloadView = new DownloadView(this);
-    m_downloadView->setModel(mProxyModel);
-    m_downloadView->loadViewSettings();
+    mDownloadView = new DownloadView(this);
+    mDownloadView->setModel(mProxyModel);
+    mDownloadView->loadViewSettings();
 
-    connect(m_downloadView->horizontalHeader(), &QHeaderView::sectionPressed, this, &MainWindow::saveHeaderState);
+    connect(mDownloadView->horizontalHeader(), &QHeaderView::sectionPressed, this, &MainWindow::saveHeaderState);
     QVBoxLayout *layout = new QVBoxLayout();
     QLineEdit *ledit = new QLineEdit();
     ledit->setPlaceholderText("Search Box");
     layout->addWidget(ledit);
-    layout->addWidget(m_downloadView);
+    layout->addWidget(mDownloadView);
     setCentralWidget(new QWidget);
     centralWidget()->setLayout(layout);
     showMaximized();
@@ -121,13 +110,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(stopDownload, &QAction::triggered, this, &MainWindow::onActionStopTriggered);
     connect(removeDownload, &QAction::triggered, this, &MainWindow::onActionRemoveTriggered);
 
-    connect(&m_localserver, &LocalServer::downloadRequested, this, &MainWindow::showDownloadDialog);
+    connect(&mLocalServer, &LocalServer::downloadRequested, this, &MainWindow::showDownloadDialog);
 
     connect(ledit, &QLineEdit::textChanged, this, &MainWindow::onFilterTextChanged);
     ledit->setClearButtonEnabled(true);
 
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
-    m_localserver.startListening();
+    mLocalServer.startListening();
 }
 
 MainWindow::~MainWindow()
@@ -160,7 +149,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 QList< int > MainWindow::getSelectedItemIds()
 {
     QList< int > ids;
-    QItemSelectionModel *selectedItemModel = m_downloadView->selectionModel();
+    QItemSelectionModel *selectedItemModel = mDownloadView->selectionModel();
     auto items = selectedItemModel->selectedRows(Enum::DownloadAttributes::DatabaseId);
     foreach(auto item, items) {
         qint64 id = mProxyModel->data(item, Qt::DisplayRole).toInt();
@@ -196,7 +185,7 @@ void MainWindow::onActionResumeTriggered()
     if (resumeNotSupportedCount == 0) {
         foreach(int id, ids) {
             StartDownload *newDownload = new StartDownload(id);
-            m_downloads.insert(id, newDownload);
+            mStartDownloadMap.insert(id, newDownload);
             newDownload->startDownload();
         }
     } else {
@@ -225,8 +214,8 @@ void MainWindow::onActionResumeTriggered()
 
 void MainWindow::resumeDownload(int id)
 {
-    auto it = m_downloads.find(id);
-    if (it != m_downloads.end()) {
+    auto it = mStartDownloadMap.find(id);
+    if (it != mStartDownloadMap.end()) {
         it.value()->startDownload();
     }
 }
@@ -267,20 +256,20 @@ void MainWindow::onActionRestartTriggered()
 
 void MainWindow::restartDownload(int id)
 {
-    auto it = m_downloads.find(id);
-    if (it != m_downloads.end()) {
+    auto it = mStartDownloadMap.find(id);
+    if (it != mStartDownloadMap.end()) {
         Q_ASSERT(it.value() != nullptr);
         it.value()->stopDownload();
         it.value()->cleanUp();
         it.value()->deleteLater();
-        m_downloads.remove(id);
+        mStartDownloadMap.remove(id);
     }
 
     int rowId = mProxyModel->findRowByDatabaseId(id);
     mProxyModel->setData(mProxyModel->index(rowId, Enum::DownloadAttributes::Started), false);
 
     StartDownload *newDownload = new StartDownload(id);
-    m_downloads.insert(id, newDownload);
+    mStartDownloadMap.insert(id, newDownload);
     newDownload->startDownload();
 }
 
@@ -326,11 +315,11 @@ void MainWindow::onActionStopTriggered()
 
 void MainWindow::stopDownload(qint64 id)
 {
-    QMap<qint64, StartDownload*>::iterator it = m_downloads.find(id);
-    if (it != m_downloads.end()) {
+    QMap<qint64, StartDownload*>::iterator it = mStartDownloadMap.find(id);
+    if (it != mStartDownloadMap.end()) {
         it.value()->stopDownload();
         it.value()->deleteLater();
-        m_downloads.remove(id);
+        mStartDownloadMap.remove(id);
     }
 }
 
@@ -382,14 +371,14 @@ void MainWindow::showDownloadDialog(QString url)
         if (fh->fetchHeadersCompleted()) {
             mProxyModel->updateDetails(databaseId, fh->properties());
             StartDownload *newDownload = new StartDownload(databaseId);
-            m_downloads.insert(databaseId, newDownload);
+            mStartDownloadMap.insert(databaseId, newDownload);
             connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
             newDownload->startDownload();
         } else {
             connect(fh, &FetchHeaders::headersFetched, [=]() {
                 mProxyModel->updateDetails(databaseId, fh->properties());
                 StartDownload *newDownload = new StartDownload(databaseId);
-                m_downloads.insert(databaseId, newDownload);
+                mStartDownloadMap.insert(databaseId, newDownload);
                 connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
                 newDownload->startDownload();
             });
@@ -401,10 +390,10 @@ void MainWindow::showDownloadDialog(QString url)
 
 void MainWindow::afterDownloadCompleted(int databaseId)
 {
-    QMap<qint64, StartDownload*>::iterator it = m_downloads.find(databaseId);
-    if (it != m_downloads.end()) {
+    QMap<qint64, StartDownload*>::iterator it = mStartDownloadMap.find(databaseId);
+    if (it != mStartDownloadMap.end()) {
         it.value()->deleteLater();
-        m_downloads.remove(databaseId);
+        mStartDownloadMap.remove(databaseId);
     }
 }
 
@@ -416,7 +405,7 @@ void MainWindow::onFilterTextChanged(QString text)
 
 void MainWindow::saveHeaderState()
 {
-    QByteArray headerViewState = m_downloadView->horizontalHeader()->saveState();
+    QByteArray headerViewState = mDownloadView->horizontalHeader()->saveState();
     // ToDo: save this qbytearray in new table in database.
     // and add restoring function in load settings.
 }

@@ -56,7 +56,7 @@ private:
     QString filename;
     bool isAlreadyStarted;
     DownloadAttributes properties;
-    DownloadModel *m_model;
+    DownloadModel *mDownloadModel;
     void fetchProperties();
     static bool compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j);
 

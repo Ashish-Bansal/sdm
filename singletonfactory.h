@@ -33,14 +33,14 @@ public:
     {
         const QString typeName(typeid(T).name());
 
-        if (!m_instances.contains(typeName)) {
-            m_instances.insert(typeName, static_cast< QObject* >(new T()));
+        if (!mInstances.contains(typeName)) {
+            mInstances.insert(typeName, static_cast< QObject* >(new T()));
         }
 
-        return static_cast< T* >(m_instances.value(typeName));
+        return static_cast< T* >(mInstances.value(typeName));
     }
 private:
-    static QHash< QString, QObject* > m_instances;
+    static QHash< QString, QObject* > mInstances;
 };
 
 #endif // SINGLETONFACTORY_H

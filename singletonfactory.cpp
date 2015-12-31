@@ -20,4 +20,4 @@
 
 #include "singletonfactory.h"
 
-QHash< QString, QObject* > SingletonFactory::m_instances;
+QHash< QString, QObject* > SingletonFactory::mInstances;

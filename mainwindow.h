@@ -29,8 +29,6 @@
 
 #include <QMainWindow>
 #include <QPointer>
-#include <QTreeWidgetItem>
-#include <QThread>
 #include <QList>
 
 class MainWindow : public QMainWindow
@@ -41,21 +39,15 @@ public:
     ~MainWindow();
     void saveSettings();
     void loadSettings();
-    QPair<double, QString> convertUnits(qint64 bytes);
-    void downloadAdded(qint64 id);
-    QTreeWidgetItem* getTreeItem(int id);
     void loadDownloads();
     bool checkResumeSupported(int id);
 
 private:
-    qint64 m_maxId;
     ProxyModel *mProxyModel;
     DownloadModel *mDownloadModel;
-    QPointer<DownloadView> m_downloadView;
-    QMap<qint64, StartDownload*> m_downloads;
-    QThread m_workerThread;
-    QThread m_downloadThread;
-    LocalServer m_localserver;
+    QPointer<DownloadView> mDownloadView;
+    QMap<qint64, StartDownload*> mStartDownloadMap;
+    LocalServer mLocalServer;
 
 private slots:
     void exit();
@@ -69,11 +61,11 @@ private slots:
     void stopDownload(qint64 id);
     void closeEvent(QCloseEvent *event);
     void saveHeaderState();
-    QList< int > getSelectedItemIds();
     void restartDownload(int id);
     void resumeDownload(int id);
     void afterDownloadCompleted(int databaseId);
     void onFilterTextChanged(QString text);
+    QList< int > getSelectedItemIds();
 };
 
 #endif // MAINWINDOW_H

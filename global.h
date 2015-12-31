@@ -24,6 +24,8 @@
 #include <QString>
 #include <QByteArray>
 #include <QMultiMap>
+#include <QString>
+#include <QByteArray>
 #include <QVariant>
 
 namespace SDM

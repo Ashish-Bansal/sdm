@@ -24,12 +24,13 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QDebug>
 
 LocalServer::LocalServer(QObject *parent) :
     QObject(parent)
 {
-    m_webSocketServer = new QWebSocketServer(QStringLiteral("Echo Server"),
-                                             QWebSocketServer::NonSecureMode);
+    mWebSocketServer = new QWebSocketServer(QStringLiteral("Echo Server"),
+                                            QWebSocketServer::NonSecureMode);
     m_port = 33533;
 
 }
@@ -41,29 +42,29 @@ LocalServer::~LocalServer()
 
 void LocalServer::startListening()
 {
-    if (m_webSocketServer->listen(QHostAddress::Any, m_port)) {
+    if (mWebSocketServer->listen(QHostAddress::Any, m_port)) {
 
         qDebug() << "Local Server listening on port :" << m_port;
-        connect(m_webSocketServer, &QWebSocketServer::newConnection,
+        connect(mWebSocketServer, &QWebSocketServer::newConnection,
                 this, &LocalServer::clientConnected);
     }
 }
 
 void LocalServer::stopServer()
 {
-    m_webSocketServer->close();
-    qDeleteAll(m_clients.begin(), m_clients.end());
+    mWebSocketServer->close();
+    qDeleteAll(mClients.begin(), mClients.end());
 }
 
 void LocalServer::clientConnected()
 {
     qDebug() << "Client Connected";
-    QWebSocket *socket = m_webSocketServer->nextPendingConnection();
+    QWebSocket *socket = mWebSocketServer->nextPendingConnection();
 
     connect(socket, &QWebSocket::textMessageReceived, this, &LocalServer::processTextMessage);
     connect(socket, &QWebSocket::disconnected, this, &LocalServer::socketDisconnected);
 
-    m_clients << socket;
+    mClients << socket;
 }
 
 void LocalServer::processTextMessage(QString data)
@@ -83,7 +84,7 @@ void LocalServer::socketDisconnected()
 
     qDebug() << "socketDisconnected:" << socket;
     if (socket) {
-        m_clients.removeAll(socket);
+        mClients.removeAll(socket);
         socket->deleteLater();
     }
 }

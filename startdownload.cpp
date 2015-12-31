@@ -28,8 +28,8 @@
 
 StartDownload::StartDownload(int id) : id(id)
 {
-    m_model = SingletonFactory::instanceFor< DownloadModel >();
-    const DownloadAttributes *prop = m_model->getDetails(id);
+    mDownloadModel = SingletonFactory::instanceFor< DownloadModel >();
+    const DownloadAttributes *prop = mDownloadModel->getDetails(id);
     Q_ASSERT(prop != nullptr);
     properties = DownloadAttributes(prop);
     filename = properties.filename;
@@ -91,9 +91,9 @@ void StartDownload::startDownload()
         }
         b = SDM::writeToByteArray(savedFilesMeta + newFilesMeta);
         properties.tempFileNames = b;
-        m_model->updateDetails(properties);
+        mDownloadModel->updateDetails(properties);
         for (auto g = dwldip.begin(); g != dwldip.end(); g++) {
-                (*g)->start();
+            (*g)->start();
         }
     } else {
         if (resumeSupported) {
@@ -120,7 +120,7 @@ void StartDownload::startDownload()
 
             QByteArray b = SDM::writeToByteArray(tempFilesMeta);
             properties.tempFileNames = b;
-            m_model->updateDetails(properties);
+            mDownloadModel->updateDetails(properties);
             for (i = dwldip.begin(); i != dwldip.end(); i++) {
                 (*i)->start();
             }
@@ -132,10 +132,10 @@ void StartDownload::startDownload()
             dwldaw->start();
         }
         properties.started = true;
-        m_model->updateDetails(properties);
+        mDownloadModel->updateDetails(properties);
     }
     properties.status = Enum::Status::Downloading;
-    m_model->updateDetails(properties);
+    mDownloadModel->updateDetails(properties);
 }
 
 void StartDownload::updateDatabase(QHash<int, QVariant> details)
@@ -144,7 +144,7 @@ void StartDownload::updateDatabase(QHash<int, QVariant> details)
     totalBytesDownloaded += details.value(Enum::DownloadBackend::BytesDownloaded).toLongLong();
     properties.transferRate = details.value(Enum::DownloadBackend::TransferRate).toLongLong();
     properties.bytesDownloaded = totalBytesDownloaded;
-    m_model->updateDetails(properties);
+    mDownloadModel->updateDetails(properties);
 }
 
 bool StartDownload::compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j)
@@ -174,7 +174,7 @@ void StartDownload::writeToFileInParts()
     }
 
     properties.status = Enum::Status::Merging;
-    m_model->updateDetails(properties);
+    mDownloadModel->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
     if (!file.open(QIODevice::WriteOnly)) {
@@ -207,7 +207,7 @@ void StartDownload::writeToFileInParts()
     qDebug() << "Write Complete In Parts";
 
     properties.status = Enum::Status::Completed;
-    m_model->updateDetails(properties);
+    mDownloadModel->updateDetails(properties);
 
     b = properties.tempFileNames;
     qDebug() << SDM::readByteArray(b);
@@ -217,10 +217,10 @@ void StartDownload::writeToFileAsWhole()
 {
     fetchProperties();
     properties.status = Enum::Status::Merging;
-    m_model->updateDetails(properties);
+    mDownloadModel->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
-    if(!file.open(QIODevice::WriteOnly)){
+    if(!file.open(QIODevice::WriteOnly)) {
         qDebug() << "Unable to open file, So opening randomfile";
         file.setFileName(QDir::homePath() + "/sdm/" + "filename" + QString::number(qrand()));
         file.open(QIODevice::WriteOnly);
@@ -232,7 +232,7 @@ void StartDownload::writeToFileAsWhole()
 
     properties.status = Enum::Status::Completed;
     properties.transferRate = 0;
-    m_model->updateDetails(properties);
+    mDownloadModel->updateDetails(properties);
 
     qDebug() << "Write Complete As Whole";
     cleanUp();
@@ -261,7 +261,7 @@ void StartDownload::cleanUp()
 
 void StartDownload::fetchProperties()
 {
-    properties = DownloadAttributes(m_model->getDetails(id));
+    properties = DownloadAttributes(mDownloadModel->getDetails(id));
 }
 
 void StartDownload::stopDownload()

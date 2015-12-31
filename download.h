@@ -26,10 +26,10 @@
 #include "downloadattributes.h"
 
 #include <QObject>
+#include <QNetworkRequest>
+#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QString>
-#include <QFile>
-#include <QElapsedTimer>
 #include <QTemporaryFile>
 
 class Download : public QObject
@@ -55,15 +55,15 @@ signals:
     void updateGui(QHash<int, QVariant> details);
 
 private:
-    QNetworkAccessManager *m_qnam;
-    QNetworkRequest *m_req;
-    QNetworkReply *m_downloadReply;
-    DownloadModel *m_model;
-    DownloadAttributes m_properties;
+    QNetworkAccessManager *mNetworkAccessManager;
+    QNetworkRequest *mNetworkRequest;
+    QNetworkReply *mNetworkReply;
+    DownloadModel *mDownloadModel;
+    DownloadAttributes mDownloadProperties;
     QUrl *m_url;
     void update();
     void updateDetails();
-    qint64 m_timeInterval;
+    qint64 mTimeInterval;
 
 private slots:
     void downloadFinished();

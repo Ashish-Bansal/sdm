@@ -21,9 +21,10 @@
 #ifndef LOCALSERVER_H
 #define LOCALSERVER_H
 
+#include <QObject>
 #include <QWebSocket>
 #include <QWebSocketServer>
-#include <QObject>
+#include <QList>
 
 class LocalServer : public QObject
 {
@@ -44,8 +45,8 @@ private Q_SLOTS:
 
 private:
     int m_port;
-    QWebSocketServer *m_webSocketServer;
-    QList<QWebSocket *> m_clients;
+    QWebSocketServer *mWebSocketServer;
+    QList<QWebSocket *> mClients;
 };
 
 #endif // LOCALSERVER_H
