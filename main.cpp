@@ -28,6 +28,11 @@ int main(int argc, char *argv[])
     SingleInstance a(argc, argv);
     MainWindow *w = new MainWindow();
     w->show();
-    QObject::connect(&a, &SingleInstance::showMainWindow, w, &QMainWindow::show);
+    QObject::connect(&a, &SingleInstance::showMainWindow, [=]() {
+        w->show();
+        w->activateWindow();
+        w->raise();
+    });
+
     return a.exec();
 }
