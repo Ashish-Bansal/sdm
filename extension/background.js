@@ -44,6 +44,7 @@ var map = (function() {
 })();
 
 var requests = new map();
+var videoUrls = new map();
 
 var url = "ws://127.0.0.1:33533";
 var socket = new WebSocket(url);
@@ -55,6 +56,25 @@ socket.onopen = function() {
 socket.onerror = function (error) {
     console.error('Web Socket error');
 };
+
+function removeURLParameters(url, parameters) {
+    parameters.forEach(function(parameter) {
+        var urlparts = url.split('?');
+        if (urlparts.length >= 2) {
+            var prefix = encodeURIComponent(parameter) + '=';
+            var pars = urlparts[1].split(/[&;]/g);
+
+            for (var i = pars.length; i-- > 0;) {
+                if (pars[i].lastIndexOf(prefix, 0) !== -1) {
+                    pars.splice(i, 1);
+                }
+            }
+
+            url = urlparts[0] + '?' + pars.join('&');
+        }
+    });
+    return url;
+}
 
 chrome.webRequest.onSendHeaders.addListener(
     function(details) {
@@ -94,6 +114,9 @@ chrome.webRequest.onHeadersReceived.addListener(
 
         if (contentType.indexOf("video") > -1) {
             console.log(details.url);
+            var parametersToBeRemoved = ['range', 'rn', 'rbuf'];
+            var url = removeURLParameters(details.url, parametersToBeRemoved);
+            videoUrls.insert(details.tabId, url);
             //ToDo: Add an option to download that file.
         }
 
