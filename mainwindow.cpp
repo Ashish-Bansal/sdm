@@ -126,6 +126,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&m_localserver, &LocalServer::downloadRequested, this, &MainWindow::showDownloadDialog);
 
     connect(ledit, &QLineEdit::textChanged, this, &MainWindow::onFilterTextChanged);
+    ledit->setClearButtonEnabled(true);
 
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
     m_localserver.startListening();
