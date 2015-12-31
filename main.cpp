@@ -28,5 +28,6 @@ int main(int argc, char *argv[])
     SingleInstance a(argc, argv);
     MainWindow *w = new MainWindow();
     w->show();
+    QObject::connect(&a, &SingleInstance::showMainWindow, w, &QMainWindow::show);
     return a.exec();
 }

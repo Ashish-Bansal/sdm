@@ -33,6 +33,9 @@ public:
     ~SingleInstance();
     void stopServer();
 
+signals:
+    void showMainWindow();
+
 private Q_SLOTS:
     void clientConnected();
     void socketDisconnected();

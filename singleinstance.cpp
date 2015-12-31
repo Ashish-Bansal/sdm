@@ -59,9 +59,10 @@ void SingleInstance::stopServer()
 void SingleInstance::clientConnected()
 {
     qDebug() << "Client Connected";
+    emit showMainWindow();
+
     QLocalSocket *socket = mLocalServer->nextPendingConnection();
 
-    //Todo: Show main Window
     connect(socket, &QLocalSocket::disconnected, this, &SingleInstance::socketDisconnected);
 }
 
