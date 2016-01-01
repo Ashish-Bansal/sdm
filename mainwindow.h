@@ -26,6 +26,7 @@
 #include "proxymodel.h"
 #include "downloadview.h"
 #include "localserver.h"
+#include "updater.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -48,6 +49,7 @@ private:
     QPointer<DownloadView> mDownloadView;
     QMap<qint64, StartDownload*> mStartDownloadMap;
     LocalServer mLocalServer;
+    Updater updater;
 
 private slots:
     void exit();

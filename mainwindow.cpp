@@ -36,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     qInstallMessageHandler(Debug::debugStyle);
-//    Updater *up = new Updater(this);
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         qDebug() << "SystemTrayAvailable";
         QSystemTrayIcon *trayIcon = new QSystemTrayIcon(QIcon(":icons/download-icon.png"), this);
@@ -51,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
         connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
         trayIcon->showMessage("SDM", "SDM has been started", QSystemTrayIcon::Information, 1 * 1000);
     }
+
     mProxyModel = SingletonFactory::instanceFor<ProxyModel>();
     mDownloadModel = SingletonFactory::instanceFor<DownloadModel>();
     mProxyModel->setSourceModel(mDownloadModel);
