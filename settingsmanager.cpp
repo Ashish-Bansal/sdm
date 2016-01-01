@@ -65,4 +65,5 @@ void SettingsManager::setValue(int type, QString key, QString value)
         default:
             mSettings->setValue(key, value);
     };
+    mSettings->sync();
 }
