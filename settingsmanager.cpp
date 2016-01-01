@@ -70,7 +70,7 @@ QVariant SettingsManager::getValue(int type, QString key)
     };
 }
 
-void SettingsManager::setValue(int type, QString key, QString value)
+void SettingsManager::setValue(int type, QString key, QVariant value)
 {
     switch(type) {
         case Enum::SettingType::General :
