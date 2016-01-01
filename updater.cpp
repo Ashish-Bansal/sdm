@@ -45,8 +45,10 @@ void Updater::processReply(QNetworkReply *reply)
     QJsonDocument loadDoc(QJsonDocument::fromJson(data));
     QJsonObject obj = loadDoc.object();
     QString applicationVersion = obj["version"].toString();
-    qDebug() << "Application version :" << applicationVersion;
-    if (QApplication::applicationVersion() != applicationVersion) {
+    QString installedApplicationVersion = QApplication::applicationVersion();
+    qDebug() << "Latest Application version :" << applicationVersion;
+    qDebug() << "Current Application version :" << installedApplicationVersion;
+    if (installedApplicationVersion != applicationVersion) {
         //ToDo: Show a dialog box to download latest binary.
     }
 }
