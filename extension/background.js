@@ -47,15 +47,14 @@ var requests = new map();
 var videoRequests = new map();
 
 var url = "ws://127.0.0.1:33533";
+
 var socket = new WebSocket(url);
 
-socket.onopen = function() {
-    console.log('Web Socket open');
-};
-
-socket.onerror = function (error) {
-    console.error('Web Socket error');
-};
+setInterval(function() {
+    if (socket.readyState != 1) {
+        socket = new WebSocket(url);
+    }
+}, 3000);
 
 function removeURLParameters(url, parameters) {
     parameters.forEach(function(parameter) {
