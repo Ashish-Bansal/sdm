@@ -354,6 +354,7 @@ void MainWindow::showDownloadDialog(QString url)
     infoDialog->setWindowTitle("Add Download");
     infoDialog->setModal(true);
     infoDialog->setUrl(url);
+    infoDialog->setWindowFlags(Qt::Window);
     FetchHeaders *fh = new FetchHeaders(url);
 
     connect(fh, &FetchHeaders::headersFetched, [=]() {
