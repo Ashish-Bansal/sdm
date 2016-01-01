@@ -22,11 +22,12 @@
 #include <GL/gl.h>
 #include "enum.h"
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDebug>
 
 SettingsManager::SettingsManager(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    mFirstRun(false)
 {
     QCoreApplication::setOrganizationName("SDM");
     QCoreApplication::setOrganizationDomain("ashish-bansal.in");
@@ -37,7 +38,22 @@ SettingsManager::SettingsManager(QObject *parent) :
         return;
     }
 
-    mSettings->value("first_run");
+    // Application version has been used to check first run
+    if (getValue(Enum::SettingType::General, QApplication::applicationVersion()) == QString()) {
+        setValue(Enum::SettingType::General, QApplication::applicationVersion(), false);
+        mFirstRun = true;
+        firstRunDetected();
+    }
+}
+
+bool SettingsManager::isFirstRun()
+{
+    return mFirstRun;
+}
+
+void SettingsManager::firstRunDetected()
+{
+    //ToDo: First run, Show changelog to user.
 }
 
 QVariant SettingsManager::getValue(int type, QString key)

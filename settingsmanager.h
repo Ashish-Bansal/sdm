@@ -32,9 +32,13 @@ public:
     explicit SettingsManager(QObject *parent = 0);
     void setValue(int type, QString key, QString value);
     QVariant getValue(int type, QString key);
+    bool isFirstRun();
 
 private:
     QSettings *mSettings;
+    bool mFirstRun;
+
+    void firstRunDetected();
 };
 
 #endif // SETTINGSMANAGER_H
