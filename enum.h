@@ -70,6 +70,13 @@ namespace Enum {
             END
         };
     }
+
+    namespace SettingType {
+        enum SettingType {
+            General = 0,
+            END
+        };
+    }
 }
 
 #endif // ENUM_H
