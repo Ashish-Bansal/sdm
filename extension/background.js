@@ -123,8 +123,8 @@ chrome.webRequest.onHeadersReceived.addListener(
     ["blocking", "responseHeaders"]
 );
 
-chrome.tabs.onActivated.addListener(function(tab) {
-    if (videoRequests.contains(tab.tabId)) {
+function updateIcon(tabId) {
+    if (videoRequests.contains(tabId)) {
         chrome.browserAction.setIcon({
             path : {
                 38 : "img/videoAvailable128.png"
@@ -137,7 +137,13 @@ chrome.tabs.onActivated.addListener(function(tab) {
             }
         });
     }
+}
+
+chrome.tabs.onActivated.addListener(function(tab) {
+    updateIcon(tab.tabId);
 });
+
+chrome.tabs.onUpdated.addListener(updateIcon);
 
 chrome.browserAction.onClicked.addListener(function(tab) {
     if (videoRequests.contains(tab.id)) {
