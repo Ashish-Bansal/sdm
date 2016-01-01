@@ -352,9 +352,9 @@ void MainWindow::showDownloadDialog(QString url)
 
     QPointer<DownloadInfoDialog> infoDialog = QPointer<DownloadInfoDialog>(new DownloadInfoDialog());
     infoDialog->setWindowTitle("Add Download");
-    infoDialog->setModal(true);
+    infoDialog->setModal(false);
     infoDialog->setUrl(url);
-    infoDialog->setWindowFlags(Qt::Window);
+    infoDialog->setWindowFlags(Qt::SubWindow);
     FetchHeaders *fh = new FetchHeaders(url);
 
     connect(fh, &FetchHeaders::headersFetched, [=]() {
@@ -384,9 +384,9 @@ void MainWindow::showDownloadDialog(QString url)
                 newDownload->startDownload();
             });
         }
+        infoDialog->deleteLater();
     });
-    infoDialog->exec();
-    infoDialog->deleteLater();
+    infoDialog->show();
 }
 
 void MainWindow::afterDownloadCompleted(int databaseId)
