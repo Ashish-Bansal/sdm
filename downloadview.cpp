@@ -49,4 +49,5 @@ void DownloadView::loadViewSettings()
     horizontalHeader()->setHighlightSections(false);
     horizontalHeader()->setDefaultAlignment(Qt::AlignJustify);
     horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    sortByColumn(Enum::DownloadAttributes::RowId, Qt::SortOrder::AscendingOrder);
 }
