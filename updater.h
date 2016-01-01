@@ -29,10 +29,12 @@ class Updater : public QObject
     Q_OBJECT
 
 public:
-    explicit Updater(QWidget *parent = 0);
-    ~Updater();
-    void replyFinished(QNetworkReply *reply);
+    explicit Updater(QObject *parent = 0);
+    void processReply(QNetworkReply *reply);
 
+private:
+    QNetworkAccessManager *mNetworkAccessManager;
+    QUrl mUpdateUrl;
 };
 
 #endif // UPDATER_H

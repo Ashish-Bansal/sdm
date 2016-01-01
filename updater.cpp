@@ -27,27 +27,26 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
+#include <QApplication>
 
-Updater::Updater(QWidget *parent)
+Updater::Updater(QObject *parent) :
+    QObject(parent),
+    mUpdateUrl("https://raw.githubusercontent.com/Ashish-Bansal/sdm/master/release")
 {
-    QNetworkAccessManager *qnam = new QNetworkAccessManager(this);
-    connect(qnam, &QNetworkAccessManager::finished, this, &Updater::replyFinished);
-
-    QString rawUrl = "https://raw.githubusercontent.com/Ashish-Bansal/sdm/master/release";
-    QUrl url(rawUrl);
-
-    qnam->get(QNetworkRequest(url));
+    mNetworkAccessManager = new QNetworkAccessManager(this);
+    connect(mNetworkAccessManager, &QNetworkAccessManager::finished,
+            this, &Updater::processReply);
+    mNetworkAccessManager->get(QNetworkRequest(mUpdateUrl));
 }
 
-void Updater::replyFinished(QNetworkReply *reply)
+void Updater::processReply(QNetworkReply *reply)
 {
     QByteArray data = reply->readAll();
     QJsonDocument loadDoc(QJsonDocument::fromJson(data));
     QJsonObject obj = loadDoc.object();
-    qDebug() << obj["version"].toString();
-}
-
-Updater::~Updater()
-{
-    qDebug() << "Updater destructor called";
+    QString applicationVersion = obj["version"].toString();
+    qDebug() << "Application version :" << applicationVersion;
+    if (QApplication::applicationVersion() != applicationVersion) {
+        //ToDo: Show a dialog box to download latest binary.
+    }
 }
