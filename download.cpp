@@ -90,20 +90,25 @@ void Download::updateDetails()
 void Download::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
     char buffer[4098];
-    qint64 bytesToBeWritten = bytesReceived > 4098 ? 4098 : bytesReceived;
-    int readStatus = mNetworkReply->read(buffer, bytesToBeWritten);
-    if (readStatus == -1) {
-        qDebug() << "Reading from device failed!";
-        return;
+    int bytesLeft = bytesReceived - bytesDownloaded;
+    while(bytesLeft > 0) {
+        qint64 bytesToBeWritten = bytesLeft > 4098 ? 4098 : bytesLeft;
+        int readStatus = mNetworkReply->read(buffer, bytesToBeWritten);
+        if (readStatus == -1) {
+            qDebug() << "Reading from device failed!";
+            continue;
+        }
+
+        int writeResult = tempFile->write(buffer, bytesToBeWritten);
+
+        Q_ASSERT(writeResult != -1);
+
+        bool flushResult = tempFile->flush();
+        Q_ASSERT(flushResult);
+        bytesLeft -= bytesToBeWritten;
+        bytesDownloaded += bytesToBeWritten;
     }
 
-    int writeResult = tempFile->write(buffer, bytesToBeWritten);
-
-    Q_ASSERT(writeResult != -1);
-
-    bool flushResult = tempFile->flush();
-    Q_ASSERT(flushResult);
-    bytesDownloaded = bytesReceived;
     update();
 }
 
