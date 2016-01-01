@@ -19,7 +19,6 @@
  */
 
 #include "settingsmanager.h"
-#include <GL/gl.h>
 #include "enum.h"
 
 #include <QApplication>
