@@ -123,19 +123,17 @@ chrome.webRequest.onHeadersReceived.addListener(
     ["blocking", "responseHeaders"]
 );
 
-chrome.tabs.onActivated.addListener(function(tabId) {
-    if (videoRequests.contains(tabId) {
+chrome.tabs.onActivated.addListener(function(tab) {
+    if (videoRequests.contains(tab.tabId)) {
         chrome.browserAction.setIcon({
             path : {
-                19 : "img/videoAvailable19.png",
-                38 : "img/videoAvailable38.png",
+                38 : "img/videoAvailable128.png"
             }
         });
     } else {
         chrome.browserAction.setIcon({
             path : {
-                19 : "img/icon19.png",
-                38 : "img/icon38.png",
+                38 : "img/icon128.png",
             }
         });
     }
