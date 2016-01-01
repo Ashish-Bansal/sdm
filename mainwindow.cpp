@@ -456,44 +456,8 @@ void MainWindow::about()
 
 void MainWindow::saveSettings()
 {
-//     Prepare and reset the settings
-//     QSettings settings("dm", "settings");
-//     settings.clear();
-//
-//     settings.setValue("maxId", m_maxId);
-//
-//     settings.beginWriteArray("Downloads");
-//     for (int i = 0; i < jobs.size(); ++i) {
-//         settings.setArrayIndex(i);
-//         settings.setValue("filename", jobs.at(i).filename);
-//         settings.setValue("url", jobs.at(i).url);
-//         settings.setValue("id", jobs.at(i).id);
-//        settings.setValue("downloadedBytes", jobs.at(i)());
-//        settings.setValue("size", jobs.at(i).client->downloadedBytes());
-//        settings.setValue("resumeCapability", jobs.at(i).client->dumpedState());
-//     }
-//     settings.endArray();
-//     settings.sync();
 }
 
 void MainWindow::loadSettings()
 {
-//     Prepare and reset the settings
-//     QSettings settings("dm", "settings");
-//     settings.clear();
-//
-//     settings.setValue("maxId", m_maxId);
-//
-//     settings.beginWriteArray("Downloads");
-//     for (int i = 0; i < jobs.size(); ++i) {
-//         settings.setArrayIndex(i);
-//         settings.setValue("filename", jobs.at(i).filename);
-//         settings.setValue("url", jobs.at(i).url);
-//         settings.setValue("id", jobs.at(i).id);
-//        settings.setValue("downloadedBytes", jobs.at(i)());
-//        settings.setValue("size", jobs.at(i).client->downloadedBytes());
-//        settings.setValue("resumeCapability", jobs.at(i).client->dumpedState());
-//     }
-//     settings.endArray();
-//     settings.sync();
 }
