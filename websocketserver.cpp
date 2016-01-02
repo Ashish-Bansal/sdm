@@ -69,8 +69,6 @@ void WebSocketServer::clientConnected()
 
 void WebSocketServer::processTextMessage(QString data)
 {
-    QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
-
     QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8());
     QString url = doc.object().take("url").toString();
     if (url != "") {
