@@ -36,8 +36,8 @@ make -j4
 
 **Usage**
 
-Once it builds successfully, an executable will be created in `build` directory. You can just launch it to open up the Download Manager 
-By default, it downloads files in `$HOME/sdm` and stores all the downloads in the sqlite database in the `build` directory.
+Once it builds successfully, an executable will be created in `build` directory. You can just launch it to open up the Download Manager.
+Temporary files are created in the build folder itself and when the download finishes, files are merged and moved to `$HOME/sdm`. Metadata about the downloads is stored in the sqlite database in the `build` directory.
 
 
 **Note**
