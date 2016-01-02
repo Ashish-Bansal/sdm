@@ -28,9 +28,9 @@ SettingsManager::SettingsManager(QObject *parent) :
     QObject(parent),
     mFirstRun(false)
 {
-    QCoreApplication::setOrganizationName("SDM");
-    QCoreApplication::setOrganizationDomain("ashish-bansal.in");
-    QCoreApplication::setApplicationName("SDM");
+    QApplication::setOrganizationName("SDM");
+    QApplication::setOrganizationDomain("ashish-bansal.in");
+    QApplication::setApplicationName("SDM");
     mSettings = new QSettings();
     if (mSettings->status() != QSettings::NoError) {
         qDebug() << "Error opening settings file :" << mSettings->fileName();
