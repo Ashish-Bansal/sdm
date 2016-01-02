@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "localserver.h"
+#include "websocketserver.h"
 #include "downloadinfodialog.h"
 
 #include <QJsonDocument>
@@ -26,7 +26,7 @@
 #include <QJsonObject>
 #include <QDebug>
 
-LocalServer::LocalServer(QObject *parent) :
+WebSocketServer::WebSocketServer(QObject *parent) :
     QObject(parent)
 {
     mWebSocketServer = new QWebSocketServer(QStringLiteral("Echo Server"),
@@ -35,39 +35,39 @@ LocalServer::LocalServer(QObject *parent) :
 
 }
 
-LocalServer::~LocalServer()
+WebSocketServer::~WebSocketServer()
 {
     stopServer();
 }
 
-void LocalServer::startListening()
+void WebSocketServer::startListening()
 {
     if (mWebSocketServer->listen(QHostAddress::Any, m_port)) {
 
         qDebug() << "Local Server listening on port :" << m_port;
         connect(mWebSocketServer, &QWebSocketServer::newConnection,
-                this, &LocalServer::clientConnected);
+                this, &WebSocketServer::clientConnected);
     }
 }
 
-void LocalServer::stopServer()
+void WebSocketServer::stopServer()
 {
     mWebSocketServer->close();
     qDeleteAll(mClients.begin(), mClients.end());
 }
 
-void LocalServer::clientConnected()
+void WebSocketServer::clientConnected()
 {
     qDebug() << "Client Connected";
     QWebSocket *socket = mWebSocketServer->nextPendingConnection();
 
-    connect(socket, &QWebSocket::textMessageReceived, this, &LocalServer::processTextMessage);
-    connect(socket, &QWebSocket::disconnected, this, &LocalServer::socketDisconnected);
+    connect(socket, &QWebSocket::textMessageReceived, this, &WebSocketServer::processTextMessage);
+    connect(socket, &QWebSocket::disconnected, this, &WebSocketServer::socketDisconnected);
 
     mClients << socket;
 }
 
-void LocalServer::processTextMessage(QString data)
+void WebSocketServer::processTextMessage(QString data)
 {
     QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
 
@@ -78,7 +78,7 @@ void LocalServer::processTextMessage(QString data)
     }
 }
 
-void LocalServer::socketDisconnected()
+void WebSocketServer::socketDisconnected()
 {
     QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
 

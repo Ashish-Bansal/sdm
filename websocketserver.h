@@ -18,20 +18,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef LOCALSERVER_H
-#define LOCALSERVER_H
+#ifndef WEBSOCKETSERVER_H
+#define WEBSOCKETSERVER_H
 
 #include <QObject>
 #include <QWebSocket>
 #include <QWebSocketServer>
 #include <QList>
 
-class LocalServer : public QObject
+class WebSocketServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit LocalServer(QObject *parent = 0);
-    ~LocalServer();
+    explicit WebSocketServer(QObject *parent = 0);
+    ~WebSocketServer();
     void startListening();
     void stopServer();
 
@@ -49,4 +49,4 @@ private:
     QList<QWebSocket *> mClients;
 };
 
-#endif // LOCALSERVER_H
+#endif // WEBSOCKETSERVER_H

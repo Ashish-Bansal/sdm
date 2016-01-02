@@ -110,13 +110,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(stopDownload, &QAction::triggered, this, &MainWindow::onActionStopTriggered);
     connect(removeDownload, &QAction::triggered, this, &MainWindow::onActionRemoveTriggered);
 
-    connect(&mLocalServer, &LocalServer::downloadRequested, this, &MainWindow::showDownloadDialog);
+    connect(&mWebSocketServer, &WebSocketServer::downloadRequested, this, &MainWindow::showDownloadDialog);
 
     connect(ledit, &QLineEdit::textChanged, this, &MainWindow::onFilterTextChanged);
     ledit->setClearButtonEnabled(true);
 
     QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
-    mLocalServer.startListening();
+    mWebSocketServer.startListening();
 }
 
 MainWindow::~MainWindow()

@@ -25,7 +25,7 @@
 #include "downloadmodel.h"
 #include "proxymodel.h"
 #include "downloadview.h"
-#include "localserver.h"
+#include "websocketserver.h"
 #include "updater.h"
 
 #include <QMainWindow>
@@ -48,7 +48,7 @@ private:
     DownloadModel *mDownloadModel;
     QPointer<DownloadView> mDownloadView;
     QMap<qint64, StartDownload*> mStartDownloadMap;
-    LocalServer mLocalServer;
+    WebSocketServer mWebSocketServer;
     Updater updater;
 
 private slots:
