@@ -18,7 +18,7 @@ set (downloadManager_SRCS
         downloadinfodialog.cpp
         databasemanager.cpp
         websocketserver.cpp
-        startdownload.cpp
+        downloadprocessor.cpp
         singletonfactory.cpp
         updater.cpp
         debug.cpp

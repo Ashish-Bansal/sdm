@@ -287,7 +287,7 @@ int DownloadModel::restartDownload(qint64 id)
         return Enum::SDM::Failed;
     }
 
-    StartDownload download(id);
+    DownloadProcessor download(id);
     download.cleanUp();
 
     prop->bytesDownloaded = 0;
@@ -306,7 +306,7 @@ void DownloadModel::removeDownload(qint64 id)
         qDebug() << "ID not found";
     }
 
-    StartDownload download(id);
+    DownloadProcessor download(id);
     download.cleanUp();
     QtConcurrent::run(m_dbManager, &DatabaseManager::removeDownload, id);
     emit downloadRemoved(id);

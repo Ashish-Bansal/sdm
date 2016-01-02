@@ -20,13 +20,13 @@
 
 #include "enum.h"
 #include "global.h"
-#include "startdownload.h"
+#include "downloadprocessor.h"
 #include "singletonfactory.h"
 #include "downloadattributes.h"
 
 #include <QDir>
 
-StartDownload::StartDownload(int id) : id(id)
+DownloadProcessor::DownloadProcessor(int id) : id(id)
 {
     mDownloadModel = SingletonFactory::instanceFor< DownloadModel >();
     const DownloadAttributes *prop = mDownloadModel->getDetails(id);
@@ -41,7 +41,7 @@ StartDownload::StartDownload(int id) : id(id)
     totalBytesDownloaded = 0;
 }
 
-void StartDownload::startDownload()
+void DownloadProcessor::startDownload()
 {
     if (isAlreadyStarted) {
         QByteArray b = properties.tempFileNames;
@@ -86,8 +86,8 @@ void StartDownload::startDownload()
             savedFilesMeta.replace(i.key(), changedDownloadMeta);
             newFilesMeta.insert(y, newDownloadMeta);
 
-            connect(download, &Download::downloadComplete, this, &StartDownload::writeToFileInParts);
-            connect(download, &Download::updateGui, this, &StartDownload::updateDatabase);
+            connect(download, &Download::downloadComplete, this, &DownloadProcessor::writeToFileInParts);
+            connect(download, &Download::updateGui, this, &DownloadProcessor::updateDatabase);
         }
         b = SDM::writeToByteArray(savedFilesMeta + newFilesMeta);
         properties.tempFileNames = b;
@@ -108,8 +108,8 @@ void StartDownload::startDownload()
             QMultiMap<double, QMultiMap<qint8, QVariant>> tempFilesMeta;
             int counter = 0;
             for (i = dwldip.begin(); i != dwldip.end(); i++, counter++) {
-                connect(*i, &Download::downloadComplete, this, &StartDownload::writeToFileInParts);
-                connect(*i, &Download::updateGui, this, &StartDownload::updateDatabase);
+                connect(*i, &Download::downloadComplete, this, &DownloadProcessor::writeToFileInParts);
+                connect(*i, &Download::updateGui, this, &DownloadProcessor::updateDatabase);
                 QMultiMap<qint8, QVariant> newDownloadMeta;
                 newDownloadMeta.insert(0, (*i)->rangeStart);
                 newDownloadMeta.insert(1, 0);
@@ -127,8 +127,8 @@ void StartDownload::startDownload()
         } else {
             qDebug() << "Downloading In parts *NOT* supported";
             dwldaw = new Download(id, url, 0, -1);
-            connect(dwldaw, &Download::downloadComplete, this, &StartDownload::writeToFileAsWhole);
-            connect(dwldaw, &Download::updateGui, this, &StartDownload::updateDatabase);
+            connect(dwldaw, &Download::downloadComplete, this, &DownloadProcessor::writeToFileAsWhole);
+            connect(dwldaw, &Download::updateGui, this, &DownloadProcessor::updateDatabase);
             dwldaw->start();
         }
         properties.started = true;
@@ -138,7 +138,7 @@ void StartDownload::startDownload()
     mDownloadModel->updateDetails(properties);
 }
 
-void StartDownload::updateDatabase(QHash<int, QVariant> details)
+void DownloadProcessor::updateDatabase(QHash<int, QVariant> details)
 {
     fetchProperties();
     totalBytesDownloaded += details.value(Enum::DownloadBackend::BytesDownloaded).toLongLong();
@@ -147,12 +147,12 @@ void StartDownload::updateDatabase(QHash<int, QVariant> details)
     mDownloadModel->updateDetails(properties);
 }
 
-bool StartDownload::compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j)
+bool DownloadProcessor::compareList(QPair<double, QPair<qint64, QString>> i, QPair<double, QPair<qint64, QString>> j)
 {
     return i.first < j.first;
 }
 
-void StartDownload::writeToFileInParts()
+void DownloadProcessor::writeToFileInParts()
 {
     fetchProperties();
     QByteArray b = properties.tempFileNames;
@@ -213,7 +213,7 @@ void StartDownload::writeToFileInParts()
     qDebug() << SDM::readByteArray(b);
 }
 
-void StartDownload::writeToFileAsWhole()
+void DownloadProcessor::writeToFileAsWhole()
 {
     fetchProperties();
     properties.status = Enum::Status::Merging;
@@ -239,7 +239,7 @@ void StartDownload::writeToFileAsWhole()
     emit downloadComplete(id);
 }
 
-void StartDownload::cleanUp()
+void DownloadProcessor::cleanUp()
 {
     if (resumeSupported == true) {
         auto m = SDM::readByteArray(properties.tempFileNames);
@@ -259,12 +259,12 @@ void StartDownload::cleanUp()
     }
 }
 
-void StartDownload::fetchProperties()
+void DownloadProcessor::fetchProperties()
 {
     properties = DownloadAttributes(mDownloadModel->getDetails(id));
 }
 
-void StartDownload::stopDownload()
+void DownloadProcessor::stopDownload()
 {
     if (resumeSupported) {
         QList<Download*>::Iterator it;

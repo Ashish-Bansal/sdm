@@ -18,8 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef STARTDOWNLOAD_H
-#define STARTDOWNLOAD_H
+#ifndef DOWNLOADPROCESSOR_H
+#define DOWNLOADPROCESSOR_H
 
 #include "download.h"
 #include "downloadmodel.h"
@@ -29,11 +29,11 @@
 #include <QHash>
 #include <QVariant>
 
-class StartDownload : public QObject
+class DownloadProcessor : public QObject
 {
     Q_OBJECT
 public:
-    StartDownload(int id);
+    DownloadProcessor(int id);
     void cleanUp();
     void updateDatabase(QHash<int, QVariant> details);
     void startDownload();
@@ -65,4 +65,4 @@ private slots:
     void writeToFileAsWhole();
 };
 
-#endif // STARTDOWNLOAD_H
+#endif // DOWNLOADPROCESSOR_H

@@ -21,7 +21,7 @@
 #include "mainwindow.h"
 #include "adddialog.h"
 #include "downloadinfodialog.h"
-#include "startdownload.h"
+#include "downloadprocessor.h"
 #include "singletonfactory.h"
 #include "updater.h"
 #include "debug.h"
@@ -184,9 +184,9 @@ void MainWindow::onActionResumeTriggered()
 
     if (resumeNotSupportedCount == 0) {
         foreach(int id, ids) {
-            StartDownload *newDownload = new StartDownload(id);
-            mStartDownloadMap.insert(id, newDownload);
-            newDownload->startDownload();
+            DownloadProcessor *downloadProcessor = new DownloadProcessor(id);
+            mDownloadProcessorMap.insert(id, downloadProcessor);
+            downloadProcessor->startDownload();
         }
     } else {
         QMessageBox::StandardButton ans;
@@ -214,8 +214,8 @@ void MainWindow::onActionResumeTriggered()
 
 void MainWindow::resumeDownload(int id)
 {
-    auto it = mStartDownloadMap.find(id);
-    if (it != mStartDownloadMap.end()) {
+    auto it = mDownloadProcessorMap.find(id);
+    if (it != mDownloadProcessorMap.end()) {
         it.value()->startDownload();
     }
 }
@@ -256,21 +256,21 @@ void MainWindow::onActionRestartTriggered()
 
 void MainWindow::restartDownload(int id)
 {
-    auto it = mStartDownloadMap.find(id);
-    if (it != mStartDownloadMap.end()) {
+    auto it = mDownloadProcessorMap.find(id);
+    if (it != mDownloadProcessorMap.end()) {
         Q_ASSERT(it.value() != nullptr);
         it.value()->stopDownload();
         it.value()->cleanUp();
         it.value()->deleteLater();
-        mStartDownloadMap.remove(id);
+        mDownloadProcessorMap.remove(id);
     }
 
     int rowId = mProxyModel->findRowByDatabaseId(id);
     mProxyModel->setData(mProxyModel->index(rowId, Enum::DownloadAttributes::Started), false);
 
-    StartDownload *newDownload = new StartDownload(id);
-    mStartDownloadMap.insert(id, newDownload);
-    newDownload->startDownload();
+    DownloadProcessor *downloadProcessor = new DownloadProcessor(id);
+    mDownloadProcessorMap.insert(id, downloadProcessor);
+    downloadProcessor->startDownload();
 }
 
 void MainWindow::onActionStopTriggered()
@@ -315,11 +315,11 @@ void MainWindow::onActionStopTriggered()
 
 void MainWindow::stopDownload(qint64 id)
 {
-    QMap<qint64, StartDownload*>::iterator it = mStartDownloadMap.find(id);
-    if (it != mStartDownloadMap.end()) {
+    QMap<qint64, DownloadProcessor*>::iterator it = mDownloadProcessorMap.find(id);
+    if (it != mDownloadProcessorMap.end()) {
         it.value()->stopDownload();
         it.value()->deleteLater();
-        mStartDownloadMap.remove(id);
+        mDownloadProcessorMap.remove(id);
     }
 }
 
@@ -371,17 +371,17 @@ void MainWindow::showDownloadDialog(QString url)
         int databaseId = mProxyModel->insertDownloadIntoModel(fh->properties());
         if (fh->fetchHeadersCompleted()) {
             mProxyModel->updateDetails(databaseId, fh->properties());
-            StartDownload *newDownload = new StartDownload(databaseId);
-            mStartDownloadMap.insert(databaseId, newDownload);
-            connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
-            newDownload->startDownload();
+            DownloadProcessor *downloadProcessor = new DownloadProcessor(databaseId);
+            mDownloadProcessorMap.insert(databaseId, downloadProcessor);
+            connect(downloadProcessor, &DownloadProcessor::downloadComplete, this, &MainWindow::afterDownloadCompleted);
+            downloadProcessor->startDownload();
         } else {
             connect(fh, &FetchHeaders::headersFetched, [=]() {
                 mProxyModel->updateDetails(databaseId, fh->properties());
-                StartDownload *newDownload = new StartDownload(databaseId);
-                mStartDownloadMap.insert(databaseId, newDownload);
-                connect(newDownload, &StartDownload::downloadComplete, this, &MainWindow::afterDownloadCompleted);
-                newDownload->startDownload();
+                DownloadProcessor *downloadProcessor = new DownloadProcessor(databaseId);
+                mDownloadProcessorMap.insert(databaseId, downloadProcessor);
+                connect(downloadProcessor, &DownloadProcessor::downloadComplete, this, &MainWindow::afterDownloadCompleted);
+                downloadProcessor->startDownload();
             });
         }
         infoDialog->deleteLater();
@@ -391,10 +391,10 @@ void MainWindow::showDownloadDialog(QString url)
 
 void MainWindow::afterDownloadCompleted(int databaseId)
 {
-    QMap<qint64, StartDownload*>::iterator it = mStartDownloadMap.find(databaseId);
-    if (it != mStartDownloadMap.end()) {
+    QMap<qint64, DownloadProcessor*>::iterator it = mDownloadProcessorMap.find(databaseId);
+    if (it != mDownloadProcessorMap.end()) {
         it.value()->deleteLater();
-        mStartDownloadMap.remove(databaseId);
+        mDownloadProcessorMap.remove(databaseId);
     }
 }
 

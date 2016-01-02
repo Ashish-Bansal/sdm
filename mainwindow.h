@@ -21,7 +21,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "startdownload.h"
+#include "downloadprocessor.h"
 #include "downloadmodel.h"
 #include "proxymodel.h"
 #include "downloadview.h"
@@ -47,7 +47,7 @@ private:
     ProxyModel *mProxyModel;
     DownloadModel *mDownloadModel;
     QPointer<DownloadView> mDownloadView;
-    QMap<qint64, StartDownload*> mStartDownloadMap;
+    QMap<qint64, DownloadProcessor*> mDownloadProcessorMap;
     WebSocketServer mWebSocketServer;
     Updater updater;
 
