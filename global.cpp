@@ -80,9 +80,7 @@ QByteArray SDM::writeToByteArray(QMultiMap<double, QMultiMap<qint8, QVariant> > 
 QString SDM::filenameFromUrl(QUrl url)
 {
     QString stringUrl = QUrl::fromPercentEncoding(url.toString().toLocal8Bit());
-    QStringList splitUrl = stringUrl.split("/");
-    QString filename = splitUrl.value(splitUrl.length() - 1);
-    return filename;
+    return filenameFromUrl(stringUrl);
 }
 
 QString SDM::filenameFromUrl(QString url)
