@@ -42,8 +42,7 @@ WebSocketServer::~WebSocketServer()
 
 void WebSocketServer::startListening()
 {
-    if (mWebSocketServer->listen(QHostAddress::Any, m_port)) {
-
+    if (mWebSocketServer->listen(QHostAddress::LocalHost, m_port)) {
         qDebug() << "Local Server listening on port :" << m_port;
         connect(mWebSocketServer, &QWebSocketServer::newConnection,
                 this, &WebSocketServer::clientConnected);
