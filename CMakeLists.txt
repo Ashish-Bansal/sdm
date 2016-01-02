@@ -29,6 +29,7 @@ set (downloadManager_SRCS
         proxymodel.cpp
         singleinstance.cpp
         settingsmanager.cpp
+        headerlist.cpp
     )
 QT5_WRAP_UI(UIS adddialog.ui downloadinfodialog.ui)
 QT5_ADD_RESOURCES(RSCS icons.qrc)

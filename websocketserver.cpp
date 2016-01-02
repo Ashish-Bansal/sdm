@@ -70,6 +70,7 @@ void WebSocketServer::processTextMessage(QString data)
 {
     QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8());
     QString url = doc.object().take("url").toString();
+    HeaderList headerList(doc.object().take("requestHeaders").toArray());
     if (url != "") {
         emit downloadRequested(url);
     }

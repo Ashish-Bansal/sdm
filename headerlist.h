@@ -18,37 +18,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef WEBSOCKETSERVER_H
-#define WEBSOCKETSERVER_H
-
-#include "headerlist.h"
+#ifndef HEADERLIST_H
+#define HEADERLIST_H
 
 #include <QObject>
-#include <QWebSocket>
-#include <QWebSocketServer>
-#include <QList>
+#include <QMap>
 
-class WebSocketServer : public QObject
+class HeaderList : public QObject
 {
     Q_OBJECT
 public:
-    explicit WebSocketServer(QObject *parent = 0);
-    ~WebSocketServer();
-    void startListening();
-    void stopServer();
-
-signals:
-    void downloadRequested(QString url);
-
-private Q_SLOTS:
-    void clientConnected();
-    void processTextMessage(QString data);
-    void socketDisconnected();
+    explicit HeaderList(QObject *parent = 0);
+    HeaderList(QJsonArray requestHeaders);
+    void processHeadersFromChromium(QJsonArray requestHeaders);
+    void addHeader(QString headerName, QString headerValue);
+    void removeHeader(QString headerName);
+    QMap< QString, QString > rawHeaders();
+    int headerCount();
 
 private:
-    int m_port;
-    QWebSocketServer *mWebSocketServer;
-    QList<QWebSocket *> mClients;
+    QMap< QString, QString > mHeaders;
 };
 
-#endif // WEBSOCKETSERVER_H
+#endif // HEADERLIST_H
