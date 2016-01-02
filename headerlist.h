@@ -30,6 +30,7 @@ class HeaderList : public QObject
 public:
     explicit HeaderList(QObject *parent = 0);
     HeaderList(QJsonArray requestHeaders);
+    HeaderList(const HeaderList &requestHeaders);
     void processHeadersFromChromium(QJsonArray requestHeaders);
     void addHeader(QString headerName, QString headerValue);
     void removeHeader(QString headerName);

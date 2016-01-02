@@ -35,6 +35,11 @@ HeaderList::HeaderList(QJsonArray requestHeaders)
     processHeadersFromChromium(requestHeaders);
 }
 
+HeaderList::HeaderList(const HeaderList& requestHeaders)
+{
+    mHeaders = requestHeaders.mHeaders;
+}
+
 void HeaderList::processHeadersFromChromium(QJsonArray requestHeaders)
 {
     Q_FOREACH(QJsonValue header, requestHeaders) {
