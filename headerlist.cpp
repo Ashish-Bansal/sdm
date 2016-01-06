@@ -40,6 +40,12 @@ HeaderList::HeaderList(const HeaderList& requestHeaders)
     mHeaders = requestHeaders.mHeaders;
 }
 
+HeaderList& HeaderList::operator=(const HeaderList &requestHeaders)
+{
+    mHeaders = requestHeaders.rawHeaders();
+    return *this;
+}
+
 void HeaderList::processHeadersFromChromium(QJsonArray requestHeaders)
 {
     Q_FOREACH(QJsonValue header, requestHeaders) {
@@ -53,7 +59,7 @@ void HeaderList::processHeadersFromChromium(QJsonArray requestHeaders)
     }
 }
 
-int HeaderList::headerCount()
+int HeaderList::headerCount() const
 {
     return mHeaders.size();
 }
@@ -69,7 +75,7 @@ void HeaderList::removeHeader(QString headerName)
     mHeaders.remove(headerName);
 }
 
-QMap< QString, QString > HeaderList::rawHeaders()
+QMap< QString, QString > HeaderList::rawHeaders() const
 {
     return mHeaders;
 }

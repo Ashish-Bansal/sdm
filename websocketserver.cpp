@@ -72,7 +72,7 @@ void WebSocketServer::processTextMessage(QString data)
     QString url = doc.object().take("url").toString();
     HeaderList headerList(doc.object().take("requestHeaders").toArray());
     if (url != "") {
-        emit downloadRequested(url);
+        emit downloadRequested(url, headerList);
     }
 }
 

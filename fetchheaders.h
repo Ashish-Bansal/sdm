@@ -23,6 +23,7 @@
 
 #include "enum.h"
 #include "downloadattributes.h"
+#include "headerlist.h"
 
 #include <QObject>
 #include <QUrl>
@@ -38,11 +39,13 @@ class FetchHeaders : public QObject
     Q_OBJECT
 public:
     FetchHeaders(QString rawUrl);
+    FetchHeaders(QString rawUrl, HeaderList headers);
     ~FetchHeaders();
     QString filename();
     int filesize();
     bool fetchHeadersCompleted();
     DownloadAttributes properties();
+    void fetchHeaders();
 
 private:
     DownloadAttributes mProperties;
@@ -58,6 +61,7 @@ private:
     QString mSizeString;
     bool mHeaderFetchComplete;
     QUrl *mUrl;
+    HeaderList mHeaders;
 
     QString parseFilenameFromContentDisposition(QString header);
 

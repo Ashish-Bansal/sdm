@@ -42,17 +42,33 @@ FetchHeaders::FetchHeaders(QString rawUrl) :
 
     mNetworkRequest = new QNetworkRequest();
     mNetworkRequest->setUrl(*mUrl);
+}
+
+FetchHeaders::FetchHeaders(QString rawUrl, HeaderList headers) :
+    FetchHeaders(rawUrl)
+{
+    mHeaders = headers;
+}
+
+FetchHeaders::~FetchHeaders()
+{
+    qDebug() << "FetchHeaders Destructor called!";
+}
+
+void FetchHeaders::fetchHeaders()
+{
+    auto headerMap = mHeaders.rawHeaders();
+    auto it = headerMap.begin();
+    for(; it != headerMap.end(); it++) {
+        mNetworkRequest->setRawHeader(it.key().toLocal8Bit(), it.value().toLocal8Bit());
+    }
+
     mNetworkRequest->setRawHeader(QByteArray("Range"), QByteArray("bytes=0-1"));
     mRequestedContentLength = 2;
 
     mHeadersReply = mNetworkAccessManager->get(*mNetworkRequest);
     connect(mHeadersReply, &QNetworkReply::downloadProgress,
             this, &FetchHeaders::checkByteServing);
-}
-
-FetchHeaders::~FetchHeaders()
-{
-    qDebug() << "FetchHeaders Destructor called!";
 }
 
 void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)

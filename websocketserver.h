@@ -38,7 +38,7 @@ public:
     void stopServer();
 
 signals:
-    void downloadRequested(QString url);
+    void downloadRequested(QString url, HeaderList headerList);
 
 private Q_SLOTS:
     void clientConnected();

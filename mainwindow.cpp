@@ -163,7 +163,9 @@ void MainWindow::onActionAddTriggered()
     AddDialog addDialog;
     addDialog.setWindowTitle("Add Download");
     addDialog.setModal(true);
-    connect(&addDialog, &AddDialog::showDownloadDialog, this, &MainWindow::showDownloadDialog);
+    connect(&addDialog, &AddDialog::showDownloadDialog, [=](QString url) {
+        showDownloadDialog(url, HeaderList());
+    });
     addDialog.exec();
 }
 
@@ -344,7 +346,7 @@ void MainWindow::onActionRemoveTriggered()
     }
 }
 
-void MainWindow::showDownloadDialog(QString url)
+void MainWindow::showDownloadDialog(QString url, HeaderList headers)
 {
     if (mProxyModel->urlAlreadyInList(url)) {
         // ToDo: warn user that file is already present in the download list and ask for restart or resume if possible
@@ -355,7 +357,8 @@ void MainWindow::showDownloadDialog(QString url)
     infoDialog->setModal(false);
     infoDialog->setUrl(url);
     infoDialog->setWindowFlags(Qt::SubWindow);
-    FetchHeaders *fh = new FetchHeaders(url);
+    FetchHeaders *fh = new FetchHeaders(url, headers);
+    fh->fetchHeaders();
 
     connect(fh, &FetchHeaders::headersFetched, [=]() {
         if (!infoDialog.isNull()) {

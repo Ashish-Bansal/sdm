@@ -31,11 +31,12 @@ public:
     explicit HeaderList(QObject *parent = 0);
     HeaderList(QJsonArray requestHeaders);
     HeaderList(const HeaderList &requestHeaders);
+    HeaderList& operator=(const HeaderList &requestHeaders);
     void processHeadersFromChromium(QJsonArray requestHeaders);
     void addHeader(QString headerName, QString headerValue);
     void removeHeader(QString headerName);
-    QMap< QString, QString > rawHeaders();
-    int headerCount();
+    QMap< QString, QString > rawHeaders() const;
+    int headerCount() const;
 
 private:
     QMap< QString, QString > mHeaders;

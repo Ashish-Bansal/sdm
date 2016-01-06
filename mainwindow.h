@@ -27,6 +27,7 @@
 #include "downloadview.h"
 #include "websocketserver.h"
 #include "updater.h"
+#include "headerlist.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -59,7 +60,7 @@ private slots:
     void onActionRestartTriggered();
     void onActionStopTriggered();
     void onActionRemoveTriggered();
-    void showDownloadDialog(QString url);
+    void showDownloadDialog(QString url, HeaderList headers);
     void stopDownload(qint64 id);
     void closeEvent(QCloseEvent *event);
     void saveHeaderState();
