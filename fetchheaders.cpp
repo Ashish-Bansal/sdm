@@ -75,7 +75,6 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
 {
     Q_UNUSED(bytesReceived);
 
-
     int statusCode = mHeadersReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     mResponseContentLength = bytesTotal;
     qDebug() << mUrlString;
@@ -110,6 +109,13 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
                this, &FetchHeaders::checkByteServing);
 
     mNetworkRequest->setUrl(*mUrl);
+
+    auto headerMap = mHeaders.rawHeaders();
+    auto it = headerMap.begin();
+    for(; it != headerMap.end(); it++) {
+        mNetworkRequest->setRawHeader(it.key().toLocal8Bit(), it.value().toLocal8Bit());
+    }
+
     mNetworkRequest->setRawHeader("Range", "bytes=0-");
     mHeadersReply = mNetworkAccessManager->head(*mNetworkRequest);
     connect(mHeadersReply, &QNetworkReply::downloadProgress,
@@ -119,6 +125,7 @@ void FetchHeaders::checkByteServing(qint64 bytesReceived, qint64 bytesTotal)
 void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
 {
     Q_UNUSED(bytesReceived);
+
     QString contentRangeHeader = QString(mHeadersReply->rawHeader("Content-Range"));
     qint64 contentLength = mHeadersReply->header(QNetworkRequest::ContentLengthHeader).toLongLong();
     if (contentLength) {
