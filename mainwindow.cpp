@@ -225,7 +225,7 @@ void MainWindow::resumeDownload(int id)
 bool MainWindow::checkResumeSupported(int id)
 {
     const DownloadAttributes *properties = mProxyModel->getDetails(id);
-    if (properties->resumeCapability == Enum::SDM::ResumeSupported) {
+    if (properties->getValue(Enum::DownloadAttributes::ResumeCapability) == Enum::SDM::ResumeSupported) {
         return true;
     }
     return false;

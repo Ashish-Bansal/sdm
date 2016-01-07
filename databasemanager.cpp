@@ -56,15 +56,15 @@ int DatabaseManager::insertDownload(DownloadAttributes prop)
     QSqlQuery qry(mydb);
     QString qryStr = "insert into downloadList values (:id, :filename, :filesize, :resumeCapability, :url, :bytesDownloaded, :tempFileNames, :date, :status, :speed, :started)";
     qry.prepare(qryStr);
-    qry.bindValue(":filename", prop.filename);
-    qry.bindValue(":filesize", prop.filesize);
-    qry.bindValue(":resumeCapability", prop.resumeCapability);
-    qry.bindValue(":url", prop.url);
+    qry.bindValue(":filename", prop.getValue(Enum::DownloadAttributes::Filename));
+    qry.bindValue(":filesize", prop.getValue(Enum::DownloadAttributes::Filesize));
+    qry.bindValue(":resumeCapability", prop.getValue(Enum::DownloadAttributes::ResumeCapability));
+    qry.bindValue(":url", prop.getValue(Enum::DownloadAttributes::Url));
     qry.bindValue(":bytesDownloaded", 0);
     qry.bindValue(":tempFileNames", QByteArray());
     qry.bindValue(":date", QDateTime::currentDateTime().toString());
     qry.bindValue(":status", Enum::Status::Idle);
-    qry.bindValue(":speed", prop.transferRate);
+    qry.bindValue(":speed", prop.getValue(Enum::DownloadAttributes::TransferRate));
     qry.bindValue(":started", 0);
     if (!qry.exec()) {
         qDebug() << qry.lastError();
@@ -92,16 +92,16 @@ void DatabaseManager::updateDetails(DownloadAttributes prop)
     QSqlQuery qry(mydb);
     QString qryStr = "update downloadList set filename = :filename, filesize = :filesize, resumeCapability = :resumeCapability, url = :url, bytesDownloaded = :bytesDownloaded, transferRate = :speed, status = :status, tempFileNames = :tempFileNames, started = :started where id = :id";
     qry.prepare(qryStr);
-    qry.bindValue(":id", prop.databaseId);
-    qry.bindValue(":filename", prop.filename);
-    qry.bindValue(":filesize", prop.filesize);
-    qry.bindValue(":resumeCapability", prop.resumeCapability);
-    qry.bindValue(":url", prop.url);
-    qry.bindValue(":bytesDownloaded", prop.bytesDownloaded);
-    qry.bindValue(":speed", prop.transferRate);
-    qry.bindValue(":status", prop.status);
-    qry.bindValue(":tempFileNames", prop.tempFileNames);
-    qry.bindValue(":started", prop.started);
+    qry.bindValue(":id", prop.getValue(Enum::DownloadAttributes::DatabaseId));
+    qry.bindValue(":filename", prop.getValue(Enum::DownloadAttributes::Filename));
+    qry.bindValue(":filesize", prop.getValue(Enum::DownloadAttributes::Filesize));
+    qry.bindValue(":resumeCapability", prop.getValue(Enum::DownloadAttributes::ResumeCapability));
+    qry.bindValue(":url", prop.getValue(Enum::DownloadAttributes::Url));
+    qry.bindValue(":bytesDownloaded", prop.getValue(Enum::DownloadAttributes::BytesDownloaded));
+    qry.bindValue(":speed", prop.getValue(Enum::DownloadAttributes::TransferRate));
+    qry.bindValue(":status", prop.getValue(Enum::DownloadAttributes::Status));
+    qry.bindValue(":tempFileNames", prop.getValue(Enum::DownloadAttributes::TempFileNames));
+    qry.bindValue(":started", prop.getValue(Enum::DownloadAttributes::Started));
     if (!qry.exec()) {
         qWarning() << "Unable to update values!";
         qWarning() << qry.lastError();

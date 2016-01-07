@@ -32,11 +32,11 @@ DownloadProcessor::DownloadProcessor(int id) : id(id)
     const DownloadAttributes *prop = mDownloadModel->getDetails(id);
     Q_ASSERT(prop != nullptr);
     properties = DownloadAttributes(prop);
-    filename = properties.filename;
-    resumeSupported = properties.resumeCapability;
-    filesize = properties.filesize;
-    url = properties.url;
-    isAlreadyStarted = properties.started;
+    filename = properties.getValue(Enum::DownloadAttributes::Filename).toString();
+    resumeSupported = properties.getValue(Enum::DownloadAttributes::ResumeCapability).toBool();
+    filesize = properties.getValue(Enum::DownloadAttributes::Filesize).toInt();
+    url = properties.getValue(Enum::DownloadAttributes::Url).toString();
+    isAlreadyStarted = properties.getValue(Enum::DownloadAttributes::Started).toBool();
     counter = 0;
     totalBytesDownloaded = 0;
 }
@@ -44,7 +44,7 @@ DownloadProcessor::DownloadProcessor(int id) : id(id)
 void DownloadProcessor::startDownload()
 {
     if (isAlreadyStarted) {
-        QByteArray b = properties.tempFileNames;
+        QByteArray b = properties.getValue(Enum::DownloadAttributes::TempFileNames).toByteArray();
         auto savedFilesMeta = SDM::readByteArray(b);
         auto newFilesMeta =  savedFilesMeta;
         newFilesMeta.clear();
@@ -54,7 +54,7 @@ void DownloadProcessor::startDownload()
             qint64 start  = i.value().value(0).toLongLong();
             qint64 done = i.value().value(1).toLongLong();
             qint64 end = i.value().value(2).toLongLong();
-            if (properties.filesize == end) {
+            if (properties.getValue(Enum::DownloadAttributes::Filesize) == end) {
                 if((start + done) == end) continue;
             } else {
                 if((start + done) > end) continue;
@@ -90,7 +90,7 @@ void DownloadProcessor::startDownload()
             connect(download, &Download::updateGui, this, &DownloadProcessor::updateDatabase);
         }
         b = SDM::writeToByteArray(savedFilesMeta + newFilesMeta);
-        properties.tempFileNames = b;
+        properties.setValue(Enum::DownloadAttributes::TempFileNames, b);
         mDownloadModel->updateDetails(properties);
         for (auto g = dwldip.begin(); g != dwldip.end(); g++) {
             (*g)->start();
@@ -119,7 +119,7 @@ void DownloadProcessor::startDownload()
             }
 
             QByteArray b = SDM::writeToByteArray(tempFilesMeta);
-            properties.tempFileNames = b;
+            properties.setValue(Enum::DownloadAttributes::TempFileNames, b);
             mDownloadModel->updateDetails(properties);
             for (i = dwldip.begin(); i != dwldip.end(); i++) {
                 (*i)->start();
@@ -131,10 +131,10 @@ void DownloadProcessor::startDownload()
             connect(dwldaw, &Download::updateGui, this, &DownloadProcessor::updateDatabase);
             dwldaw->start();
         }
-        properties.started = true;
+        properties.setValue(Enum::DownloadAttributes::Started, true);
         mDownloadModel->updateDetails(properties);
     }
-    properties.status = Enum::Status::Downloading;
+    properties.setValue(Enum::DownloadAttributes::Status, Enum::Status::Downloading);
     mDownloadModel->updateDetails(properties);
 }
 
@@ -142,8 +142,8 @@ void DownloadProcessor::updateDatabase(QHash<int, QVariant> details)
 {
     fetchProperties();
     totalBytesDownloaded += details.value(Enum::DownloadBackend::BytesDownloaded).toLongLong();
-    properties.transferRate = details.value(Enum::DownloadBackend::TransferRate).toLongLong();
-    properties.bytesDownloaded = totalBytesDownloaded;
+    properties.setValue(Enum::DownloadAttributes::TransferRate, details.value(Enum::DownloadBackend::TransferRate));
+    properties.setValue(Enum::DownloadAttributes::BytesDownloaded, totalBytesDownloaded);
     mDownloadModel->updateDetails(properties);
 }
 
@@ -155,7 +155,7 @@ bool DownloadProcessor::compareList(QPair<double, QPair<qint64, QString>> i, QPa
 void DownloadProcessor::writeToFileInParts()
 {
     fetchProperties();
-    QByteArray b = properties.tempFileNames;
+    QByteArray b = properties.getValue(Enum::DownloadAttributes::TempFileNames).toByteArray();
     auto tempFilesMeta = SDM::readByteArray(b);
 
     Q_ASSERT(!tempFilesMeta.isEmpty());
@@ -173,7 +173,7 @@ void DownloadProcessor::writeToFileInParts()
         (*it)->deleteLater();
     }
 
-    properties.status = Enum::Status::Merging;
+    properties.setValue(Enum::DownloadAttributes::Status, Enum::Status::Merging);
     mDownloadModel->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
@@ -206,17 +206,17 @@ void DownloadProcessor::writeToFileInParts()
     emit downloadComplete(id);
     qDebug() << "Write Complete In Parts";
 
-    properties.status = Enum::Status::Completed;
+    properties.setValue(Enum::DownloadAttributes::Status, Enum::Status::Completed);
     mDownloadModel->updateDetails(properties);
 
-    b = properties.tempFileNames;
+    b = properties.getValue(Enum::DownloadAttributes::TempFileNames).toByteArray();
     qDebug() << SDM::readByteArray(b);
 }
 
 void DownloadProcessor::writeToFileAsWhole()
 {
     fetchProperties();
-    properties.status = Enum::Status::Merging;
+    properties.setValue(Enum::DownloadAttributes::Status, Enum::Status::Merging);
     mDownloadModel->updateDetails(properties);
     qDebug() << QDir::homePath() + "/sdm/" + filename;
     file.setFileName(QDir::homePath() + "/sdm/" + filename);
@@ -230,8 +230,8 @@ void DownloadProcessor::writeToFileAsWhole()
     file.write(dwldaw->tempFile->readAll());
     file.close();
 
-    properties.status = Enum::Status::Completed;
-    properties.transferRate = 0;
+    properties.setValue(Enum::DownloadAttributes::Status, Enum::Status::Completed);
+    properties.setValue(Enum::DownloadAttributes::TransferRate, 0);
     mDownloadModel->updateDetails(properties);
 
     qDebug() << "Write Complete As Whole";
@@ -242,7 +242,7 @@ void DownloadProcessor::writeToFileAsWhole()
 void DownloadProcessor::cleanUp()
 {
     if (resumeSupported == true) {
-        auto m = SDM::readByteArray(properties.tempFileNames);
+        auto m = SDM::readByteArray(properties.getValue(Enum::DownloadAttributes::TempFileNames).toByteArray());
         for (auto it = m.begin(); it != m.end(); it++) {
             QString filename = it.value().value(3).toString();
             QFile tempFile(filename);

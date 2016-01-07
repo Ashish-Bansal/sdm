@@ -153,10 +153,11 @@ int DownloadModel::removeDownloadFromModel(int databaseId)
 int DownloadModel::insertDownloadIntoModel(DownloadAttributes properties)
 {
     DownloadAttributes *downloadProperties = new DownloadAttributes(properties);
-    downloadProperties->databaseId = m_dbManager->insertDownload(properties);
+    int databaseId = m_dbManager->insertDownload(properties);
+    downloadProperties->setValue(Enum::DownloadAttributes::DatabaseId, databaseId);
     loadDownloadIntoModel(downloadProperties);
     writeToDatabase();
-    return downloadProperties->databaseId;
+    return downloadProperties->getValue(Enum::DownloadAttributes::DatabaseId).toInt();
 }
 
 int DownloadModel::loadDownloadIntoModel(DownloadAttributes *properties)
@@ -164,11 +165,11 @@ int DownloadModel::loadDownloadIntoModel(DownloadAttributes *properties)
     int newRowIndex = rowCount();
     beginInsertRows(QModelIndex(), newRowIndex, newRowIndex);
     foreach(DownloadAttributes *item, m_downloadList) {
-        Q_ASSERT(item->databaseId != properties->databaseId);
+        Q_ASSERT(item->getValue(Enum::DownloadAttributes::DatabaseId) != properties->getValue(Enum::DownloadAttributes::DatabaseId));
     }
     m_downloadList.insert(newRowIndex, properties);
     endInsertRows();
-    return properties->databaseId;
+    return properties->getValue(Enum::DownloadAttributes::DatabaseId).toInt();
 }
 
 void DownloadModel::readDatabase()
@@ -184,25 +185,25 @@ void DownloadModel::readDatabase()
         DownloadAttributes *dld = new DownloadAttributes();
 
         Q_ASSERT(it->value("id").isValid());
-        dld->databaseId = it->value("id").toInt();
+        dld->setValue(Enum::DownloadAttributes::DatabaseId, it->value("id").toInt());
         Q_ASSERT(it->value("filename").isValid());
-        dld->filename = it->value("filename").toString();
+        dld->setValue(Enum::DownloadAttributes::Filename, it->value("filename").toString());
         Q_ASSERT(it->value("filesize").isValid());
-        dld->filesize = it->value("filesize").toLongLong();
+        dld->setValue(Enum::DownloadAttributes::Filesize, it->value("filesize").toLongLong());
         Q_ASSERT(it->value("started").isValid());
-        dld->started = it->value("started").toInt();
+        dld->setValue(Enum::DownloadAttributes::Started, it->value("started").toInt());
         Q_ASSERT(it->value("resumeCapability").isValid());
-        dld->resumeCapability = it->value("resumeCapability").toInt();
+        dld->setValue(Enum::DownloadAttributes::ResumeCapability, it->value("resumeCapability").toInt());
         Q_ASSERT(it->value("url").isValid());
-        dld->url = it->value("url").toString();
+        dld->setValue(Enum::DownloadAttributes::Url, it->value("url").toString());
         Q_ASSERT(it->value("bytesDownloaded").isValid());
-        dld->bytesDownloaded = it->value("bytesDownloaded").toInt();
+        dld->setValue(Enum::DownloadAttributes::BytesDownloaded, it->value("bytesDownloaded").toInt());
         Q_ASSERT(it->value("date").isValid());
-        dld->dateAdded = it->value("date").toString();
+        dld->setValue(Enum::DownloadAttributes::DateAdded, it->value("date").toString());
         Q_ASSERT(it->value("tempFileNames").isValid());
-        dld->tempFileNames = it->value("tempFileNames").toByteArray();
+        dld->setValue(Enum::DownloadAttributes::TempFileNames, it->value("tempFileNames").toByteArray());
         Q_ASSERT(it->value("status").isValid());
-        dld->status = it->value("status").toInt();
+        dld->setValue(Enum::DownloadAttributes::Status, it->value("status").toInt());
         dld->setValue(Enum::DownloadAttributes::TransferRate, 0);
         loadDownloadIntoModel(dld);
     }
@@ -241,14 +242,14 @@ void DownloadModel::updateDetails(int databaseId, DownloadAttributes properties)
 
 void DownloadModel::updateDetails(DownloadAttributes properties)
 {
-    updateDetails(properties.databaseId, properties);
+    updateDetails(properties.getValue(Enum::DownloadAttributes::DatabaseId).toInt(), properties);
 }
 
 int DownloadModel::findRowByDatabaseId(int databaseId) const
 {
     int position = -1;
     for(int i = 0; i < rowCount(); i++) {
-        if (m_downloadList.at(i)->databaseId == databaseId) {
+        if (m_downloadList.at(i)->getValue(Enum::DownloadAttributes::DatabaseId) == databaseId) {
             position = i;
             break;
         }

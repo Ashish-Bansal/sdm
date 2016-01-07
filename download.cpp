@@ -129,7 +129,7 @@ void Download::errorOccured(QNetworkReply * reply, const QList<QSslError> & erro
 void Download::update()
 {
     mDownloadProperties = DownloadAttributes(mDownloadModel->getDetails(downloadId));
-    QByteArray baOut = mDownloadProperties.tempFileNames;
+    QByteArray baOut = mDownloadProperties.getValue(Enum::DownloadAttributes::TempFileNames).toByteArray();
     QDataStream dsOut(&baOut, QIODevice::ReadOnly);
     QMap <double, QMap <qint8, QVariant> > tempFilesMeta;
     dsOut >> tempFilesMeta;
@@ -153,10 +153,10 @@ void Download::update()
         tempFilesMeta.insert(key, newDownloadMeta);
         break;
     }
-    QByteArray baIn = mDownloadProperties.tempFileNames;
+    QByteArray baIn = mDownloadProperties.getValue(Enum::DownloadAttributes::TempFileNames).toByteArray();
     QDataStream dsIn(&baIn, QIODevice::WriteOnly);
     dsIn << tempFilesMeta;
-    mDownloadProperties.tempFileNames = baIn;
+    mDownloadProperties.setValue(Enum::DownloadAttributes::TempFileNames, baIn);
     mDownloadModel->updateDetails(mDownloadProperties);
 }
 

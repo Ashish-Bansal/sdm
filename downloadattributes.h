@@ -35,22 +35,23 @@ public:
     DownloadAttributes(const DownloadAttributes *properties);
     DownloadAttributes& operator=(const DownloadAttributes&);
     void setValue(int i, QVariant v);
-    QVariant getValue(int i);
-    QVariant getValuesForView(int i);
+    QVariant getValue(int i) const;
+    QVariant getValuesForView(int i) const;
 
-    bool started;
-    int databaseId;
-    int downloadProgress;
-    int resumeCapability;
-    int status;
-    qint64 filesize;
-    qint64 bytesDownloaded;
-    qint64 timeRemaining;
-    qint64 transferRate;
-    QString filename;
-    QString url;
-    QString dateAdded;
-    QByteArray tempFileNames;
+private:
+    bool mStarted;
+    int mDatabaseId;
+    int mDownloadProgress;
+    int mResumeCapability;
+    int mStatus;
+    qint64 mFilesize;
+    qint64 mBytesDownloaded;
+    qint64 mTimeRemaining;
+    qint64 mTransferRate;
+    QString mFilename;
+    QString mUrl;
+    QString mDateAdded;
+    QByteArray mTempFileNames;
 };
 
 QDebug operator<<(QDebug d, const DownloadAttributes prop);

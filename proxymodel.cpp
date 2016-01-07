@@ -70,7 +70,7 @@ void ProxyModel::updateDetails(int databaseId, DownloadAttributes properties)
 
 void ProxyModel::updateDetails(DownloadAttributes properties)
 {
-    downloadModel()->updateDetails(properties.databaseId, properties);
+    downloadModel()->updateDetails(properties.getValue(Enum::DownloadAttributes::DatabaseId).toInt(), properties);
 }
 
 int ProxyModel::findRowByDatabaseId(int databaseId) const

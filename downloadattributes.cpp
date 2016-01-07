@@ -24,24 +24,32 @@
 
 #include <QDebug>
 
-DownloadAttributes::DownloadAttributes()
+DownloadAttributes::DownloadAttributes() :
+    mStarted(false),
+    mDatabaseId(-1),
+    mDownloadProgress(-1),
+    mResumeCapability(-1),
+    mStatus(-1),
+    mFilesize(-1),
+    mBytesDownloaded(-1),
+    mTimeRemaining(-1),
+    mTransferRate(-1)
 {
-
 }
 
 DownloadAttributes::DownloadAttributes(const DownloadAttributes &properties)
     : DownloadAttributes()
 {
-    databaseId = properties.databaseId;
-    filename = properties.filename;
-    filesize = properties.filesize;
-    resumeCapability = properties.resumeCapability;
-    url = properties.url;
-    bytesDownloaded = properties.bytesDownloaded;
-    transferRate = properties.transferRate;
-    status = properties.status;
-    tempFileNames = properties.tempFileNames;
-    started = properties.started;
+    mDatabaseId = properties.mDatabaseId;
+    mFilename = properties.mFilename;
+    mFilesize = properties.mFilesize;
+    mResumeCapability = properties.mResumeCapability;
+    mUrl = properties.mUrl;
+    mBytesDownloaded = properties.mBytesDownloaded;
+    mTransferRate = properties.mTransferRate;
+    mStatus = properties.mStatus;
+    mTempFileNames = properties.mTempFileNames;
+    mStarted = properties.mStarted;
 }
 
 DownloadAttributes::DownloadAttributes(const DownloadAttributes *properties)
@@ -51,18 +59,19 @@ DownloadAttributes::DownloadAttributes(const DownloadAttributes *properties)
 
 DownloadAttributes& DownloadAttributes::operator=(const DownloadAttributes& properties)
 {
-    databaseId = properties.databaseId;
-    filename = properties.filename;
-    filesize = properties.filesize;
-    resumeCapability = properties.resumeCapability;
-    url = properties.url;
-    bytesDownloaded = properties.bytesDownloaded;
-    transferRate = properties.transferRate;
-    status = properties.status;
-    tempFileNames = properties.tempFileNames;
-    started = properties.started;
-    downloadProgress = properties.downloadProgress;
-    timeRemaining = properties.timeRemaining;
+    mDatabaseId = properties.mDatabaseId;
+    mFilename = properties.mFilename;
+    mFilesize = properties.mFilesize;
+    mResumeCapability = properties.mResumeCapability;
+    mUrl = properties.mUrl;
+    mBytesDownloaded = properties.mBytesDownloaded;
+    mTransferRate = properties.mTransferRate;
+    mStatus = properties.mStatus;
+    mTempFileNames = properties.mTempFileNames;
+    mStarted = properties.mStarted;
+    mDownloadProgress = properties.mDownloadProgress;
+    mTimeRemaining = properties.mTimeRemaining;
+    return *this;
 }
 
 void DownloadAttributes::setValue(int i, QVariant v)
@@ -71,43 +80,43 @@ void DownloadAttributes::setValue(int i, QVariant v)
         case Enum::DownloadAttributes::RowId :
             break;
         case Enum::DownloadAttributes::DatabaseId :
-            databaseId = v.toLongLong();
+            mDatabaseId = v.toLongLong();
             break;
         case Enum::DownloadAttributes::Url :
-            url = v.toString();
+            mUrl = v.toString();
             break;
         case Enum::DownloadAttributes::BytesDownloaded :
-            bytesDownloaded = v.toLongLong();
+            mBytesDownloaded = v.toLongLong();
             break;
         case Enum::DownloadAttributes::Filename :
-            filename = v.toString();
+            mFilename = v.toString();
             break;
         case Enum::DownloadAttributes::Started :
-            started = v.toInt() == 1 ? true : false;
+            mStarted = v.toInt() == 1 ? true : false;
             break;
         case Enum::DownloadAttributes::Status :
-            status = v.toInt();
+            mStatus = v.toInt();
             break;
         case Enum::DownloadAttributes::TransferRate :
-            transferRate = v.toLongLong();
+            mTransferRate = v.toLongLong();
             break;
         case Enum::DownloadAttributes::TempFileNames :
-            tempFileNames = v.toByteArray();
+            mTempFileNames = v.toByteArray();
             break;
         case Enum::DownloadAttributes::Filesize :
-            filesize = v.toLongLong();
+            mFilesize = v.toLongLong();
             break;
         case Enum::DownloadAttributes::ResumeCapability :
-            resumeCapability = v.toInt() == 1 ? true : false;
+            mResumeCapability = v.toInt() == 1 ? true : false;
             break;
         case Enum::DownloadAttributes::TimeRemaining :
-            timeRemaining = v.toLongLong();
+            mTimeRemaining = v.toLongLong();
             break;
         case Enum::DownloadAttributes::DownloadProgress :
-            downloadProgress = v.toInt();
+            mDownloadProgress = v.toInt();
             break;
         case Enum::DownloadAttributes::DateAdded :
-            dateAdded = v.toString();
+            mDateAdded = v.toString();
             break;
         default:
             qDebug() << "Invalid attribute id :" << i;
@@ -115,62 +124,62 @@ void DownloadAttributes::setValue(int i, QVariant v)
     }
 }
 
-QVariant DownloadAttributes::getValue(int i)
+QVariant DownloadAttributes::getValue(int i) const
 {
     switch(i) {
         case Enum::DownloadAttributes::RowId :
             return -1;
         case Enum::DownloadAttributes::DatabaseId :
-            return databaseId;
+            return mDatabaseId;
         case Enum::DownloadAttributes::Url :
-            return url;
+            return mUrl;
         case Enum::DownloadAttributes::BytesDownloaded :
-            return bytesDownloaded;
+            return mBytesDownloaded;
         case Enum::DownloadAttributes::Filename :
-            return filename;
+            return mFilename;
         case Enum::DownloadAttributes::Started :
-            return started;
+            return mStarted;
         case Enum::DownloadAttributes::Status :
-            return status;
+            return mStatus;
         case Enum::DownloadAttributes::TransferRate :
-            return transferRate;
+            return mTransferRate;
         case Enum::DownloadAttributes::TempFileNames :
-            return tempFileNames;
+            return mTempFileNames;
         case Enum::DownloadAttributes::Filesize :
-            return filesize;
+            return mFilesize;
         case Enum::DownloadAttributes::ResumeCapability :
-            return resumeCapability;
+            return mResumeCapability;
         case Enum::DownloadAttributes::TimeRemaining :
-            return timeRemaining;
+            return mTimeRemaining;
         case Enum::DownloadAttributes::DownloadProgress :
-            return downloadProgress;
+            return mDownloadProgress;
         case Enum::DownloadAttributes::DateAdded :
-            return dateAdded;
+            return mDateAdded;
         default:
             qDebug() << "Invalid attribute id :" << i;
             Q_ASSERT(false);
     }
 }
 
-QVariant DownloadAttributes::getValuesForView(int i)
+QVariant DownloadAttributes::getValuesForView(int i) const
 {
     switch(i) {
         case Enum::DownloadAttributes::DatabaseId :
-            return databaseId;
+            return mDatabaseId;
         case Enum::DownloadAttributes::Url :
-            return url;
+            return mUrl;
         case Enum::DownloadAttributes::BytesDownloaded :
-            return SDM::convertUnits(bytesDownloaded);
+            return SDM::convertUnits(mBytesDownloaded);
         case Enum::DownloadAttributes::Filename :
-            return filename;
+            return mFilename;
         case Enum::DownloadAttributes::Started :
-            if (started) {
+            if (mStarted) {
                 return "True";
             } else {
                 return "False";
             }
         case Enum::DownloadAttributes::Status :
-            switch (status) {
+            switch (mStatus) {
                 case Enum::Status::Idle :
                     return tr("Idle");
                 case Enum::Status::Completed :
@@ -183,22 +192,22 @@ QVariant DownloadAttributes::getValuesForView(int i)
                     return tr("Merging");
             }
         case Enum::DownloadAttributes::TransferRate :
-            return transferRate;
+            return mTransferRate;
         case Enum::DownloadAttributes::TempFileNames :
-            return tempFileNames;
+            return mTempFileNames;
         case Enum::DownloadAttributes::Filesize :
-            return filesize != -1 ? SDM::convertUnits(filesize) : SDM::convertUnits(downloadProgress);
+            return mFilesize != -1 ? SDM::convertUnits(mFilesize) : SDM::convertUnits(mDownloadProgress);
         case Enum::DownloadAttributes::ResumeCapability :
-            return resumeCapability == 1 ? "Yes" : "No";
+            return mResumeCapability == 1 ? "Yes" : "No";
         case Enum::DownloadAttributes::TimeRemaining :
-            if (transferRate == 0) {
+            if (mTransferRate == 0) {
                 return tr("\xE2\x88\x9E");
             }
-            return (filesize - bytesDownloaded)/transferRate;
+            return (mFilesize - mBytesDownloaded)/mTransferRate;
         case Enum::DownloadAttributes::DownloadProgress :
-            return SDM::convertUnits(bytesDownloaded);
+            return mFilesize != -1 ? QVariant(mDownloadProgress) : "-";
         case Enum::DownloadAttributes::DateAdded :
-            return dateAdded;
+            return mDateAdded;
         default:
             qDebug() << "Invalid attribute id :" << i;
             Q_ASSERT(false);

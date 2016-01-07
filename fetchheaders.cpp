@@ -33,11 +33,11 @@ FetchHeaders::FetchHeaders(QString rawUrl) :
     mHeaderFetchComplete(false)
 {
     mFilename = SDM::filenameFromUrl(mUrlString);
-    mProperties.filename = mFilename;
+    mProperties.setValue(Enum::DownloadAttributes::Filename, mFilename);
 
     mNetworkAccessManager = new QNetworkAccessManager();
 
-    mProperties.url = mUrlString;
+    mProperties.setValue(Enum::DownloadAttributes::Url, mUrlString);
     mUrl = new QUrl(mUrlString);
 
     mNetworkRequest = new QNetworkRequest();
@@ -148,10 +148,10 @@ void FetchHeaders::processHeaders(qint64 bytesReceived, qint64 bytesTotal)
 
     qDebug() << "Filename :" << mFilename;
 
-    mProperties.filename = mFilename;
-    mProperties.filesize = mOriginalContentLength;
-    mProperties.resumeCapability = mResumeCapability;
-    mProperties.url = mUrlString;
+    mProperties.setValue(Enum::DownloadAttributes::Filename, mFilename);
+    mProperties.setValue(Enum::DownloadAttributes::Filesize, mOriginalContentLength);
+    mProperties.setValue(Enum::DownloadAttributes::ResumeCapability, mResumeCapability);
+    mProperties.setValue(Enum::DownloadAttributes::Url, mUrlString);
     mSizeString = SDM::convertUnits(mOriginalContentLength);
 
     mHeaderFetchComplete = true;
