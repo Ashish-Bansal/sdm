@@ -16,13 +16,7 @@
         "webRequestBlocking"
     ],
     "browser_action": {
-        "default_title": "SDM"
-    },
-     "content_scripts": [
-    {
-      "matches": ["*://*/*"],
-      "css": ["sdm_video_div.css"],
-      "js": ["sdm_video_div.js"]
+        "default_title": "Download this video"
     }
   ]
 }
