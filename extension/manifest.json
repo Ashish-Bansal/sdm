@@ -18,5 +18,4 @@
     "browser_action": {
         "default_title": "Download this video"
     }
-  ]
 }
